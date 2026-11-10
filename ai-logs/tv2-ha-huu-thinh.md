@@ -37,3 +37,24 @@ Kết quả AI trả về (tóm tắt): Phần giải thích và mã mới xây 
 - Cách kiểm chứng: Đối chiếu qua "https://datapot.edu.vn/kien-thuc/chuan-hoa-du-lieu-la-gi-1nf-2nf-3nf-datapot"
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Dù có trả về kết quả đúng nhưng về vấn đề thông tin thì cần phải được đối chiếu qua các nguồn chính thống khác nhau chứ không thể tin tưởng hoàn toàn vào AI
+
+### [AI-003] Viết mo-ta-bang.md
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 10/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Hỗ trợ tạo file và viết phần mo-ta-bang.md dựa theo ERD mới nhất 
+Prompt chính:"Tôi muốn bạn viết mo-ta-bang.md dựa theo file đính kèm này nhưng với các yêu cầu sau:
++ Đầy đủ mọi thông tin cần thiết
++ Có đủ khóa chính và khóa ngoại
++ Mô tả mỗi bảng
++ Có phần mô tả mục đích của các bảng
++ Lời nói đầu về mục đích file .md
++ Có các chú thích cho từng bảng"
+Kết quả AI trả về (tóm tắt): Trả về một file định dạng .md và có nội dung
+ Đánh giá: Đúng
+- Cách kiểm chứng: Đã được đọc và kiểm tra lại dựa theo erd-v2.png mới nhất và theo file 01_Dac_ta_yeu_cau_6_de_tai.pdf được cung cấp từ trước ở "https://drive.google.com/drive/folders/1PQ5omU9Y1DSEiVCQXVxwBExFXSE5SL1B"
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Nếu được cung cấp đầy đủ thì AI sẽ cho kết quả trả lời đầy đủ nhưng về vấn đề ngôn ngữ thì sẽ có lúc AI sử dụng từ tiếng anh, trung hay những ngôn ngữ khác xen lẫn câu từ nếu không đọc kỹ và đặt quy tắc thì sẽ không phát hiện được lỗi
