@@ -11,8 +11,8 @@
 
 | Mã | Ngày | Giai đoạn | Nội dung | Commit / PR |
 | --- | --- | --- | --- | --- |
-| AI-01 | 10/11 | Phân tích yêu cầu | Đọc và tổng hợp tài liệu đề tài, xác định phần việc Frontend | [PR #...] |
-| AI-02 | [dd/mm] | Lập kế hoạch | Rà soát user story, chia sprint S1 | [PR #...] |
+| AI-01 | 10/11 | Phân tích yêu cầu | Đọc và tổng hợp tài liệu đề tài, xác định phần việc Frontend | [PR #1] |
+| AI-02 | 10/11 | Thiết kế | Thiết kế 6 Wireframe bản phác | [PR #1] |
 
 ---
 
@@ -20,7 +20,7 @@
 - Ngày / Người dùng: 2026-11-10 / Lê Đức Phong
 - Công cụ: Claude (Sonnet 5.5 - High)
 - Giai đoạn: Phân tích yêu cầu
-- Task / Commit / PR: HT-01, HT-02, HT-05 Đề cương / [a1b2c3d] / [PR #2]
+- Task / Commit / PR: HT-01, HT-02, HT-05 Đề cương / 8423d2d74fdc80c83076bd32f9a6adfff871b230 / #1
 - Mục đích: Nắm yêu cầu đề tài 3 (Quản lý học tập), phân công, lịch, cách chấm và phần việc của TV3 (Frontend).
 - Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): "Hiện tại tôi được phân công công việc là Front-End, nhóm gồm 5 thành viên, đề tài là Quản Lý Học Tập. Hãy đọc tất cả tài liệu liên quan đến Quản Lý Học tập và báo cáo tổng thể cho tôi"
 - Kết quả AI trả về (tóm tắt): Báo cáo tổng hợp gồm 16 chức năng (12 bắt buộc, 4 cộng điểm), phân công TV3 = HT-01/02/05, yêu cầu phi chức năng, lịch 6 buổi, cách chấm, hiện trạng repo/ERD và các điểm cần làm rõ.
@@ -30,12 +30,12 @@
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
 - Điều học được: Thông tin về đề tài, các chức năng, công việc của Front End
 
-### [AI-02] Rà soát user story và chia sprint S1
+### [AI-02] Thiết kế 6 Wireframe bản phác
 - Ngày / Người dùng: 2026-11-10 / Lê Đức Phong
 - Công cụ: Claude (Sonnet 5.5 - High)
 - Giai đoạn: Thiết kế
-- Task / Commit / PR: [...] / [...] / [...]
-- Mục đích: [...]
+- Task / Commit / PR: HT-01, HT-02, HT-05, DOC, FE / 8423d2d74fdc80c83076bd32f9a6adfff871b230 / #1
+- Mục đích: 6 Wireframe bản phác
 - Prompt chính (nguyên văn hoặc link chia sẻ hội thoại):
 Imagine you're Front-End dev and now you want to create Wireframe for Learning Management web
 Use Figwright MCP and it skill as the primary tool to design and build the website wireframe directly in my currently open Figma file.
