@@ -3,7 +3,7 @@
 - Công cụ: Gemini - Model Free
 - Giai đoạn - Thời Gian: 
 Thiết kế cơ sở dữ liệu
-Ngày 9/Tháng 10/Năm 2026
+Ngày 9/Tháng 11/Năm 2026
 - Task: 
 - Mục đích: Tạo các bảng bao gồm: users, categories, courses, lessons, enrollments, lesson_progress,
 questions, quiz_attempts; thuộc tính và quan hệ. Tất cả được thể hiện thành code và xuất qua trang dbdiagram.io
@@ -17,8 +17,23 @@ Theo các yêu cầu sau:
 - Chỉ rõ các thuộc tính và mối quan hệ
 - Chỉ liệt kê các thuộc tính và giá trị cần thiết không cần thêm dài dòng"
 - Kết quả AI trả về (tóm tắt): Đoạn mã
-- Đánh giá: Đúng / Sai / Thiếu - vì sao
+- Đánh giá:Thiếu - Do là không cung cấp đủ thông tin cần thiết
 - Đã chỉnh sửa gì: Thêm các thuộc tính mới ở bảng Users và bảng lessons
-- Cách kiểm chứng: test nào, đối chiếu tài liệu nào
+- Cách kiểm chứng: Đối chiếu với các bài học cũ và thể hiện qua dbdiagram.io
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Nếu như không có danh sách bảng và thuộc tính cụ thể thì AI sẽ tự suy diễn theo yêu cầu và làm trong phạm vi promt
+### [AI-002] Chỉnh sửa ERD theo chuẩn 3NF và thiết lập các khóa ngoại(ERD-V2)
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 10/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Tìm hiểu về chuẩn 3NF và chỉnh sửa lại bảng ERD mới thiết lập các khóa ngoại 
+Prompt chính:"Tiếp theo là về vấn đề Chuẩn hóa ERD bản 2 đạt chuẩn 3NF và thiết lập các khóa ngoại.
+Tôi cần được giải thích 3NF là gì và ta cần có thêm thay đổi gì ở Database này hay không?"
+Kết quả AI trả về (tóm tắt): Phần giải thích và mã mới xây dựng lại theo chuẩn 3NF
+ Đánh giá: Đúng
+- Cách kiểm chứng: Đối chiếu qua "https://datapot.edu.vn/kien-thuc/chuan-hoa-du-lieu-la-gi-1nf-2nf-3nf-datapot"
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Dù có trả về kết quả đúng nhưng về vấn đề thông tin thì cần phải được đối chiếu qua các nguồn chính thống khác nhau chứ không thể tin tưởng hoàn toàn vào AI
