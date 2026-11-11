@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-
+const { testConnection } = require('./config/db');
 dotenv.config();
 
 const app = express();
@@ -14,7 +14,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ message: 'Backend Quản lý học tập đã sẵn sàng!' });
 });
-
+testConnection();
 app.listen(PORT, () => {
   console.log(`>>> Server đang chạy tại http://localhost:${PORT}`);
 });
