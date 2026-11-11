@@ -58,3 +58,61 @@ Kết quả AI trả về (tóm tắt): Trả về một file định dạng .md
 - Cách kiểm chứng: Đã được đọc và kiểm tra lại dựa theo erd-v2.png mới nhất và theo file 01_Dac_ta_yeu_cau_6_de_tai.pdf được cung cấp từ trước ở "https://drive.google.com/drive/folders/1PQ5omU9Y1DSEiVCQXVxwBExFXSE5SL1B"
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Nếu được cung cấp đầy đủ thì AI sẽ cho kết quả trả lời đầy đủ nhưng về vấn đề ngôn ngữ thì sẽ có lúc AI sử dụng từ tiếng anh, trung hay những ngôn ngữ khác xen lẫn câu từ nếu không đọc kỹ và đặt quy tắc thì sẽ không phát hiện được lỗi
+### [AI-004] Hướng dẫn cài thư viện knex
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 11/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Hướng dẫn cài thư viện knex và kết nối với cơ sở dữ liệu mysql
+Prompt chính:"Trước tiên thì tôi muốn bạn hướng dẫn giúp tôi các bước từ cài môi trường, tiếp theo đó là tạo một migration mẫu, kết nối với mySQL. Chú ý là dự án của tôi là nodejs thuần"
+Kết quả AI trả về (tóm tắt): Trả về hướng dẫn gồm câu lệnh và các bước cài đặt
+ Đánh giá: Đúng
+- Cách kiểm chứng: Đã được đọc và kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra
+### [AI-004] Hướng dẫn cài thư viện knex và tạo migrations
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 11/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Hướng dẫn cài thư viện knex và kết nối với cơ sở dữ liệu mysql. migrations mẫu
+Prompt chính:"Trước tiên thì tôi muốn bạn hướng dẫn giúp tôi các bước từ cài môi trường, tiếp theo đó là tạo một migration mẫu, kết nối với mySQL. Chú ý là dự án của tôi là nodejs thuần"
+Kết quả AI trả về (tóm tắt): Trả về hướng dẫn gồm câu lệnh và các bước cài đặt và câu lệnh tạo bảng migration
+ Đánh giá: Đúng
+- Cách kiểm chứng: Đã được đọc và kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra.
+### [AI-005] Tạo các bảng Migration
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 11/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Tạo ra 8 bảng Migration dựa theo erd-v2
+Prompt chính:"Tiếp theo đó tôi muốn bạn tạo các bảng dựa theo file đính kèm trên, lưu ý chỉ tạo dựa theo các bảng trên mà không được bịa hay chỉnh sửa lại" + Kèm file erd-v2.png đính kèm
+Kết quả AI trả về (tóm tắt): Trả về các bảng Migration có đầy đủ thuộc tính, trường dữ liệu và các khóa chính, khóa phụ
+ Đánh giá: Đúng
+- Cách kiểm chứng: Đã được đọc và kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+### [AI-006] Hướng dẫn tạo seed và dữ liệu mẫu
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 11/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Hướng dẫn tạo seeds và dữ liệu mẫu cho migration và cơ sở dữ liệu
+Prompt chính:"- Tiếp theo đó tôi muốn bạn viết seed: 5 danh mục, 3 giảng viên, 1 admin, 15 học viên, 8 khóa học × 5 bài học (40 bài), 10 câu hỏi/khóa (80 câu), ghi danh và vài lượt làm bài mẫu
+- Lưu ý là chỉ tạo đúng số lượng trên"
+Kết quả AI trả về (tóm tắt): Trả về câu lệnh tạo Seed và các dữ liệu mẫu theo yêu cầu
+ Đánh giá: Đúng
+- Cách kiểm chứng: Đã được đọc và kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+
