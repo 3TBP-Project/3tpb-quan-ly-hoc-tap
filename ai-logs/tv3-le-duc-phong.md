@@ -13,6 +13,10 @@
 | --- | --- | --- | --- | --- |
 | AI-01 | 10/11 | Phân tích yêu cầu | Đọc và tổng hợp tài liệu đề tài, xác định phần việc Frontend | [PR #1] |
 | AI-02 | 10/11 | Thiết kế | Thiết kế 6 Wireframe bản phác | [PR #1] |
+| AI-03 | 10/11 | Lập trình | Review và sửa component CourseCard | PR #2 |
+| AI-04 | 10/11 | Lập trình | Dựng layout chung: App, Layout, Header, Footer | PR #2 |
+| AI-05 | 10/11 | Tài liệu | Soạn README.md và .env.example cho frontend | PR #2 |
+| AI-06 | 11/11 | Lập trình | Review dữ liệu giả và trang danh sách khóa học (HT-01) | [PR #5] |
 
 ---
 
@@ -126,6 +130,62 @@ After completion, verify the created frames and report any incomplete requiremen
 - Cách kiểm chứng: Đối chiếu 6 Wireframe so với Yêu cầu chức năng
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
 - Điều học được: Thiết kế giao diện
+
+### [AI-03] Review và sửa component CourseCard
+- Ngày / Người dùng: 2026-11-10 / Lê Đức Phong
+- Công cụ: Claude Code (Sonnet 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [FE] Layout chung, HT-01 / 035e651d4d38ad70bbb01a5d263ee8744b50a1e2 / PR #2
+- Mục đích: Kiểm tra thẻ khóa học (ảnh bìa, tên, giảng viên, số bài) có đúng yêu cầu và chạy được.
+- Prompt chính: "…\CourseCard.jsx Xem thử nội dung đúng yêu cầu không", sau đó "Áp dụng bản sửa"
+- Kết quả AI trả về (tóm tắt): Chỉ ra thiếu `export default`, dùng `styled-components` chưa cài, import thừa, thẻ không bấm được, ảnh làm thẻ lệch chiều cao; viết lại bằng `react-bootstrap` và đổi tên trường thành `title`, `teacherName`, `lessonCount`.
+- Đánh giá: Đúng, các lỗi kiểm tra được bằng đọc `package.json` và `npm run lint`. Tên trường AI đề xuất cần được thống nhất với API của TV2.
+- Đã chỉnh sửa gì: Thêm `export default`, cài `styled-components`, xóa các import thừa, sửa thẻ có thể bấm được
+- Cách kiểm chứng: `npm run lint` không lỗi; đối chiếu `package.json` (không có `styled-components`); [chạy `npm run dev` nếu đã làm].
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 75%
+- Điều học được: Thiết kế thẻ khóa học đúng với yêu cầu
+
+### [AI-04] Dựng layout chung (App, Layout, Header, Footer)
+- Ngày / Người dùng: 2026-11-10 / Lê Đức Phong
+- Công cụ: Claude Code (Sonnet 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [FE] Layout chung / f991cd2b8471b8a0b6adc12f13ad46050f2a6104 / PR #2
+- Mục đích: Dựng khung giao diện chung, menu theo vai trò, responsive, theo hướng dẫn Ngày 2.
+- Prompt chính: "Phần layout chung tôi nên làm vào đâu?"; "Kiểm tra App.jsx và Layout.jsx đã ổn? Header/Footer.jsx nên làm gì"; "Sửa giúp tôi"
+- Kết quả AI trả về (tóm tắt): Chỉ ra thiếu import, thiếu `BrowserRouter`, Header/Footer rỗng, CSS mẫu của Vite (`#root` rộng 1126px, canh giữa chữ) phá layout; sửa `main.jsx`, `App.jsx`, `Layout.jsx`, `index.css`, viết `Header.jsx`, `Footer.jsx`, trang tạm `CourseListPage.jsx`, xóa `App.css`.
+- Đánh giá: Đúng một phần: lint và build thành công, nhưng menu dùng vai trò giả và các liên kết chưa có trang đích.
+- Đã chỉnh sửa gì: Sửa main.jsx, App.jsx và index.jsx
+- Cách kiểm chứng: `npm run lint`, `npm run build`; chạy thử 4 vai trò và kiểm tra 360 px / 1366 px.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 85%
+- Điều học được: Cách thiết kế giao diện dùng chung
+
+### [AI-05] Soạn README.md và .env.example cho frontend
+- Ngày / Người dùng: 2026-11-10 / Lê Đức Phong
+- Công cụ: Claude Code (Sonnet 5.5 - High)
+- Giai đoạn: Tài liệu
+- Task / Commit / PR: [FE] Layout chung / c039b9d3c4226d361d061359f9b59fea747a3118 / PR #2
+- Mục đích: Thay README mẫu của Vite bằng hướng dẫn cài đặt, chạy, biến môi trường (yêu cầu NFR-02, NFR-06).
+- Prompt chính: "Hãy viết giúp tôi file README.md và .env.example"
+- Kết quả AI trả về (tóm tắt): README (công nghệ, cài đặt, lệnh, cấu trúc, hiện trạng, quy ước) và `.env.example` với `VITE_API_URL`.
+- Đánh giá: Thiếu một phần: `VITE_API_URL=http://localhost:3000/api` là giá trị giả định, yêu cầu Node 20.19+ do AI suy từ phiên bản Vite, cả hai chưa kiểm chứng với TV2 và môi trường thật.
+- Đã chỉnh sửa gì: Không có
+- Cách kiểm chứng: [ví dụ đã chạy lại các lệnh trong README; đã hỏi TV2 cổng backend]
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cách tình bày README, khai báo `.env.example` mà không làm lộ dữ liệu nhạy cảm
+
+### [AI-06] Review dữ liệu giả và trang danh sách khóa học (HT-01)
+- Ngày / Người dùng: 2026-11-11 / Lê Đức Phong
+- Công cụ: Claude Code (Sonnet 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-01] / 1dfae2b95b44c96f8f44eb88475cd1cf0e020947 / [PR #5]
+- Mục đích: Kiểm tra dữ liệu giả và trang danh sách khóa học trước khi mở PR; nắm cách xếp CourseCard bằng Row và Col.
+- Prompt chính: "Kiểm tra file mock data nằm ở mocks xem tôi đã thực hiện đúng chưa, có cần phải sửa chỗ nào không?"; "CourseListPage xếp CourseCard bằng Row và Col ra sao"; "Kiểm tra lại lần cuối phần làm việc hiện tại của tôi đã sẵn sàng để tạo PR?"
+- Kết quả AI trả về (tóm tắt): Chỉ ra tệp mock đầu tiên là component chứ không phải dữ liệu, import sai đường dẫn, tên thuộc tính `img` không khớp `coverImage`, thiếu `id`; gợi ý mảng `mockCourses` (8 khóa, 3 giảng viên có `teacherId`, ảnh `/images/...`) và ví dụ `Row`/`Col` chia cột theo màn hình. Lần kiểm tra cuối phát hiện `CourseListPage.jsx` có `return` xuống dòng, import sai đường dẫn, dấu `;` thừa; lint 3 lỗi, build thất bại.
+- Đánh giá: Đúng, các lỗi tái hiện được bằng `npm run lint` và `vite build`.
+- Đã chỉnh sửa gì: Tự viết lại `mocks/course.js` theo góp ý (thêm `teacherId`, còn 3 giảng viên, ảnh mặc định `/images/course-default.jpg`); sửa lỗi sau return không có dấu ().
+- Cách kiểm chứng: `npm run lint`, `npm run build`; chạy `npm run dev`, kiểm tra 1 cột ở 360 px và 3 cột ở 1366 px.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 10%
+- Điều học được: Thiết kế mock data, cách sắp xếp Row và Col và đưa dữ liệu giả vào `CourseListPage.jsx`
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
