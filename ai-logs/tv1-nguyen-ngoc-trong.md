@@ -1,5 +1,5 @@
 <!-- Mẫu AI Logs
-### [AI-<STT>] <Công việc anh em đang xử lý>
+# [AI-<STT>] <Công việc anh em đang xử lý>
 - Người dùng: Nguyễn Ngọc Trọng
 - Công cụ: <Tên AI (Chatgpt)> - <Model(Sol6.1)>
 - Giai đoạn - Thời Gian: 
@@ -15,7 +15,7 @@
 - Tỷ lệ mã AI còn giữ lại (ước lượng): ...%
 - Điều học được: ..
  -->
- ### [AI-01] Tạo Bảng Use Case cho dự án
+# [AI-01] Tạo Bảng Use Case cho dự án
 - Người dùng: Nguyễn Ngọc Trọng
 - Công cụ: Claude - (Opus 5 - Medium)
 - Giai đoạn - Thời Gian: 
@@ -56,7 +56,7 @@ Nối xong HT-06 là sơ đồ đủ chuẩn để bảo vệ Mốc 1.
 - Cách kiểm chứng: Hình ảnh từ Google
 - Điều học được: Xác định đúng định dạng bảng use case
 
-### [AI-02] Tạo Squenche diagram cho chức năng làm bài trắc nghiệm
+# [AI-02] Tạo Squenche diagram cho chức năng làm bài trắc nghiệm
 - Người dùng: Nguyễn Ngọc Trọng
 - Công cụ: Claude - Sonnet 5.5 (High)
 - Giai đoạn - Thời Gian: 
@@ -101,3 +101,39 @@ Việc còn lại là N3-TV1-02: đối chiếu tên hàm và tên cột với c
 - Cách kiểm chứng: 
 https://viblo.asia/p/so-do-sequence-diagram-tat-tan-tat-thong-tin-quan-trong-ban-can-nam-WR5JRBjAJGv
 - Điều học được: Không cần tạo squenche quá phức tạp chỉ cần tạo để giải thích được luồng chạy của chức năng
+
+# [AI-03] Tạo file moc-1 .md
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude - Opus 5 (Medium)
+- Giai đoạn - Thời Gian: 
+Thiết kế
+11/11/2026
+- Task: 
+N4-TV1-01 · Công việc: viết docs/moc-1.md: đề tài, công nghệ, kiến trúc, ERD, user story, kế hoạch S2
+- Mục đích: Tổng hợp những công việc đã làm trong thời gian ở nhà
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại):
+Công việc: viết docs/moc-1.md: đề tài, công nghệ, kiến trúc, ERD, user story,
+Bây giờ bạn làm cái  viết mốc 1 rồi viết vào thành file markdown nha
+- Kết quả AI trả về (tóm tắt):
+Việc `N4-TV1-01`. Theo PDF, file này gom nội dung từ các tài liệu đã có, mỗi phần vài dòng kèm link tới file gốc — không chép lại toàn bộ.
+
+Xong `moc-1.md`, lưu vào `docs/`. File viết theo kiểu PDF yêu cầu: mỗi phần tóm tắt vài dòng rồi dẫn link tới tài liệu gốc, không chép lại toàn bộ nội dung.
+
+**Bốn chỗ bạn phải điền:**
+
+1. **Số nhóm, ngày bảo vệ, link Trello** ở đầu file.
+2. **Mục 8 – Kết quả Sprint S1.** Mình để trống vì không biết nhóm đã làm xong tới đâu. Mở Trello lướt một lượt rồi điền. Riêng dòng layout mình điền sẵn vì thấy PR #2 đã merge.
+3. **Đường dẫn ở mục 12.** Mình viết theo tên file mà PDF các ngày quy định, nhưng nhóm có thể đặt khác. Mở thư mục `docs/` đối chiếu, file nào chưa có thì xóa dòng đó đi — để link gãy trong tài liệu nộp thì mất điểm oan.
+4. **Mục 11 – thời lượng trình bày.** Mình chia 2+3+2+2+1 phút. Chỉnh lại nếu nhóm muốn khác.
+
+**Ba chỗ mình chủ động đưa vào vì GV hay hỏi:**
+
+Mục 5 có ba quyết định thiết kế kèm lý do: tách bảng `lesson_progress`, chặn ghi danh trùng bằng ràng buộc `UNIQUE`, và dùng `RESTRICT` thay vì `CASCADE` khi xóa danh mục. Đây là phần TV4 trình bày — câu hỏi "tại sao chọn cách này" là câu GV chắc chắn hỏi.
+
+Mục 7 tóm tắt luồng HT-06 và nêu rõ vì sao học viên không gian lận được. Mục 10 là bảng rủi ro, PDF Ngày 1 yêu cầu phần này trong đề cương.
+
+**Một chỗ cần kiểm tra lại với TV4.** Mục 5 mình ghi bảng `courses` có cột thời gian làm bài, nhưng migration bạn gửi chiều nay đặt tên là `quiz_duration`, trong khi ERD và sequence diagram dùng `quiz_minutes`. Hai bên phải thống nhất một tên trước khi nộp, nếu không GV đối chiếu tài liệu với code sẽ thấy lệch ngay.
+- Đánh giá: Thiếu (Vì một số cái nhóm còn thiếu và chưa bàn luận đc)
+- Đã chỉnh sửa gì: Không bổ sung: Sprint 2, Rủi ro
+- Tỷ lệ AI còn giữ lại (ước lượng): 30%
+- Điều học được: Tạo báo cáo mẫu cốc 1 để tổng hợp những việc đã làm và còn thiếu sót trong quá trình làm đồ án
