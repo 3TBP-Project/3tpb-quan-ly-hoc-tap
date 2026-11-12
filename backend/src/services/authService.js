@@ -46,32 +46,44 @@ const register = async ({ name, email, password }) => {
 };
 
 const login = async ({ email, password }) => {
-  // 1. Kiểm tra dữ liệu đầu vào
   if (!email || !password) {
     throw createError('Vui lòng nhập đầy đủ trường email và mật khẩu.', 400);
   }
 
-  // 2. Tìm người dùng theo email
+  // 1. Tìm người dùng theo email
   const user = await userRepository.findByEmail(email.trim().toLowerCase());
   if (!user) {
     throw createError('Email hoặc mật khẩu không chính xác.', 401);
   }
 
-  // 3. So sánh mật khẩu nhập vào với chuỗi băm trong CSDL
-  const isPasswordMatch = await bcrypt.compare(password, user.password_hash);
+  // 2. Chặn tài khoản đang bị khóa
+  if (user.is_locked === 1) {
+    throw createError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.', 403);
+  }
+
+  // 3. Đối chiếu mật khẩu nhập vào với chuỗi băm trong cột 'password'
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
   if (!isPasswordMatch) {
     throw createError('Email hoặc mật khẩu không chính xác.', 401);
   }
 
-  // 4. Tạo JWT Token chứa id và role để phân quyền 3 vai trò
+  // 4. Cấp JWT Token chứa id, email và role
   const token = jwt.sign(
-    { id: user.id, role: user.role },
+    { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: '1d' }
   );
 
+  // 5. Xác định đường dẫn điều hướng sau đăng nhập theo 3 vai trò
+  const redirectMap = {
+    [ROLES.ADMIN]: '/admin/dashboard',
+    [ROLES.TEACHER]: '/teacher/dashboard',
+    [ROLES.STUDENT]: '/student/dashboard'
+  };
+
   return {
     token,
+    redirectUrl: redirectMap[user.role] || '/student/dashboard',
     user: {
       id: user.id,
       name: user.name,

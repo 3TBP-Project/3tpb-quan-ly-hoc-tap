@@ -2,7 +2,7 @@ const { pool } = require('../config/db');
 
 const findByEmail = async (email) => {
   const [rows] = await pool.query(
-    'SELECT id, name, email, password AS password_hash, role FROM users WHERE email = ? LIMIT 1',
+    'SELECT id, name, email, password, role, is_locked FROM users WHERE email = ? LIMIT 1',
     [email]
   );
   return rows[0] || null;
