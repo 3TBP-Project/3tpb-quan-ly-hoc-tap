@@ -89,4 +89,7 @@
     1. Băm mật khẩu bằng `bcrypt`/`argon2` và ẩn trường `password` trong JSON response.
     2. Chặn leo thang đặc quyền (bỏ qua `role` từ `req.body`, gán cứng mặc định `student`).
     3. Bắt trùng email ở cả tầng ứng dụng (trả lỗi `400`/`409` tiếng Việt) và ràng buộc `UNIQUE` dưới CSDL.
-    4. Kiểm tra input lạ/độc hại (chuỗi toàn dấu cách,  
+    4. Kiểm tra input lạ/độc hại (chuỗi toàn dấu cách, mật khẩu `< 6` hoặc `> 72` ký tự, thẻ `<script>`, sai kiểu dữ liệu Array/Object).
+    5. Không trả về stack trace kỹ thuật khi phát sinh lỗi.
+
+---
