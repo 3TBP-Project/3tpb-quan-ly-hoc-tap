@@ -17,6 +17,7 @@
 | AI-04 | 10/11 | Lập trình | Dựng layout chung: App, Layout, Header, Footer | PR #2 |
 | AI-05 | 10/11 | Tài liệu | Soạn README.md và .env.example cho frontend | PR #2 |
 | AI-06 | 11/11 | Lập trình | Review dữ liệu giả và trang danh sách khóa học (HT-01) | [PR #5] |
+| AI-07 | 12/11 | Lập trình | Giao diện đăng ký, đăng nhập, Axios và Header theo vai trò (HT-03) | [PR #...] |
 
 ---
 
@@ -186,6 +187,20 @@ After completion, verify the created frames and report any incomplete requiremen
 - Cách kiểm chứng: `npm run lint`, `npm run build`; chạy `npm run dev`, kiểm tra 1 cột ở 360 px và 3 cột ở 1366 px.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 10%
 - Điều học được: Thiết kế mock data, cách sắp xếp Row và Col và đưa dữ liệu giả vào `CourseListPage.jsx`
+
+### [AI-07] Giao diện đăng ký, đăng nhập, Axios và Header theo vai trò (HT-03)
+- Ngày / Người dùng: 2026-11-12 / Lê Đức Phong
+- Công cụ: Claude Code (Sonnet 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-03] / [mã commit] / [PR #...]
+- Mục đích: Viết mã giao diện đăng ký, đăng nhập, gọi API bằng Axios và Header theo vai trò.
+- Prompt chính: "Gợi ý nội dung các file cho hôm nay"; "Kiểm tra tiến trình code hiện tại của tôi, có thiếu sót nào không"; "Sửa giúp tôi"
+- Kết quả AI trả về (tóm tắt): Mã gợi ý cho `axiosClient`, `authService`, `AuthContext`, `authSchema`, `InputField`, `LoginPage`, `RegisterPage`, `ProtectedRoute`, `Header` (React Hook Form + Yup, Axios interceptor, Context API). Sau khi kiểm tra mã đã gõ, AI chỉ ra 9 lỗi lint (sai thư mục và đường dẫn import, thiếu `context/`, dùng `process.env` thay vì `import.meta.env`, khóa token không khớp, `RegisterPage` chưa hoàn chỉnh) và sửa trực tiếp.
+- Đánh giá: Đúng một phần: gợi ý đầu của AI dùng `useState` và `services/api.js`, phải đổi sang React Hook Form + Yup và `api/axiosClient.js`; các lỗi còn lại tái hiện được bằng `npm run lint`.
+- Đã chỉnh sửa gì: Gõ lại mã theo gợi ý; chuyển `InputField`, `ProtectedRoute` về `components/auth/`, thêm `context/` và `utils/roles.js`, sửa `axiosClient.js`, viết đủ `RegisterPage.jsx`, nối `App.jsx`, `main.jsx`, `Header.jsx`; bỏ route giảng viên vì trang chưa có.
+- Cách kiểm chứng: `npm run lint` (0 lỗi), `npm run build` thành công.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 90%
+- Điều học được: Vite dùng `import.meta.env.VITE_*`, không dùng `process.env` như Create React App; khóa token phải thống nhất giữa nơi lưu và interceptor.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
