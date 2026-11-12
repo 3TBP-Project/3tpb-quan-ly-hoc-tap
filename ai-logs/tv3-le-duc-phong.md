@@ -11,12 +11,13 @@
 
 | Mã | Ngày | Giai đoạn | Nội dung | Commit / PR |
 | --- | --- | --- | --- | --- |
-| AI-01 | 10/11 | Phân tích yêu cầu | Đọc và tổng hợp tài liệu đề tài, xác định phần việc Frontend | [PR #1] |
-| AI-02 | 10/11 | Thiết kế | Thiết kế 6 Wireframe bản phác | [PR #1] |
-| AI-03 | 10/11 | Lập trình | Review và sửa component CourseCard | PR #2 |
-| AI-04 | 10/11 | Lập trình | Dựng layout chung: App, Layout, Header, Footer | PR #2 |
-| AI-05 | 10/11 | Tài liệu | Soạn README.md và .env.example cho frontend | PR #2 |
-| AI-06 | 11/11 | Lập trình | Review dữ liệu giả và trang danh sách khóa học (HT-01) | [PR #5] |
+| AI-01 | 10/11 | Phân tích yêu cầu | Đọc và tổng hợp tài liệu đề tài, xác định phần việc Frontend | #1 |
+| AI-02 | 10/11 | Thiết kế | Thiết kế 6 Wireframe bản phác | #1 |
+| AI-03 | 10/11 | Lập trình | Review và sửa component CourseCard | #2 |
+| AI-04 | 10/11 | Lập trình | Dựng layout chung: App, Layout, Header, Footer | #2 |
+| AI-05 | 10/11 | Tài liệu | Soạn README.md và .env.example cho frontend | #2 |
+| AI-06 | 11/11 | Lập trình | Review dữ liệu giả và trang danh sách khóa học (HT-01) | #5 |
+| AI-07 | 12/11 | Lập trình | Giao diện đăng ký, đăng nhập, Axios và Header theo vai trò (HT-03) | #11 |
 
 ---
 
@@ -135,7 +136,7 @@ After completion, verify the created frames and report any incomplete requiremen
 - Ngày / Người dùng: 2026-11-10 / Lê Đức Phong
 - Công cụ: Claude Code (Sonnet 5.5 - High)
 - Giai đoạn: Lập trình
-- Task / Commit / PR: [FE] Layout chung, HT-01 / 035e651d4d38ad70bbb01a5d263ee8744b50a1e2 / PR #2
+- Task / Commit / PR: [FE] Layout chung, HT-01 / 035e651d4d38ad70bbb01a5d263ee8744b50a1e2 / #2
 - Mục đích: Kiểm tra thẻ khóa học (ảnh bìa, tên, giảng viên, số bài) có đúng yêu cầu và chạy được.
 - Prompt chính: "…\CourseCard.jsx Xem thử nội dung đúng yêu cầu không", sau đó "Áp dụng bản sửa"
 - Kết quả AI trả về (tóm tắt): Chỉ ra thiếu `export default`, dùng `styled-components` chưa cài, import thừa, thẻ không bấm được, ảnh làm thẻ lệch chiều cao; viết lại bằng `react-bootstrap` và đổi tên trường thành `title`, `teacherName`, `lessonCount`.
@@ -149,7 +150,7 @@ After completion, verify the created frames and report any incomplete requiremen
 - Ngày / Người dùng: 2026-11-10 / Lê Đức Phong
 - Công cụ: Claude Code (Sonnet 5.5 - High)
 - Giai đoạn: Lập trình
-- Task / Commit / PR: [FE] Layout chung / f991cd2b8471b8a0b6adc12f13ad46050f2a6104 / PR #2
+- Task / Commit / PR: [FE] Layout chung / f991cd2b8471b8a0b6adc12f13ad46050f2a6104 / #2
 - Mục đích: Dựng khung giao diện chung, menu theo vai trò, responsive, theo hướng dẫn Ngày 2.
 - Prompt chính: "Phần layout chung tôi nên làm vào đâu?"; "Kiểm tra App.jsx và Layout.jsx đã ổn? Header/Footer.jsx nên làm gì"; "Sửa giúp tôi"
 - Kết quả AI trả về (tóm tắt): Chỉ ra thiếu import, thiếu `BrowserRouter`, Header/Footer rỗng, CSS mẫu của Vite (`#root` rộng 1126px, canh giữa chữ) phá layout; sửa `main.jsx`, `App.jsx`, `Layout.jsx`, `index.css`, viết `Header.jsx`, `Footer.jsx`, trang tạm `CourseListPage.jsx`, xóa `App.css`.
@@ -163,7 +164,7 @@ After completion, verify the created frames and report any incomplete requiremen
 - Ngày / Người dùng: 2026-11-10 / Lê Đức Phong
 - Công cụ: Claude Code (Sonnet 5.5 - High)
 - Giai đoạn: Tài liệu
-- Task / Commit / PR: [FE] Layout chung / c039b9d3c4226d361d061359f9b59fea747a3118 / PR #2
+- Task / Commit / PR: [FE] Layout chung / c039b9d3c4226d361d061359f9b59fea747a3118 / #2
 - Mục đích: Thay README mẫu của Vite bằng hướng dẫn cài đặt, chạy, biến môi trường (yêu cầu NFR-02, NFR-06).
 - Prompt chính: "Hãy viết giúp tôi file README.md và .env.example"
 - Kết quả AI trả về (tóm tắt): README (công nghệ, cài đặt, lệnh, cấu trúc, hiện trạng, quy ước) và `.env.example` với `VITE_API_URL`.
@@ -177,7 +178,7 @@ After completion, verify the created frames and report any incomplete requiremen
 - Ngày / Người dùng: 2026-11-11 / Lê Đức Phong
 - Công cụ: Claude Code (Sonnet 5.5 - High)
 - Giai đoạn: Lập trình
-- Task / Commit / PR: [HT-01] / 1dfae2b95b44c96f8f44eb88475cd1cf0e020947 / [PR #5]
+- Task / Commit / PR: [HT-01] / 1dfae2b95b44c96f8f44eb88475cd1cf0e020947 / #5
 - Mục đích: Kiểm tra dữ liệu giả và trang danh sách khóa học trước khi mở PR; nắm cách xếp CourseCard bằng Row và Col.
 - Prompt chính: "Kiểm tra file mock data nằm ở mocks xem tôi đã thực hiện đúng chưa, có cần phải sửa chỗ nào không?"; "CourseListPage xếp CourseCard bằng Row và Col ra sao"; "Kiểm tra lại lần cuối phần làm việc hiện tại của tôi đã sẵn sàng để tạo PR?"
 - Kết quả AI trả về (tóm tắt): Chỉ ra tệp mock đầu tiên là component chứ không phải dữ liệu, import sai đường dẫn, tên thuộc tính `img` không khớp `coverImage`, thiếu `id`; gợi ý mảng `mockCourses` (8 khóa, 3 giảng viên có `teacherId`, ảnh `/images/...`) và ví dụ `Row`/`Col` chia cột theo màn hình. Lần kiểm tra cuối phát hiện `CourseListPage.jsx` có `return` xuống dòng, import sai đường dẫn, dấu `;` thừa; lint 3 lỗi, build thất bại.
@@ -186,6 +187,20 @@ After completion, verify the created frames and report any incomplete requiremen
 - Cách kiểm chứng: `npm run lint`, `npm run build`; chạy `npm run dev`, kiểm tra 1 cột ở 360 px và 3 cột ở 1366 px.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 10%
 - Điều học được: Thiết kế mock data, cách sắp xếp Row và Col và đưa dữ liệu giả vào `CourseListPage.jsx`
+
+### [AI-07] Giao diện đăng ký, đăng nhập, Axios và Header theo vai trò (HT-03)
+- Ngày / Người dùng: 2026-11-12 / Lê Đức Phong
+- Công cụ: Claude Code (Sonnet 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-03] / 83e5cdeece0dc3e17fafcdf87a83181bb02868c6 / #11
+- Mục đích: Viết mã giao diện đăng ký, đăng nhập, gọi API bằng Axios và Header theo vai trò.
+- Prompt chính: "Gợi ý nội dung các file cho hôm nay"; "Kiểm tra tiến trình code hiện tại của tôi, có thiếu sót nào không"; "Sửa giúp tôi"
+- Kết quả AI trả về (tóm tắt): Mã gợi ý cho `axiosClient`, `authService`, `AuthContext`, `authSchema`, `InputField`, `LoginPage`, `RegisterPage`, `ProtectedRoute`, `Header` (React Hook Form + Yup, Axios interceptor, Context API). Sau khi kiểm tra mã đã gõ, AI chỉ ra 9 lỗi lint (sai thư mục và đường dẫn import, thiếu `context/`, dùng `process.env` thay vì `import.meta.env`, khóa token không khớp, `RegisterPage` chưa hoàn chỉnh) và sửa trực tiếp.
+- Đánh giá: Đúng một phần: gợi ý đầu của AI dùng `useState` và `services/api.js`, phải đổi sang React Hook Form + Yup và `api/axiosClient.js`; các lỗi còn lại tái hiện được bằng `npm run lint`.
+- Đã chỉnh sửa gì: Gõ lại mã theo gợi ý; chuyển `InputField`, `ProtectedRoute` về `components/auth/`, thêm `context/` và `utils/roles.js`, sửa `axiosClient.js`, viết đủ `RegisterPage.jsx`, nối `App.jsx`, `main.jsx`, `Header.jsx`; bỏ route giảng viên vì trang chưa có.
+- Cách kiểm chứng: `npm run lint` (0 lỗi), `npm run build` thành công.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 90%
+- Điều học được: Vite dùng `import.meta.env.VITE_*`, không dùng `process.env` như Create React App; khóa token phải thống nhất giữa nơi lưu và interceptor.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 

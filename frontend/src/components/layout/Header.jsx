@@ -1,8 +1,7 @@
-// AI-assisted [AI-04]
+// AI-assisted [AI-04] [AI-07]
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
-import { Link, NavLink } from 'react-router-dom';
-
-const currentRole = null;
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/useAuth';
 
 const MENU_BY_ROLE = {
   guest: [{ to: '/', label: 'Khóa học' }],
@@ -22,7 +21,14 @@ const MENU_BY_ROLE = {
 };
 
 function Header() {
-  const role = currentRole ?? 'guest';
+  const { user, role, logout } = useAuth();
+  const navigate = useNavigate();
+  const menu = MENU_BY_ROLE[role] ?? MENU_BY_ROLE.guest;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <Navbar bg="dark" data-bs-theme="dark" expand="md">
@@ -33,7 +39,7 @@ function Header() {
         <Navbar.Toggle aria-controls="main-nav" />
         <Navbar.Collapse id="main-nav">
           <Nav className="me-auto">
-            {MENU_BY_ROLE[role].map((item) => (
+            {menu.map((item) => (
               <Nav.Link
                 key={item.to}
                 as={NavLink}
@@ -44,8 +50,15 @@ function Header() {
               </Nav.Link>
             ))}
           </Nav>
-          <Nav>
-            {role === 'guest' ? (
+          <Nav className="align-items-md-center">
+            {user ? (
+              <>
+                <Navbar.Text className="me-md-3">Xin chào, {user.name}</Navbar.Text>
+                <Button variant="outline-light" size="sm" onClick={handleLogout}>
+                  Đăng xuất
+                </Button>
+              </>
+            ) : (
               <>
                 <Nav.Link as={Link} to="/login">
                   Đăng nhập
@@ -54,10 +67,6 @@ function Header() {
                   Đăng ký
                 </Nav.Link>
               </>
-            ) : (
-              <Button variant="outline-light" size="sm">
-                Đăng xuất
-              </Button>
             )}
           </Nav>
         </Navbar.Collapse>
