@@ -115,4 +115,17 @@ Kết quả AI trả về (tóm tắt): Trả về câu lệnh tạo Seed và c�
 - Cách kiểm chứng: Đã được đọc và kiểm tra lại
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
-
+### [AI-006] Tạo nội dung mô tả README
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 12/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Tạo nội dung mô tả README.md
+Prompt chính:"Cuối cùng bạn hãy tạo cho tôi file readme dựa theo yêu cầu, chỉ cần lệnh khởi tạo, cài đặt và chạy thành file hoàn chỉnh"
+Kết quả AI trả về (tóm tắt): Trả về nội dung từ cài đặt thư viện, khởi tạo seed & migration và lệnh chạy cả hai
+ Đánh giá: Đúng
+- Cách kiểm chứng: Đã được đọc và kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
