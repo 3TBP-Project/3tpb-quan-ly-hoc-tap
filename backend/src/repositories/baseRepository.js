@@ -1,5 +1,5 @@
 const { pool } = require('../config/db');
-
+// Lớp cơ sở cho các repository khác, cung cấp các phương thức chung để truy vấn cơ sở dữ liệu.
 class BaseRepository {
   constructor(tableName) {
     this.tableName = tableName;
