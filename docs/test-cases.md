@@ -1,7 +1,7 @@
-# Mẫu Test Case - Dự án Quản lý học tập
-
 | ID | Mã chức năng | Bước | Dữ liệu | Kết quả mong đợi | Kết quả thực tế |
 |---|---|---|---|---|---|
-| TC-01 | HT-04 | 1. Đăng nhập học viên<br>2. Nhấn nút "Ghi danh" | Tài khoản học viên hợp lệ | Ghi danh thành công, hiển thị khóa học trong "Khóa học của tôi" với tiến độ 0% | Pass |
-| TC-02 | HT-11 | 1. Đăng nhập giảng viên<br>2. Thêm câu hỏi trắc nghiệm | Nội dung câu hỏi, 4 đáp án, thời gian 15 phút | Thêm thành công, lưu đúng thời gian làm bài | Pass |
-| TC-03 | HT-13 | 1. Đăng nhập giảng viên<br>2. Tải tệp CSV câu hỏi lên | Tệp `questions.csv` (dòng 4 thiếu đáp án) | Nhập các câu hợp lệ, báo lỗi chi tiết ở dòng 4 | Pass |
+| TC-04 | HT-06 | 1. Đăng nhập Học viên đã ghi danh<br>2. Vào bài trắc nghiệm, làm lần 1 đạt 6/10 điểm<br>3. Làm lại lần 2 đạt 8/10 điểm và nộp bài | Bài kiểm tra gồm 10 câu (mỗi câu 4 lựa chọn, 1 đáp án đúng)[cite: 2] | Hệ thống chấm tự động chính xác sau mỗi lần nộp; lịch sử học tập lưu cả 2 lần làm và ghi nhận điểm cao nhất của khóa là 8/10[cite: 2] | Pending |
+| TC-05 | HT-06 | 1. Bắt đầu làm bài trắc nghiệm có giới hạn 15 phút<br>2. Đợi quá 15 phút (hoặc gửi request nộp bài trễ hơn thời gian quy định ở server) | Thời gian làm bài thực tế: 15 phút 30 giây | Server từ chối kết quả nộp trễ và hiển thị thông báo hết thời gian làm bài bằng tiếng Việt[cite: 2] | Pending |
+| TC-06 | HT-06 | 1. Đăng nhập Học viên đã hoàn thành đủ 3 lượt làm bài của cùng một bài kiểm tra<br>2. Truy cập lại trang bài kiểm tra đó | Tài khoản Học viên đã có 3 bản ghi `quiz_attempts` cho bài kiểm tra[cite: 2] | Hệ thống ẩn/vô hiệu hóa nút "Làm bài" và thông báo đã hết tối đa 3 lượt làm bài[cite: 2] | Pending |
+| TC-07 | HT-06 | 1. Bắt đầu làm bài kiểm tra gồm 10 câu<br>2. Chỉ chọn đáp án cho 7 câu, bỏ trống 3 câu<br>3. Nhấn nút "Nộp bài" khi còn thời gian | 7 câu chọn đúng đáp án, 3 câu để trống (`null`/chưa chọn) | Hệ thống không báo lỗi server, tự động tính 0 điểm cho 3 câu bỏ trống và trả về kết quả 7/10 điểm | Pending |
+| TC-08 | HT-06 | 1. Bắt đầu làm bài trắc nghiệm<br>2. Mở DevTools (F12) $\rightarrow$ tab Network/Sources kiểm tra dữ liệu API tải danh sách câu hỏi | Request lấy đề thi của Học viên trước khi bấm nộp bài | Payload JSON trả về chỉ chứa nội dung câu hỏi và 4 lựa chọn, tuyệt đối không chứa trường đáp án đúng (`correct_answer`)[cite: 2] | Pending |
