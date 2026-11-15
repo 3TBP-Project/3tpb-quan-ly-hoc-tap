@@ -137,3 +137,42 @@ Mục 7 tóm tắt luồng HT-06 và nêu rõ vì sao học viên không gian l�
 - Đã chỉnh sửa gì: Không bổ sung: Sprint 2, Rủi ro
 - Tỷ lệ AI còn giữ lại (ước lượng): 30%
 - Điều học được: Tạo báo cáo mẫu cốc 1 để tổng hợp những việc đã làm và còn thiếu sót trong quá trình làm đồ án
+
+# [AI-04] Bổ Sung thêm include và extend vào sơ đồ use case
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: claude - Opus 5.5
+- Giai đoạn - Thời Gian: 
+<Thiết kế>
+<15/11/2026>
+- Mục đích: Bổ sung các chức năng bao gồm các điều kiện trước đó và mở rộng
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại):
+Bạn ơi bổ sung cho mình thêm include và extend đc ko  ní vẽ hẳn vô đây lun nha
+Dựa trên file pdf lấy danh sách chức năng của dự án quản lý học tập bổ sung nha
+- Kết quả AI trả về (tóm tắt):
+Xong rồi ní, mình vẽ lại nguyên sơ đồ, giữ bố cục 4 actor như bản của bạn và thêm include/extend theo tiêu chí chấp nhận HT-01 → HT-15 (mức B) trong file PDF. Có 2 file: Use_Case_QLHT_include_extend.png để xem nhanh, Use_Case_QLHT_include_extend.drawio để mở bằng draw.io sửa tiếp.
+
+Phần đã bổ sung:
+
+Khách vãng lai: Danh sách khóa học ← «extend» Tìm theo tên, Lọc theo danh mục/giảng viên. Chi tiết khóa học → «include» Xem danh sách bài học.
+Học viên:
+Khóa học của tôi → «include» Xem tiến độ (%).
+Học bài → «include» Xem nội dung, ← «extend» Đánh dấu hoàn thành, Chuyển bài trước/sau.
+Làm trắc nghiệm → «include» Tính giờ, Chấm điểm tự động, ← «extend» Làm lại (tối đa 3 lần).
+Hồ sơ ← «extend» Cập nhật thông tin, Đổi mật khẩu, Xem lịch sử làm bài.
+Giảng viên: Thêm/Sửa/Xóa «extend» vào Quản lý khóa học, Quản lý bài học (thêm Sắp xếp thứ tự) và Quản lý câu hỏi (thêm Đặt thời gian làm bài). Tải PDF/link video «extend» vào Thêm bài học.
+Quản trị viên:
+Quản lý người dùng ← «extend» Tạo tài khoản giảng viên, Tìm kiếm, Khóa/mở khóa.
+Danh mục & duyệt ← «extend» Thêm/Sửa/Xóa danh mục, Ẩn khóa học vi phạm.
+
+Mình sửa luôn 3 lỗi trong bản cũ:
+
+“Làm Bài Tập Trắc Nghiệm” chưa nối với Học viên. Mình đã nối vào.
+Mũi tên Học viên → Khách vãng lai dùng sai đầu. Đây là quan hệ kế thừa (generalization), nên phải dùng tam giác rỗng chứ không phải mũi tên đặc.
+Thêm use case “Khóa Học Của Tôi”. Trong đặc tả HT-04 có chức năng này nhưng bản cũ thiếu.
+
+Cách nhớ chiều mũi tên: include đi từ use case gốc → phần bắt buộc, còn extend đi từ phần tùy chọn → use case gốc. Cả hai đều là nét đứt.
+
+Mình chưa vẽ 4 chức năng mức C (HT-08, 12, 13, 16) cho đỡ rối. Nếu nhóm bạn làm phần cộng điểm thì nói mình thêm vô nha. Mình cũng không cho các use case «include» Đăng nhập, vì nhiều thầy cô coi đăng nhập là điều kiện tiên quyết chứ không phải include. Bạn nên hỏi lại thầy Tiến xem thầy muốn kiểu nào.
+- Đánh giá: Đúng  (Vì bám sát những gì mà file đặc tả yêu cầu)
+- Cách kiểm chứng: file đặc tả yêu cầu
+- Điều học được: Học cách mở rộng và yêu cầu từng chức năng phải làm như thế nào
