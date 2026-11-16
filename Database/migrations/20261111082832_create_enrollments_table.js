@@ -10,6 +10,7 @@ exports.up = function(knex) {
     table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
     table.integer('course_id').unsigned().notNullable();
     table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
+    table.unique(['user_id','course_id']);
   });
 };
 
