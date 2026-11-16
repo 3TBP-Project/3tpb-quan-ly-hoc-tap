@@ -12,7 +12,7 @@ exports.up = function(knex) {
     table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
     table.float('score').nullable();
     table.dateTime('started_at');
-    table.date('submitted_at').nullable();
+    table.dateTime('submitted_at').nullable();
   });
 };
 
