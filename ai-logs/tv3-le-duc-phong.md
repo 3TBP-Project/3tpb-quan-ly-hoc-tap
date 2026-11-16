@@ -18,6 +18,7 @@
 | AI-05 | 10/11 | Tài liệu | Soạn README.md và .env.example cho frontend | #2 |
 | AI-06 | 11/11 | Lập trình | Review dữ liệu giả và trang danh sách khóa học (HT-01) | #5 |
 | AI-07 | 12/11 | Lập trình | Giao diện đăng ký, đăng nhập, Axios và Header theo vai trò (HT-03) | #11 |
+| AI-08 | 16/11 | Lập trình | Tìm kiếm, lọc, phân trang danh sách khóa học và thành phần dùng chung (HT-01) | #24 |
 
 ---
 
@@ -201,6 +202,20 @@ After completion, verify the created frames and report any incomplete requiremen
 - Cách kiểm chứng: `npm run lint` (0 lỗi), `npm run build` thành công.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 90%
 - Điều học được: Vite dùng `import.meta.env.VITE_*`, không dùng `process.env` như Create React App; khóa token phải thống nhất giữa nơi lưu và interceptor.
+
+### [AI-08] Tìm kiếm, lọc, phân trang danh sách khóa học và thành phần dùng chung (HT-01)
+- Ngày / Người dùng: 2026-11-16 / Lê Đức Phong
+- Công cụ: Claude Code (Sonnet 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-01] / 049889d0782d35e80647161487090fe78f524f57 -> 937d47b071c6cfaf32b7128069841275154c0108 / #24
+- Mục đích: Làm bộ lọc tìm kiếm, lọc danh mục và giảng viên, phân trang phía server cho danh sách khóa học theo wireframe màn 01, và tách các thành phần dùng chung cho nhiều màn hình.
+- Prompt chính: "Kiểm tra file CourseFilter.jsx của tôi đã đủ với yêu cầu về chức năng chưa, sau đó hãy thiết kế lại giao diện cho đúng với Wireframe đã được thiết kế và thêm vào giao diện chính, và sửa các phần dùng chung sao cho có thể sử dụng ở mọi màn hình"
+- Kết quả AI trả về (tóm tắt): Chỉ ra `CourseFilter.jsx` ban đầu là ví dụ tìm kiếm chung, lọc ở trình duyệt. Viết lại theo wireframe. Thêm `components/common` gồm Pagination, PageHeader, Loading, ErrorMessage, EmptyState, `hooks/useFetch.js`, `services/courseService.js` kèm dữ liệu giả `mocks/courseApi.js`, sửa `CourseCard.jsx`, ghép vào `CourseListPage.jsx`.
+- Đánh giá: Đúng một phần: bộ lọc ban đầu không chạy được nên được viết lại; AI đề xuất dùng dữ liệu giả làm mặc định tạm thời vì backend chưa có `/api/courses`.
+- Đã chỉnh sửa gì: Chia thành 4 commit nhỏ theo từng phần; giữ dữ liệu giả ở chế độ tạm thời để thử giao diện.
+- Cách kiểm chứng: `npm run lint` (0 lỗi), `npm run build` thành công; kiểm tra trên trình duyệt với dữ liệu giả (tìm kiếm, lọc, đổi trang, kết quả rỗng, xóa bộ lọc, 4 cột ở 1366 px, 1 cột ở 375 px).
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 70%
+- Điều học được: Lọc và phân trang phải làm ở server, bộ lọc chỉ báo giá trị cho trang cha, hook gọi API cần cleanup để kết quả cũ không ghi đè kết quả mới, đổi bộ lọc phải đưa về trang 1.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
