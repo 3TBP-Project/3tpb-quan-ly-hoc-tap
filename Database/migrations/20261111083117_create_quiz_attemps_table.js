@@ -10,7 +10,9 @@ exports.up = function(knex) {
     table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
     table.integer('course_id').unsigned().notNullable();
     table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
-    table.float('score').notNullable();
+    table.float('score').nullable();
+    table.dateTime('started_at')
+    table.date('subbmitted_at').nullable();
   });
 };
 
