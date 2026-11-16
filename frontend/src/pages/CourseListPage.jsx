@@ -1,19 +1,77 @@
-import { mockCourses } from '../mocks/course';
-import { Row, Col } from 'react-bootstrap';
+// AI-assisted [AI-08]
+import { useState } from 'react';
+import { Col, Row } from 'react-bootstrap';
+import EmptyState from '../components/common/EmptyState';
+import ErrorMessage from '../components/common/ErrorMessage';
+import Loading from '../components/common/Loading';
+import PageHeader from '../components/common/PageHeader';
+import Pagination from '../components/common/Pagination';
 import CourseCard from '../components/course/CourseCard';
+import CourseFilter from '../components/course/CourseFilter';
+import { useFetch } from '../hooks/useFetch';
+import { getCategories, getCourses, getTeachers } from '../services/courseService';
+
+// 9 khóa mỗi trang (hướng dẫn Ngày 6). Đặt VITE_PAGE_SIZE nhỏ hơn để thử phân trang với dữ liệu giả.
+const PAGE_SIZE = Number(import.meta.env.VITE_PAGE_SIZE) || 9;
+const EMPTY_FILTERS = { search: '', categoryId: '', teacherId: '' };
 
 function CourseListPage() {
-  return (
-    <>
-      <h1 className="h3 mb-4">Danh sách khóa học</h1>
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [page, setPage] = useState(1);
 
-      <Row xs={1} sm={2} md={3} className="g-3">
-        {mockCourses.map((course) => (
+  const courses = useFetch(getCourses, { ...filters, page, limit: PAGE_SIZE });
+  const categories = useFetch(getCategories);
+  const teachers = useFetch(getTeachers);
+
+  const items = courses.data?.items ?? [];
+  const total = courses.data?.total ?? 0;
+  const totalPages = courses.data?.totalPages ?? 1;
+
+  const handleFilterChange = (partial) => {
+    setFilters((prev) => ({ ...prev, ...partial }));
+    setPage(1); // đổi bộ lọc thì về trang đầu
+  };
+
+  const handlePageChange = (nextPage) => {
+    setPage(nextPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderList = () => {
+    if (courses.error) return <ErrorMessage message={courses.error} />;
+    if (courses.loading && !courses.data) return <Loading />;
+    if (items.length === 0) return <EmptyState message="Không tìm thấy khóa học phù hợp." />;
+
+    return (
+      <Row xs={1} sm={2} md={3} xl={4} className="g-3">
+        {items.map((course) => (
           <Col key={course.id}>
             <CourseCard course={course} />
           </Col>
         ))}
       </Row>
+    );
+  };
+
+  return (
+    <>
+      <PageHeader
+        title="Danh sách khóa học"
+        subtitle={courses.data ? `Hiển thị ${items.length} trên tổng ${total} khóa học` : ' '}
+      />
+
+      <CourseFilter
+        value={filters}
+        categories={categories.data ?? []}
+        teachers={teachers.data ?? []}
+        onChange={handleFilterChange}
+      />
+
+      <div style={{ opacity: courses.loading && courses.data ? 0.5 : 1 }}>{renderList()}</div>
+
+      <div className="mt-4">
+        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+      </div>
     </>
   );
 }
