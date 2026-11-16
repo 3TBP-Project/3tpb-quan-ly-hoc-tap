@@ -8,8 +8,8 @@ module.exports = {
       host: process.env.DB_HOST || '127.0.0.1',
       port: Number(process.env.DB_PORT) || 3306,
       user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || 'mat_khau_cua_ban',
-      database: process.env.DB_NAME || 'ten_database_cua_ban'
+      password: process.env.DB_PASSWORD || '2632006a',
+      database: process.env.DB_NAME || 'db_quanlyhoctap'
     },
     migrations: {
       tableName: 'knex_migrations',

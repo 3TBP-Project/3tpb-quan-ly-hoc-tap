@@ -11,6 +11,7 @@ exports.up = function(knex) {
     table.integer('lesson_id').unsigned().notNullable();
     table.foreign('lesson_id').references('id').inTable('lessons').onDelete('CASCADE');
     table.boolean('is_completed');
+    table.unique(['user_id','lesson_id']);
   });
 };
 
