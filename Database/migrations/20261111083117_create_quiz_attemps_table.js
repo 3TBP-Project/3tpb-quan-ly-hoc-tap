@@ -11,8 +11,8 @@ exports.up = function(knex) {
     table.integer('course_id').unsigned().notNullable();
     table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
     table.float('score').nullable();
-    table.dateTime('started_at')
-    table.date('subbmitted_at').nullable();
+    table.dateTime('started_at');
+    table.date('submitted_at').nullable();
   });
 };
 

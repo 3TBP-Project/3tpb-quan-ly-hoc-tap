@@ -9,7 +9,7 @@ module.exports = {
       port: Number(process.env.DB_PORT) || 3306,
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '2632006a',
-      database: process.env.DB_NAME || 'quan_ly_hoc_tap'
+      database: process.env.DB_NAME || 'db_quanlyhoctap'
     },
     migrations: {
       tableName: 'knex_migrations',
