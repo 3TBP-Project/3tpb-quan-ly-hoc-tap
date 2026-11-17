@@ -46,9 +46,11 @@ Bắt buộc (Must) – mã theo đặc tả đề tài:
 | HT05 | Học bài                     | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
 | HT06 | Làm bài trắc nghiệm         | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
 | HT07 | Hồ sơ và kết quả học tập    | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
+| HT08 | Hỏi đáp trong bài học       | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
 | HT09 | Quản lý khóa học            | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
 | HT10 | Quản lý bài học             | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
 | HT11 | Quản lý câu hỏi trắc nghiệm | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
+| HT12 | Theo dõi học viên           | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
 | HT14 | Quản lý người dùng          | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
 | HT15 | Danh mục và duyệt khóa học  | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
 

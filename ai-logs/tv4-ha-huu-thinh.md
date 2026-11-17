@@ -129,3 +129,85 @@ Kết quả AI trả về (tóm tắt): Trả về nội dung từ cài đặt t
 - Cách kiểm chứng: Đã được đọc và kiểm tra lại
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+### [AI-007] Hướng dẫn tạo và viết CRUD HT-09
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 16/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Hướng dẫn tạo CRUD
+Prompt chính:"Tôi đang muốn viết CRUD HT-09 nhưng chưa rõ các bước làm nên tôi muốn bạn hướng dẫn tôi các bước đầu tiên để viết và viết ở đâu"+ đính kèm file Ngay06_Thu2_Tuan2_05_QuanLyHocTap.pdf + 01_Dac_ta_yeu_cau_6_de_tai.pdf
+Kết quả AI trả về (tóm tắt): Trả về hướng dẫn tạo file cùng các vị trí tạo và thứ tự thực hiện
+ Đánh giá: Đúng
+- Cách kiểm chứng: Đã được đọc và kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+### [AI-008] Sinh code cho courseRepository.js
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 16/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Sinh code cho file courseRepository.js
+Prompt chính:"Tiếp theo đó tôi muốn bạn sinh ra code cho courseRepository.js với các quy tắc: 
++ Chỉ sử dụng các dữ liệu đã được đính kèm
++ Không cần cầu kỳ
++ Ưu tiên độ hoàn thiện và có đánh dấu các chức năng"
+Kết quả AI trả về (tóm tắt): Sinh ra code Repository xử lý thao tác cơ sở dữ liệu cho bảng courses
+ Đánh giá: Cần được kiểm tra thêm nhưng trước mắt là chưa xảy ra xung đột
+- Cách kiểm chứng: Đã kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+### [AI-009] Sinh code cho courseService.js
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 16/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Sinh code cho file courseService.js
+Prompt chính:"Tiếp theo đó tôi muốn bạn sinh ra code cho courseService.js với các quy tắc: 
++ Chỉ sử dụng các dữ liệu đã được đính kèm
++ Không cần cầu kỳ
++ Ưu tiên độ hoàn thiện và có đánh dấu các chức năng"
+Kết quả AI trả về (tóm tắt): Sinh ra code Service xử lý logic nghiệp vụ cho Quản lý khóa học
+ Đánh giá: Cần được kiểm tra thêm nhưng trước mắt là chưa xảy ra xung đột
+- Cách kiểm chứng: Đã kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+### [AI-010] Sinh code cho courseController.js
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 16/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Sinh code cho file courseController.js
+Prompt chính:"Tiếp theo đó tôi muốn bạn sinh ra code cho courseController.js với các quy tắc: 
++ Chỉ sử dụng các dữ liệu đã được đính kèm
++ Không cần cầu kỳ
++ Ưu tiên độ hoàn thiện và có đánh dấu các chức năng"
+Kết quả AI trả về (tóm tắt): Controller tiếp nhận request/response cho quản lý khóa học
+ Đánh giá: Cần được kiểm tra thêm nhưng trước mắt là chưa xảy ra xung đột
+- Cách kiểm chứng: Đã kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+### [AI-011] Sinh code cho courseRoute.js
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 16/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Sinh code cho file courseRoute.js
+Prompt chính:"Tiếp theo đó tôi muốn bạn sinh ra code cho courseRoute.js với các quy tắc: 
++ Chỉ sử dụng các dữ liệu đã được đính kèm
++ Không cần cầu kỳ
++ Ưu tiên độ hoàn thiện và có đánh dấu các chức năng"
+Kết quả AI trả về (tóm tắt): Router định nghĩa các API endpoint cho Quản lý khóa học và kèm theo đăng ký route vào server.js
+ Đánh giá: Cần được kiểm tra thêm nhưng trước mắt là chưa xảy ra xung đột
+- Cách kiểm chứng: Đã kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context

@@ -1,34 +1,65 @@
-// AI-assisted [AI-03]
-import { Card } from 'react-bootstrap';
+// AI-assisted [AI-03] [AI-08]
+import { Badge, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-function CourseCard({ course }) {
-    return (
-        <Card className="h-100 shadow-sm">
-            <Card.Img
-                variant="top"
-                src={course.coverImage}
-                alt={course.title}
-                style={{ aspectRatio: '16 / 9', objectFit: 'cover' }}
-            />
-            <Card.Body>
-                <Card.Title as="h3" className="h5">
-                    <Link
-                        to={`/courses/${course.id}`}
-                        className="stretched-link text-decoration-none"
-                    >
-                        {course.title}
-                    </Link>
-                </Card.Title>
-                <Card.Text className="mb-1 text-muted">
-                    Giảng viên: {course.teacherName}
-                </Card.Text>
-                <Card.Text className="small text-muted">
-                    Số bài học: {course.lessonCount}
-                </Card.Text>
-            </Card.Body>
-        </Card>
-    );
+const DEFAULT_COVER = '/images/course-default.jpg';
+
+/**
+ * Thẻ khóa học dùng chung (danh sách, "Khóa học của tôi", trang giảng viên...).
+ * - to: đường dẫn khi bấm vào thẻ (mặc định trang chi tiết khóa học)
+ * - children: nội dung thêm ở cuối thẻ, ví dụ thanh tiến độ hoặc nút thao tác
+ */
+function CourseCard({ course, to = `/courses/${course.id}`, children }) {
+  return (
+    <Card className="course-card h-100 shadow-sm">
+      <div className="position-relative">
+        <Card.Img
+          variant="top"
+          src={course.coverImage || DEFAULT_COVER}
+          alt={course.title}
+          style={{ aspectRatio: '4 / 3', objectFit: 'cover' }}
+        />
+        <span className="course-card-cta btn btn-secondary btn-sm position-absolute bottom-0 start-0 m-2">
+          Xem khóa học
+        </span>
+      </div>
+
+      <Card.Body className="d-flex flex-column">
+        {course.categoryName && (
+          <div className="mb-2">
+            <Badge bg="light" text="dark" className="border fw-normal">
+              {course.categoryName}
+            </Badge>
+          </div>
+        )}
+
+        <Card.Title as="h3" className="h6">
+          <Link to={to} className="stretched-link text-decoration-none text-dark">
+            {course.title}
+          </Link>
+        </Card.Title>
+
+        <div className="d-flex align-items-center text-muted small mb-2">
+          <span
+            className="rounded-circle border bg-light d-inline-block me-2"
+            style={{ width: 24, height: 24 }}
+            aria-hidden="true"
+          />
+          {course.teacherName}
+        </div>
+
+        {course.lessonCount != null && (
+          <div className="small text-muted mt-auto">{course.lessonCount} bài học</div>
+        )}
+
+        {children && (
+          <div className="position-relative mt-2" style={{ zIndex: 1 }}>
+            {children}
+          </div>
+        )}
+      </Card.Body>
+    </Card>
+  );
 }
 
 export default CourseCard;
