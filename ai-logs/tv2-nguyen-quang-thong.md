@@ -38,3 +38,5 @@
 - Đã chỉnh sửa gì: Điều chỉnh truy vấn repository để khớp tên cột mật khẩu thực tế trong MySQL.Đã thử gọi API đăng nhập và route dashboard bằng PowerShell.
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 98%
 - Điều học được: Hiểu cách dùng JWT để xác thực request và middleware để kiểm tra vai trò; cần đối chiếu tên cột với schema thực tế trước khi kiểm thử luồng đăng nhập.
+
+### [AI-04] 

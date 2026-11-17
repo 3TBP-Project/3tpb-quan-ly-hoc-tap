@@ -1,3 +1,4 @@
+// AI-assisted [AI-01]
 const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 

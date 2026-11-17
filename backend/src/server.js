@@ -5,6 +5,7 @@ const { testConnection } = require('./config/db');
 const { ROLES } = require('./config/constants');
 const { verifyToken, authorizeRoles } = require('./middlewares/authMiddleware');
 const authRoutes = require('./routes/authRoute');
+const quizRoutes = require('../../../test/quizRoute');
 
 dotenv.config();
 
@@ -13,7 +14,8 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-
+app.use('/api/quizzes', quizRoutes);
+app.use('/api/courses', quizRoutes); // Thêm route cho courses để bắt đầu làm bài trắc nghiệm
 testConnection();// Kiểm tra kết nối cơ sở dữ liệu khi khởi động server
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
