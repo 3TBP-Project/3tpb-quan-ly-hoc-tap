@@ -1,6 +1,17 @@
 const authService = require('../services/authService');
 
+const isPlainObject = (value) => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+};
+
 const register = async (req, res) => {
+  if (!isPlainObject(req.body)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Dữ liệu đăng ký không hợp lệ. Vui lòng gửi body định dạng JSON object.'
+    });
+  }
+
   try {
     const user = await authService.register(req.body);
     return res.status(201).json({
@@ -18,6 +29,13 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
+  if (!isPlainObject(req.body)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Dữ liệu đăng nhập không hợp lệ. Vui lòng gửi body định dạng JSON object.'
+    });
+  }
+
   try {
     const result = await authService.login(req.body);
     return res.status(200).json({

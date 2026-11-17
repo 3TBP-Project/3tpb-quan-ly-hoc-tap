@@ -1,3 +1,4 @@
+// AI-assisted [AI-02]
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');

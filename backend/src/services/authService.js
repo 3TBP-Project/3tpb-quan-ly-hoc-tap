@@ -1,3 +1,4 @@
+// AI-assisted [AI-02]
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userRepository = require('../repositories/userRepository');

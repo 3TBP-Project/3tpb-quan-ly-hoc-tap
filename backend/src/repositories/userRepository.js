@@ -1,3 +1,4 @@
+// AI-assisted [AI-02]
 const { pool } = require('../config/db');
 
 const findByEmail = async (email) => {

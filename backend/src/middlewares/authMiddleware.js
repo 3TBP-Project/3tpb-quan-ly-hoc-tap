@@ -1,3 +1,4 @@
+// AI-assisted [AI-02]
 const jwt = require('jsonwebtoken');
 
 // 1. Xác thực JWT Token từ Header Authorization

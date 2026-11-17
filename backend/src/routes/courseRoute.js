@@ -1,9 +1,12 @@
+const express = require('express');
+const courseController = require('../controllers/courseController');
+
+const router = express.Router();
+
+router.get('/', courseController.listCourses);
 /**
  * Router định nghĩa các API endpoint cho Quản lý khóa học (HT-09)
  */
-const express = require('express');
-const router = express.Router();
-const courseController = require('../controllers/courseController');
 
 // Giả định bạn đã có middleware kiểm tra đăng nhập/quyền giảng viên (ví dụ: verifyToken, isTeacher)
 // const { verifyToken, isTeacher } = require('../middlewares/authMiddleware');
