@@ -10,8 +10,11 @@ exports.up = function(knex) {
     table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
     table.integer('lesson_id').unsigned().notNullable();
     table.foreign('lesson_id').references('id').inTable('lessons').onDelete('CASCADE');
-    table.boolean('is_completed');
-    table.unique(['user_id','lesson_id']);
+    
+    // Thêm defaultTo(false) để mặc định chưa hoàn thành khi mới ghi nhận
+    table.boolean('is_completed').defaultTo(false).notNullable();
+    
+    table.unique(['user_id', 'lesson_id']);
   });
 };
 

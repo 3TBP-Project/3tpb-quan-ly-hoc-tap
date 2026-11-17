@@ -10,7 +10,12 @@ exports.up = function(knex) {
     table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
     table.text('content').notNullable();
     table.string('correct_answer', 255).notNullable();
-    table.string('false_answer', 255);
+    
+    // Đổi từ string(255) sang text để có thể lưu danh sách các đáp án sai linh hoạt hơn
+    table.text('false_answer').nullable();
+
+    // Thêm chỉ mục tối ưu hiệu suất truy vấn theo khóa học
+    table.index(['course_id']);
   });
 };
 
