@@ -1,4 +1,4 @@
-const quizRepository = require('../../../../test/quizRepository');
+const quizRepository = require('../repositories/quizRepository');
 
 const MAX_ATTEMPTS = 3;
 const GRACE_PERIOD_MINUTES = 1; // 1 phút dung sai độ trễ mạng
