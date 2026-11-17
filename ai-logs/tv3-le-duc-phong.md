@@ -19,10 +19,10 @@
 | AI-06 | 11/11 | Lập trình | Review dữ liệu giả và trang danh sách khóa học (HT-01) | #5 |
 | AI-07 | 12/11 | Lập trình | Giao diện đăng ký, đăng nhập, Axios và Header theo vai trò (HT-03) | #11 |
 | AI-08 | 16/11 | Lập trình | Tìm kiếm, lọc, phân trang danh sách khóa học và thành phần dùng chung (HT-01) | #24 |
-| AI-09 | 17/11 | Lập trình | Trang chi tiết khóa học, ghi danh theo vai trò và trang 404 (HT-02) | #26 |
-| AI-10 | 17/11 | Thiết kế | Chỉnh wireframe: tiểu mục bài học | #26 |
-| AI-11 | 17/11 | Thiết kế | Chỉnh wireframe: bình luận khóa học | #26 |
-| AI-12 | 17/11 | Thiết kế | Chỉnh wireframe: bỏ màn 04b | #26 |
+| AI-09 | 17/11 | Lập trình | Trang chi tiết khóa học, ghi danh theo vai trò và trang 404 (HT-02) | #27 |
+| AI-10 | 17/11 | Thiết kế | Chỉnh wireframe: tiểu mục bài học | #27 |
+| AI-11 | 17/11 | Thiết kế | Chỉnh wireframe: bình luận khóa học | #27 |
+| AI-12 | 17/11 | Thiết kế | Chỉnh wireframe: bỏ màn 04b | #27 |
 
 ---
 
@@ -225,7 +225,7 @@ After completion, verify the created frames and report any incomplete requiremen
 - Ngày / Người dùng: 2026-11-17 / Lê Đức Phong
 - Công cụ: Claude Code (Sonnet 5.5 - High)
 - Giai đoạn: Lập trình
-- Task / Commit / PR: [HT-02] / 4ebed0a126d4369db0e112793e87c5c599c2280c / #26
+- Task / Commit / PR: [HT-02] / 4ebed0a126d4369db0e112793e87c5c599c2280c / #27
 - Mục đích: Làm trang chi tiết khóa học `/courses/:id` theo wireframe màn 02 (mô tả, giảng viên, danh sách tiêu đề bài học, số học viên), nút ghi danh theo vai trò và trang 404, dùng dữ liệu giả cho tới khi backend có API.
 - Prompt chính: "Gợi ý những file và code ch công việc của ngày hôm nay, tham khảo từ tài liệu mà giảng viên đã đưa ra"; "Kiểm tra các file hiện tại còn thiếu sót hoặc sai không"
 - Kết quả AI trả về (tóm tắt): Gợi ý `CourseDetailPage`, `LessonList`, `EnrollButton`, `StatusPage`, `NotFoundPage`, `mocks/courseDetailApi.js`, hai hàm `getCourseById` và `enrollCourse` trong `courseService.js`, route `/courses/:id` và `*`.
@@ -239,7 +239,7 @@ After completion, verify the created frames and report any incomplete requiremen
 - Ngày / Người dùng: 2026-11-17 / Lê Đức Phong
 - Công cụ: Claude Code + Figwright MCP (Sonnet 5.5 - High)
 - Giai đoạn: Thiết kế
-- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / #26
+- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / #27
 - Mục đích: Cập nhật wireframe cho khớp trang chi tiết khóa học và trang học: thêm tiểu mục nội dung bài, thêm mục bình luận, bỏ các thành phần và màn không còn dùng.
 - Prompt chính (nguyên văn): Check connect Figwright first, and then, changes these wireframe with the following requirements:
 In 03 - Trang học, add more tab subsections of the course content, like:
@@ -255,7 +255,7 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Ngày / Người dùng: 2026-11-17 / Lê Đức Phong
 - Công cụ: Claude Code + Figwright MCP (Sonnet 5.5 - High)
 - Giai đoạn: Thiết kế
-- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / [PR #...]
+- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / 27
 - Mục đích: Cập nhật wireframe cho khớp trang chi tiết khóa học và trang học: thêm tiểu mục nội dung bài, thêm mục bình luận, bỏ các thành phần và màn không còn dùng.
 - Prompt chính (nguyên văn): Check Figwright connection. Add section Comments in 02 - Chi tiết khóa học contains number Comment and when click, it view all comments in Course Detail. For Mobile too with 03 - Trang học and 02 - Chi tiết khóa học
 - Kết quả AI trả về (tóm tắt): Thêm mục bình luận kèm số lượng ở 02 – Chi tiết khóa học, thêm màn mới 02b – Tất cả bình luận, cập nhật bản di động M02 và M03.
@@ -269,7 +269,7 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Ngày / Người dùng: 2026-11-17 / Lê Đức Phong
 - Công cụ: Claude Code + Figwright MCP (Sonnet 5.5 - High)
 - Giai đoạn: Thiết kế
-- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / #26
+- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / #27
 - Mục đích: Cập nhật wireframe cho khớp trang chi tiết khóa học và trang học: thêm tiểu mục nội dung bài, thêm mục bình luận, bỏ các thành phần và màn không còn dùng.
 - Prompt chính (nguyên văn): Delete Image in Hàng ảnh + Văn bản in 03 - Trang học, and delete all 04b
 - Kết quả AI trả về (tóm tắt): Thêm mục bình luận kèm số lượng ở 02 – Chi tiết khóa học, thêm màn mới 02b – Tất cả bình luận, cập nhật bản di động M02 và M03.
