@@ -17,12 +17,11 @@ const pool = mysql.createPool({
 
 // Hàm kiểm tra kết nối CSDL
 const testConnection = async () => {
+  const connection = await pool.getConnection();
   try {
-    const connection = await pool.getConnection();
     console.log('>>> Kết nối CSDL MySQL thành công!');
+  } finally {
     connection.release();
-  } catch (error) {
-    console.error('>>> Lỗi kết nối CSDL:', error.message);
   }
 };
 
