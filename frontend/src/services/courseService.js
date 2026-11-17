@@ -1,5 +1,6 @@
 import axiosClient from '../api/axiosClient';
 import { mockGetCategories, mockGetCourses, mockGetTeachers } from '../mocks/courseApi';
+import { mockGetCourseById, mockEnroll } from '../mocks/courseDetailApi';
 
 // TẠM THỜI dùng dữ liệu giả cho tới khi backend có /api/courses.
 // Khi API sẵn sàng: đặt VITE_USE_MOCK=false trong .env (và đổi mặc định bên dưới trước khi nộp).
@@ -20,3 +21,9 @@ export const getCategories = (_params, signal) =>
 
 export const getTeachers = (_params, signal) =>
   USE_MOCK ? mockGetTeachers() : axiosClient.get('/api/teachers', { signal });
+
+export const getCourseById = ({ id }, signal) =>
+  USE_MOCK ? mockGetCourseById({ id }) : axiosClient.get(`/api/courses/${id}`, { signal });
+
+export const enrollCourse = (id) =>
+  USE_MOCK ? mockEnroll(id) : axiosClient.post(`/api/courses/${id}/enroll`);
