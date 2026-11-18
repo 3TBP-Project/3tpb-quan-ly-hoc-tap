@@ -115,3 +115,4 @@ class CourseController {
 }
 
 module.exports = new CourseController();
+//AI-assisted: <Gemini> [AI-02]

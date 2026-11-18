@@ -16,7 +16,7 @@ class CourseService {
       category_id: courseData.category_id,
       user_id: userId, // Gắn ID của giảng viên đang đăng nhập làm chủ sở hữu
       price_course: courseData.price_course !== undefined ? courseData.price_course : 0,
-      quiz_duration: courseData.quiz_duration !== undefined ? courseData.quiz_duration : null,
+      quiz_minutes: courseData.quiz_minutes !== undefined ? courseData.quiz_minutes : null, // Đã đồng bộ quiz_minutes
       thumbnail: courseData.thumbnail || null,
       status: courseData.status || 'draft' // Mặc định là nháp khi mới tạo theo yêu cầu HT-09
     };
@@ -63,7 +63,7 @@ class CourseService {
       description: updateData.description !== undefined ? updateData.description : course.description,
       category_id: updateData.category_id !== undefined ? updateData.category_id : course.category_id,
       price_course: updateData.price_course !== undefined ? updateData.price_course : course.price_course,
-      quiz_duration: updateData.quiz_duration !== undefined ? updateData.quiz_duration : course.quiz_duration,
+      quiz_minutes: updateData.quiz_minutes !== undefined ? updateData.quiz_minutes : course.quiz_minutes, // Đã đồng bộ quiz_minutes
       thumbnail: updateData.thumbnail !== undefined ? updateData.thumbnail : course.thumbnail,
       status: updateData.status !== undefined ? updateData.status : course.status,
     };
@@ -94,3 +94,4 @@ class CourseService {
 }
 
 module.exports = new CourseService();
+//AI-assisted: <Gemini> [AI-03]

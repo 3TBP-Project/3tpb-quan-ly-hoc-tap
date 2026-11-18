@@ -35,3 +35,4 @@ router.put('/:id', verifyToken, authorizeRoles(ROLES.TEACHER, ROLES.ADMIN), cour
 router.delete('/:id', verifyToken, authorizeRoles(ROLES.TEACHER, ROLES.ADMIN), courseController.deleteCourse);
 
 module.exports = router;
+//AI-assisted: <Gemini> [AI-04]
