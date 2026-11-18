@@ -23,7 +23,7 @@
 | AI-10 | 17/11 | Thiết kế | Chỉnh wireframe: tiểu mục bài học | #27 |
 | AI-11 | 17/11 | Thiết kế | Chỉnh wireframe: bình luận khóa học | #27 |
 | AI-12 | 17/11 | Thiết kế | Chỉnh wireframe: bỏ màn 04b | #27 |
-| AI-13 | 18/11 | Lập trình | Trang học bài, đánh dấu hoàn thành và chặn khi chưa ghi danh (HT-05) | [PR #...] |
+| AI-13 | 18/11 | Lập trình | Trang học bài, đánh dấu hoàn thành và chặn khi chưa ghi danh (HT-05) | #38 |
 
 ---
 
@@ -256,7 +256,7 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Ngày / Người dùng: 2026-11-17 / Lê Đức Phong
 - Công cụ: Claude Code + Figwright MCP (Sonnet 5.5 - High)
 - Giai đoạn: Thiết kế
-- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / 27
+- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / #27
 - Mục đích: Cập nhật wireframe cho khớp trang chi tiết khóa học và trang học: thêm tiểu mục nội dung bài, thêm mục bình luận, bỏ các thành phần và màn không còn dùng.
 - Prompt chính (nguyên văn): Check Figwright connection. Add section Comments in 02 - Chi tiết khóa học contains number Comment and when click, it view all comments in Course Detail. For Mobile too with 03 - Trang học and 02 - Chi tiết khóa học
 - Kết quả AI trả về (tóm tắt): Thêm mục bình luận kèm số lượng ở 02 – Chi tiết khóa học, thêm màn mới 02b – Tất cả bình luận, cập nhật bản di động M02 và M03.
@@ -284,7 +284,7 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Ngày / Người dùng: 2026-11-18 / Lê Đức Phong
 - Công cụ: Claude Code (Opus 5.5 - High)
 - Giai đoạn: Lập trình
-- Task / Commit / PR: [HT-05] / [mã commit] / [PR #...]
+- Task / Commit / PR: [HT-05] / 8f43159aeec9065d03a9653fe3150c326b202b35 / #38
 - Mục đích: Làm trang học bài `/courses/:id/learn/:lessonId` theo wireframe màn 03 và M03: danh sách bài bên trái, nội dung bên phải, video nhúng, liên kết tải PDF, bài trước/sau, nút "Đánh dấu hoàn thành", chưa ghi danh thì không vào được (HT-NFR2); dùng dữ liệu giả cho tới khi backend có API bài học và tiến độ.
 - Prompt chính: "Gợi ý file và code hôm nay, các tài liệu tham khảo, các tài liệu giảng viên đã cho nằm ở đâu trong các bài lab"; "Kiểm tra tiến trình hiện tại"; "Sửa giúp tôi"
 - Kết quả AI trả về (tóm tắt): 
