@@ -2,7 +2,7 @@
  * Repository xử lý thao tác cơ sở dữ liệu cho bảng courses
  * Sử dụng thư viện kết nối MySQL thuần (hoặc Query Builder phù hợp trong dự án)
  */
-const db = require('../config/db'); // Đường dẫn đến file cấu hình kết nối DB của bạn
+const { pool } = require('../config/db');
 
 class CourseRepository {
   
@@ -11,7 +11,7 @@ class CourseRepository {
   // ==========================================
   async create(courseData) {
     const { title, description, category_id, user_id, price_course, quiz_duration } = courseData;
-    const [result] = await db.query(
+    const [result] = await pool.query(
       `INSERT INTO courses (title, description, category_id, user_id, price_course, quiz_duration) 
        VALUES (?, ?, ?, ?, ?, ?)`,
       [title, description, category_id, user_id, price_course, quiz_duration]
@@ -23,7 +23,7 @@ class CourseRepository {
   // 2. READ - Lấy danh sách khóa học theo giảng viên (user_id)
   // ==========================================
   async findByTeacherId(userId) {
-    const [rows] = await db.query(
+    const [rows] = await pool.query(
       `SELECT * FROM courses WHERE user_id = ?`, 
       [userId]
     );
@@ -34,7 +34,7 @@ class CourseRepository {
   // 3. READ - Lấy chi tiết một khóa học theo id
   // ==========================================
   async findById(id) {
-    const [rows] = await db.query(
+    const [rows] = await pool.query(
       `SELECT * FROM courses WHERE id = ?`, 
       [id]
     );
@@ -46,7 +46,7 @@ class CourseRepository {
   // ==========================================
   async update(id, courseData) {
     const { title, description, category_id, price_course, quiz_duration } = courseData;
-    const [result] = await db.query(
+    const [result] = await pool.query(
       `UPDATE courses 
        SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_duration = ? 
        WHERE id = ?`,
@@ -59,7 +59,7 @@ class CourseRepository {
   // 5. DELETE - Xóa khóa học theo id
   // ==========================================
   async remove(id) {
-    const [result] = await db.query(
+    const [result] = await pool.query(
       `DELETE FROM courses WHERE id = ?`, 
       [id]
     );

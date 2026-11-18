@@ -6,6 +6,7 @@ const { ROLES } = require('./config/constants');
 const { verifyToken, authorizeRoles } = require('./middlewares/authMiddleware');
 const authRoutes = require('./routes/authRoute');
 const courseRoute = require('./routes/courseRoute');
+const enrollmentRoute = require('./routes/enrollmentRoute');
 dotenv.config();
 
 const app = express();
@@ -32,8 +33,10 @@ app.get('/admin/dashboard', verifyToken, authorizeRoles(ROLES.ADMIN), (req, res)
   res.json({ status: 'success', message: 'Chào mừng Quản trị viên!', user: req.user });
 });
 
+// API khóa học và ghi danh
+app.use('/api/courses', courseRoute);
+app.use('/api/enrollments', enrollmentRoute);
+
 app.listen(PORT, () => {
   console.log(`>>> Server đang chạy tại http://localhost:${PORT}`);
 });
-// Sử dụng route khóa học với tiền tố /api/courses
-app.use('/api/courses', courseRoute);
