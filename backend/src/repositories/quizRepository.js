@@ -14,7 +14,7 @@ const findCourseById = async (courseId) => {
 const getQuestionsByCourseId = async (courseId) => {
   const [rows] = await pool.query(
     `SELECT id, course_id, content, correct_answer, false_answer,
-            false_answer_2, false_answer_3, false_answer_4
+            false_answer_2, false_answer_3
      FROM questions
      WHERE course_id = ?
      ORDER BY id ASC`,

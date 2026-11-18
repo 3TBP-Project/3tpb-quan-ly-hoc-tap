@@ -3,6 +3,24 @@ const assert = require('node:assert/strict');
 const { pool } = require('../src/config/db');
 const quizRepository = require('../src/repositories/quizRepository');
 
+test('getQuestionsByCourseId selects only the three configured distractor columns', async (t) => {
+  const originalQuery = pool.query;
+  let executedSql = '';
+
+  pool.query = async (sql) => {
+    executedSql = sql;
+    return [[{ id: 1, false_answer: 'wrong 1', false_answer_2: 'wrong 2', false_answer_3: 'wrong 3' }], []];
+  };
+  t.after(() => {
+    pool.query = originalQuery;
+  });
+
+  const questions = await quizRepository.getQuestionsByCourseId(1);
+
+  assert.doesNotMatch(executedSql, /false_answer_4/);
+  assert.equal(questions.length, 1);
+});
+
 test('createAttemptWithLock ignores legacy attempts without a start time', async (t) => {
   const originalGetConnection = pool.getConnection;
   const queries = [];

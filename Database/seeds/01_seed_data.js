@@ -95,7 +95,6 @@ exports.seed = async function(knex) {
         false_answer: `Đáp án sai 1 câu ${qIndex}`,
         false_answer_2: `Đáp án sai 2 câu ${qIndex}`,
         false_answer_3: `Đáp án sai 3 câu ${qIndex}`,
-        false_answer_4: `Đáp án sai 4 câu ${qIndex}`,
       });
       questionIdCounter++;
     }
