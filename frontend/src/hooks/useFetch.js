@@ -1,4 +1,4 @@
-// AI-assisted [AI-08]
+// AI-assisted [AI-08] [AI-09]
 import { useEffect, useState } from 'react';
 import { parseApiError } from '../utils/apiError';
 
@@ -9,11 +9,11 @@ import { parseApiError } from '../utils/apiError';
  *          Phải là hàm ổn định (khai báo ở ngoài component).
  * params:  đối tượng tham số; đổi giá trị thì tự gọi lại.
  *
- * Trả về { data, loading, error }.
+ * Trả về { data, loading, error, status } (status = mã HTTP khi lỗi, ví dụ 404; không lỗi thì null).
  */
 export function useFetch(fetcher, params = null) {
   const key = JSON.stringify(params);
-  const [result, setResult] = useState({ key: undefined, data: null, error: null });
+  const [result, setResult] = useState({ key: undefined, data: null, error: null, status: null });
 
   useEffect(() => {
     let ignore = false;
@@ -21,10 +21,11 @@ export function useFetch(fetcher, params = null) {
 
     fetcher(JSON.parse(key), controller.signal)
       .then((res) => {
-        if (!ignore) setResult({ key, data: res.data, error: null });
+        if (!ignore) setResult({ key, data: res.data, error: null, status: null });
       })
       .catch((err) => {
-        if (!ignore) setResult({ key, data: null, error: parseApiError(err).message });
+        if (ignore) return;
+        setResult({ key, data: null, error: parseApiError(err).message, status: err.response?.status ?? null });
       });
 
     return () => {
@@ -38,5 +39,6 @@ export function useFetch(fetcher, params = null) {
     data: result.data, // giữ dữ liệu cũ trong lúc tải để không bị giật
     loading: !settled,
     error: settled ? result.error : null,
+    status: settled ? result.status : null,
   };
 }
