@@ -5,36 +5,33 @@ const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
 
-// Giả định bạn đã có middleware kiểm tra đăng nhập/quyền giảng viên (ví dụ: verifyToken, isTeacher)
-// const { verifyToken, isTeacher } = require('../middlewares/authMiddleware');
+// Import middleware xác thực và phân quyền từ hệ thống
+const { verifyToken, authorizeRoles } = require('../middlewares/authMiddleware');
+const { ROLES } = require('../config/constants');
 
 // ==========================================
-// 1. CREATE - Thêm khóa học mới
+// 1. CREATE - Thêm khóa học mới (Yêu cầu đăng nhập & đúng vai trò Giảng viên/Admin)
 // ==========================================
-// router.post('/', verifyToken, isTeacher, courseController.createCourse);
-router.post('/', courseController.createCourse);
+router.post('/', verifyToken, authorizeRoles(ROLES.TEACHER, ROLES.ADMIN), courseController.createCourse);
 
 // ==========================================
 // 2. READ - Lấy danh sách khóa học của giảng viên đang đăng nhập
 // ==========================================
-// router.get('/my-courses', verifyToken, isTeacher, courseController.getMyCourses);
-router.get('/my-courses', courseController.getMyCourses);
+router.get('/my-courses', verifyToken, authorizeRoles(ROLES.TEACHER, ROLES.ADMIN), courseController.getMyCourses);
 
 // ==========================================
-// 3. READ - Lấy chi tiết một khóa học theo id
+// 3. READ - Lấy chi tiết một khóa học theo id (Route công khai cho mọi người xem)
 // ==========================================
 router.get('/:id', courseController.getCourseDetail);
 
 // ==========================================
-// 4. UPDATE - Cập nhật thông tin khóa học
+// 4. UPDATE - Cập nhật thông tin khóa học (Yêu cầu đăng nhập & kiểm tra quyền sở hữu ở service)
 // ==========================================
-// router.put('/:id', verifyToken, isTeacher, courseController.updateCourse);
-router.put('/:id', courseController.updateCourse);
+router.put('/:id', verifyToken, authorizeRoles(ROLES.TEACHER, ROLES.ADMIN), courseController.updateCourse);
 
 // ==========================================
-// 5. DELETE - Xóa khóa học
+// 5. DELETE - Xóa khóa học (Yêu cầu đăng nhập & kiểm tra quyền)
 // ==========================================
-// router.delete('/:id', verifyToken, isTeacher, courseController.deleteCourse);
-router.delete('/:id', courseController.deleteCourse);
+router.delete('/:id', verifyToken, authorizeRoles(ROLES.TEACHER, ROLES.ADMIN), courseController.deleteCourse);
 
 module.exports = router;

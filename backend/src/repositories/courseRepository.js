@@ -1,6 +1,5 @@
 /**
- * Repository xử lý thao tác cơ sở dữ liệu cho bảng courses
- * Sử dụng thư viện kết nối MySQL thuần (hoặc Query Builder phù hợp trong dự án)
+- Repository xử lý thao tác cơ sở dữ liệu cho bảng courses
  */
 const db = require('../config/db'); // Đường dẫn đến file cấu hình kết nối DB của bạn
 
@@ -10,11 +9,11 @@ class CourseRepository {
   // 1. CREATE - Thêm khóa học mới
   // ==========================================
   async create(courseData) {
-    const { title, description, category_id, user_id, price_course, quiz_duration } = courseData;
+    const { title, description, category_id, user_id, price_course, quiz_duration, thumbnail, status } = courseData;
     const [result] = await db.query(
-      `INSERT INTO courses (title, description, category_id, user_id, price_course, quiz_duration) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [title, description, category_id, user_id, price_course, quiz_duration]
+      `INSERT INTO courses (title, description, category_id, user_id, price_course, quiz_duration, thumbnail, status) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, description, category_id, user_id, price_course, quiz_duration, thumbnail || null, status || 'draft']
     );
     return result.insertId;
   }
@@ -45,12 +44,12 @@ class CourseRepository {
   // 4. UPDATE - Cập nhật thông tin khóa học
   // ==========================================
   async update(id, courseData) {
-    const { title, description, category_id, price_course, quiz_duration } = courseData;
+    const { title, description, category_id, price_course, quiz_duration, thumbnail, status } = courseData;
     const [result] = await db.query(
       `UPDATE courses 
-       SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_duration = ? 
+       SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_duration = ?, thumbnail = ?, status = ? 
        WHERE id = ?`,
-      [title, description, category_id, price_course, quiz_duration, id]
+      [title, description, category_id, price_course, quiz_duration, thumbnail, status, id]
     );
     return result.affectedRows;
   }

@@ -18,7 +18,8 @@ testConnection();// Kiểm tra kết nối cơ sở dữ liệu khi khởi độ
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
 app.use('/api/auth', authRoutes);
-
+// Sử dụng route khóa học với tiền tố /api/courses
+app.use('/api/courses', courseRoute);
 // Các route kiểm chứng phân quyền 3 vai trò
 app.get('/student/dashboard', verifyToken, authorizeRoles(ROLES.STUDENT), (req, res) => {
   res.json({ status: 'success', message: 'Chào mừng Học viên!', user: req.user });
@@ -35,5 +36,3 @@ app.get('/admin/dashboard', verifyToken, authorizeRoles(ROLES.ADMIN), (req, res)
 app.listen(PORT, () => {
   console.log(`>>> Server đang chạy tại http://localhost:${PORT}`);
 });
-// Sử dụng route khóa học với tiền tố /api/courses
-app.use('/api/courses', courseRoute);
