@@ -1,4 +1,3 @@
-//users table
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
@@ -10,11 +9,17 @@ exports.up = function(knex) {
     table.string('name', 255).notNullable();
     table.string('email', 255).notNullable().unique();
     table.string('password', 255).notNullable();
-    table.string('role', 255).notNullable();
-    table.tinyint('e_locked').defaultTo(0); // Trạng thái khóa tài khoản
     
-    // Cột status kiểu ENUM theo yêu cầu xét duyệt giảng viên
-    table.enu('status', ['pending', 'active', 'locked']).defaultTo('pending').notNullable();
+
+    table.enu('role', ['student', 'teacher', 'admin']).defaultTo('student').notNullable();
+
+    table.tinyint('is_locked').defaultTo(0).notNullable(); // 0: Bình thường, 1: Bị khóa
+    
+    // Trạng thái xét duyệt giảng viên (pending, active)
+    table.enu('status', ['pending', 'active']).defaultTo('pending').notNullable();
+    
+    // Bổ sung created_at theo đúng thiết kế ERD
+    table.timestamp('created_at').defaultTo(knex.fn.now());
   });
 };
 

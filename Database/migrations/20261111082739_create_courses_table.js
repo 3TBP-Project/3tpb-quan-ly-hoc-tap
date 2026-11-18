@@ -9,18 +9,17 @@ exports.up = function(knex) {
     table.string('thumbnail', 255).nullable();
     table.string('title', 255).notNullable();
     table.text('description');
-    
     table.integer('category_id').unsigned().notNullable();
     table.foreign('category_id').references('id').inTable('categories').onDelete('CASCADE');
-    
     table.integer('user_id').unsigned().notNullable();
     table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
-    
     table.float('price_course').defaultTo(0);
-    table.integer('quiz_duration').nullable();
+    table.integer('quiz_minutes').nullable();
     
-    // Thêm cột status theo đặc tả đề tài (ví dụ: draft, public, hidden)
-    table.string('status', 50).defaultTo('draft').notNullable();
+    table.enu('status', ['draft', 'public', 'hidden']).defaultTo('draft').notNullable();
+
+    // Bổ sung created_at để sắp xếp khóa học mới nhất (HT-01)
+    table.timestamp('created_at').defaultTo(knex.fn.now());
 
     // Thêm các chỉ mục (indexes) tối ưu hiệu suất theo yêu cầu
     table.index(['category_id']);

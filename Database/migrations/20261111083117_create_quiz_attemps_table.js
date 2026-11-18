@@ -12,7 +12,9 @@ exports.up = function(knex) {
     table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
     table.float('score').nullable();
     
-    // Đã sửa cú pháp, sửa lỗi chính tả subbmitted_at -> submitted_at và đổi sang dateTime
+    // Bổ sung cột status theo đúng ERD (ví dụ: doing, submitted, late)
+    table.string('status', 50).defaultTo('doing').notNullable();
+    
     table.dateTime('started_at').nullable();
     table.dateTime('submitted_at').nullable();
 
