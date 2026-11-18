@@ -15,7 +15,6 @@ exports.up = function(knex) {
     table.string('false_answer', 255).nullable();
     table.string('false_answer_2', 255).nullable();
     table.string('false_answer_3', 255).nullable();
-    table.string('false_answer_4', 255).nullable();
 
     // Thêm chỉ mục tối ưu hiệu suất truy vấn theo khóa học
     table.index(['course_id']);
