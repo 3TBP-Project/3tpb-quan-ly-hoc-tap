@@ -57,7 +57,7 @@ class CourseRepository {
   async create(courseData) {
     const { title, description, category_id, user_id, price_course, quiz_duration } = courseData;
     const [result] = await pool.query(
-      `INSERT INTO courses (title, description, category_id, user_id, price_course, quiz_duration)
+      `INSERT INTO courses (title, description, category_id, user_id, price_course, quiz_minutes)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [title, description, category_id, user_id, price_course, quiz_duration]
     );
@@ -93,7 +93,7 @@ class CourseRepository {
     const { title, description, category_id, price_course, quiz_duration } = courseData;
     const [result] = await pool.query(
       `UPDATE courses
-       SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_duration = ?
+       SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_minutes = ?
        WHERE id = ?`,
       [title, description, category_id, price_course, quiz_duration, id]
     );

@@ -1,14 +1,18 @@
-require('dotenv').config();
+const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '..', 'backend', '.env') });
 
 /** @type { Object.<string, import("knex").Knex.Config> } */
 module.exports = {
   development: {
     client: 'mysql2', // <-- Đảm bảo là mysql2
     connection: {
-      host: process.env.DB_HOST || '127.0.0.1',
+      host: process.env.DB_HOST || 'localhost',
       port: Number(process.env.DB_PORT) || 3306,
       user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '2632006a',
+      password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'db_quanlyhoctap'
     },
     migrations: {

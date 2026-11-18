@@ -9,7 +9,12 @@ const DEFAULT_COVER = '/images/course-default.jpg';
  * - to: đường dẫn khi bấm vào thẻ (mặc định trang chi tiết khóa học)
  * - children: nội dung thêm ở cuối thẻ, ví dụ thanh tiến độ hoặc nút thao tác
  */
-function CourseCard({ course, to = `/courses/${course.id}`, children }) {
+function CourseCard({
+  course,
+  to = `/courses/${course.id}`,
+  actionLabel = 'Xem khóa học',
+  children,
+}) {
   return (
     <Card className="course-card h-100 shadow-sm">
       <div className="position-relative">
@@ -20,7 +25,7 @@ function CourseCard({ course, to = `/courses/${course.id}`, children }) {
           style={{ aspectRatio: '4 / 3', objectFit: 'cover' }}
         />
         <span className="course-card-cta btn btn-secondary btn-sm position-absolute bottom-0 start-0 m-2">
-          Xem khóa học
+          {actionLabel}
         </span>
       </div>
 

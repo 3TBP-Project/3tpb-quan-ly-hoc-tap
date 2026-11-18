@@ -46,7 +46,11 @@ function CourseListPage() {
       <Row xs={1} sm={2} md={3} xl={4} className="g-3">
         {items.map((course) => (
           <Col key={course.id}>
-            <CourseCard course={course} />
+            <CourseCard
+              course={course}
+              to={`/courses/${course.id}/quiz`}
+              actionLabel="Làm bài kiểm tra"
+            />
           </Col>
         ))}
       </Row>

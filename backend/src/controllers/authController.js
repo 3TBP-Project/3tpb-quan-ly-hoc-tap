@@ -1,3 +1,4 @@
+// AI-assisted [AI-02]
 const authService = require('../services/authService');
 
 const isPlainObject = (value) => {
