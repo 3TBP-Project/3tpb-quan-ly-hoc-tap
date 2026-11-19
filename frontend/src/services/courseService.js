@@ -1,16 +1,19 @@
 import axiosClient from '../api/axiosClient';
+import { mockCourses } from '../mocks/course';
 import { mockGetCategories, mockGetCourses, mockGetTeachers } from '../mocks/courseApi';
 import { mockGetCourseById, mockEnroll } from '../mocks/courseDetailApi';
+import {
+  getSavedEnrolledCourses,
+  isCourseEnrolledSaved,
+  saveEnrolledCourse,
+} from '../utils/enrollmentStorage';
 
-// TẠM THỜI dùng dữ liệu giả cho tới khi backend có /api/courses.
-// Khi API sẵn sàng: đặt VITE_USE_MOCK=false trong .env (và đổi mặc định bên dưới trước khi nộp).
 const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+const courseMemoryCache = new Map(mockCourses.map((c) => [Number(c.id), c]));
 
-// Bỏ các tham số rỗng để không gửi ?search=&categoryId=
 const clean = (params = {}) =>
   Object.fromEntries(Object.entries(params).filter(([, v]) => v !== '' && v != null));
 
-// params: { search, categoryId, teacherId, page, limit }
 export const getCourses = (params, signal) =>
   USE_MOCK
     ? mockGetCourses(params)
@@ -28,8 +31,50 @@ export const getCategories = (_params, signal) =>
 export const getTeachers = (_params, signal) =>
   USE_MOCK ? mockGetTeachers() : axiosClient.get('/api/teachers', { signal });
 
-export const getCourseById = ({ id }, signal) =>
-  USE_MOCK ? mockGetCourseById({ id }) : axiosClient.get(`/api/courses/${id}`, { signal });
+export const getCourseById = async ({ id }, signal) => {
+  const res = USE_MOCK
+    ? await mockGetCourseById({ id })
+    : await axiosClient.get(`/api/courses/${id}`, { signal });
 
-export const enrollCourse = (id) =>
-  USE_MOCK ? mockEnroll(id) : axiosClient.post(`/api/courses/${id}/enroll`);
+  if (res?.data) {
+    courseMemoryCache.set(Number(id), res.data);
+    res.data.isEnrolled = Boolean(res.data.isEnrolled || isCourseEnrolledSaved(id));
+  }
+  return res;
+};
+
+export const enrollCourse = async (id) => {
+  const res = USE_MOCK
+    ? await mockEnroll(id)
+    : await axiosClient.post(`/api/enrollments/courses/${id}`);
+
+  const cached = courseMemoryCache.get(Number(id));
+  saveEnrolledCourse(cached || { id: Number(id) });
+  return res;
+};
+
+export const getMyCourses = async (_params, signal) => {
+  const savedLocal = getSavedEnrolledCourses();
+
+  if (USE_MOCK) {
+    return { status: 'success', data: savedLocal };
+  }
+
+  try {
+    const res = await axiosClient.get('/api/enrollments/my-courses', { signal });
+    const apiList = Array.isArray(res?.data) ? res.data : [];
+
+    // Gộp dữ liệu từ API và localStorage theo id để F5 không bao giờ bị trống
+    const mergedMap = new Map();
+    [...apiList, ...savedLocal].forEach((c) => {
+      if (c && c.id != null) mergedMap.set(Number(c.id), c);
+    });
+
+    return { status: 'success', data: Array.from(mergedMap.values()) };
+  } catch (err) {
+    // Nếu request bị hủy khi unmount thì ném lại cho useFetch xử lý
+    if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') throw err;
+    // Nếu backend lỗi/mất kết nối khi F5, vẫn hiển thị danh sách đã lưu ở client
+    return { status: 'success', data: savedLocal };
+  }
+};

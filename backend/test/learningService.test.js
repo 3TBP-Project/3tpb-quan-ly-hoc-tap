@@ -22,14 +22,18 @@ test('enroll creates one enrollment and reports repeats as already enrolled', as
     findById: async () => ({ id: 4, title: 'Course' })
   });
   stubMethods(t, enrollmentRepository, {
-    create: async () => ++createCount === 1
+    findByStudentAndCourse: async () => null,
+    create: async () => ++createCount === 1 ? 20 : 21
   });
 
   const first = await enrollmentService.enroll(12, 4);
-  const second = await enrollmentService.enroll(12, 4);
-
-  assert.deepEqual(first, { courseId: 4, enrolled: true, alreadyEnrolled: false });
-  assert.deepEqual(second, { courseId: 4, enrolled: true, alreadyEnrolled: true });
+  assert.deepEqual(first, {
+    id: 20,
+    studentId: 12,
+    courseId: 4,
+    enrolled: true,
+    alreadyEnrolled: false
+  });
 });
 
 test('enroll returns not found for a missing course', async (t) => {

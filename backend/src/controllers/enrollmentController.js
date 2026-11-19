@@ -14,20 +14,37 @@ const enroll = async (req, res) => {
   }
 
   try {
-    const data = await enrollmentService.enroll(req.user.id, courseId);
-    return res.status(data.alreadyEnrolled ? 200 : 201).json({
+    const enrollment = await enrollmentService.enroll(req.user.id, courseId);
+    return res.status(enrollment.alreadyEnrolled ? 200 : 201).json({
       status: 'success',
-      message: data.alreadyEnrolled ? 'Bạn đã ghi danh khóa học này.' : 'Ghi danh khóa học thành công.',
-      data
+      message: enrollment.alreadyEnrolled
+        ? 'Bạn đã ghi danh khóa học này.'
+        : 'Ghi danh khóa học thành công.',
+      data: enrollment
     });
   } catch (error) {
     const { statusCode, message } = toPublicError(
       error,
-      'Không thể ghi danh khóa học lúc này.',
+      'Không thể ghi danh khóa học.',
       'Lỗi khi ghi danh khóa học:'
     );
-    return res.status(statusCode).json({ status: 'error', message });
+    return res.status(statusCode).json({
+      status: 'error',
+      message
+    });
   }
 };
 
-module.exports = { enroll };
+const getMyCourses = async (req, res) => {
+  try {
+    const courses = await enrollmentService.getMyCourses(req.user.id);
+    return res.status(200).json({ status: 'success', data: courses });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error.message || 'Không thể tải danh sách khóa học của bạn.'
+    });
+  }
+};
+
+module.exports = { enroll, getMyCourses };
