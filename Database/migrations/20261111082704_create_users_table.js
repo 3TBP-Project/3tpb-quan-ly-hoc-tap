@@ -11,10 +11,10 @@ exports.up = function(knex) {
     table.string('email', 255).notNullable().unique();
     table.string('password', 255).notNullable();
     table.string('role', 255).notNullable();
-    table.tinyint('e_locked').defaultTo(0); // Trạng thái khóa tài khoản
+    table.tinyint('is_locked').defaultTo(0).notNullable();
     
     // Cột status kiểu ENUM theo yêu cầu xét duyệt giảng viên
-    table.enu('status', ['pending', 'active', 'locked']).defaultTo('pending').notNullable();
+    table.enu('status', ['pending', 'active']).defaultTo('pending').notNullable();
   });
 };
 

@@ -34,22 +34,28 @@ DB_PASSWORD=mat_khau_cua_ban
 DB_NAME=ten_database_cua_ban
 ```
 
+Nếu `Database/.env` chưa tồn tại, cấu hình Knex sẽ dùng `backend/.env` để kết nối cùng cơ sở dữ liệu với backend.
+
 ### Bước 2: Cập nhật file `knexfile.js`
 Mở file `knexfile.js` ở thư mục gốc và thay thế bằng nội dung sau:
 
 ```javascript
-require('dotenv').config();
+const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '..', 'backend', '.env') });
 
 /** @type { Object.<string, import("knex").Knex.Config> } */
 module.exports = {
   development: {
     client: 'mysql2',
     connection: {
-      host: process.env.DB_HOST || '127.0.0.1',
+      host: process.env.DB_HOST || 'localhost',
       port: Number(process.env.DB_PORT) || 3306,
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || ''
+      database: process.env.DB_NAME || 'db_quanlyhoctap'
     },
     migrations: {
       tableName: 'knex_migrations',
