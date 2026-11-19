@@ -8,6 +8,9 @@ const authRoutes = require('./routes/authRoute');
 const quizRoutes = require('./routes/quizRoute');
 const courseRoutes = require('./routes/courseRoute');
 const lessonRoute = require('./routes/lessonRoute');
+const enrollmentRoutes = require('./routes/enrollmentRoute');
+const catalogRoutes = require('./routes/catalogRoute');
+
 dotenv.config();
 
 const app = express();
@@ -18,9 +21,11 @@ app.use(express.json());
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/lessons', lessonRoute);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api', catalogRoutes);
+
 // Route xác thực công khai (Đăng ký & Đăng nhập)
 app.use('/api/auth', authRoutes);
-
 // Các route kiểm chứng phân quyền 3 vai trò
 app.get('/student/dashboard', verifyToken, authorizeRoles(ROLES.STUDENT), (req, res) => {
   res.json({ status: 'success', message: 'Chào mừng Học viên!', user: req.user });

@@ -1,6 +1,6 @@
 // AI-assisted [AI-09]
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Row, Col, Badge, Button, Alert } from 'react-bootstrap';
 import { useFetch } from '../hooks/useFetch';
 import { useAuth } from '../context/useAuth';
@@ -20,6 +20,7 @@ function CourseDetailPage() {
   const [justEnrolled, setJustEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [enrollError, setEnrollError] = useState('');
+  const { state } = useLocation();
 
   const handleEnroll = async () => {
     setEnrolling(true);
@@ -37,12 +38,14 @@ function CourseDetailPage() {
   if (loading) return <Loading />;
   if (status === 404) return <NotFoundPage />;
   if (error) return <ErrorMessage message={error} />;
+  if (!course) return <Loading />;
 
   const isEnrolled = course.isEnrolled || justEnrolled;
 
   return (
     <>
       <Button variant="link" className="px-0 mb-3" onClick={() => navigate(-1)}>← Quay lại</Button>
+      {state?.notice && <Alert variant="warning">{state.notice}</Alert>}
       <Row className="g-4">
         <Col lg={8}>
           <Badge bg="primary" className="mb-2">{course.categoryName}</Badge>

@@ -1,3 +1,4 @@
+// AI-assisted [AI-04]
 const quizRepository = require('../repositories/quizRepository');
 
 const MAX_ATTEMPTS = 3;
@@ -31,6 +32,20 @@ const parseFalseAnswers = (falseAnswerRaw) => {
   return [String(falseAnswerRaw)];
 };
 
+const getFalseOptions = (question) => {
+  // The quiz contract is one correct answer plus three distractors.
+  const options = [
+    ...parseFalseAnswers(question.false_answer),
+    question.false_answer_2,
+    question.false_answer_3
+  ];
+
+  return options
+    .map((option) => (typeof option === 'string' ? option.trim() : ''))
+    .filter(Boolean)
+    .slice(0, 3);
+};
+
 /**
  * Bắt đầu lượt làm bài trắc nghiệm (HT-06)
  */
@@ -51,7 +66,11 @@ const start = async (userId, courseId) => {
   }
 
   const sanitizedQuestions = rawQuestions.map((q) => {
-    const falseOptions = parseFalseAnswers(q.false_answer);
+    const falseOptions = getFalseOptions(q);
+    if (falseOptions.length !== 3) {
+      throw createHttpError(`Câu hỏi ${q.id} chưa được cấu hình đủ 4 lựa chọn.`, 500);
+    }
+
     const allOptions = [q.correct_answer, ...falseOptions];
 
     return {
