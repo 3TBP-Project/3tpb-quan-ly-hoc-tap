@@ -37,6 +37,38 @@ test('listCourses passes requested page size to repository', async (t) => {
   assert.equal(response.body.pagination.totalPages, 2);
 });
 
+test('listCourses passes search and selected filters to repository', async (t) => {
+  const originalFindPage = courseRepository.findPage;
+  let received;
+  courseRepository.findPage = async (params) => {
+    received = params;
+    return { courses: [], total: 0 };
+  };
+  t.after(() => {
+    courseRepository.findPage = originalFindPage;
+  });
+
+  const response = createResponse();
+  await courseController.listCourses({
+    query: {
+      page: '2',
+      limit: '4',
+      search: '  React  ',
+      categoryId: '1',
+      teacherId: '9'
+    }
+  }, response);
+
+  assert.deepEqual(received, {
+    page: 2,
+    limit: 4,
+    search: 'React',
+    categoryId: 1,
+    teacherId: 9
+  });
+  assert.equal(response.statusCode, 200);
+});
+
 test('listCourses rejects invalid pagination without querying repository', async (t) => {
   const originalFindPage = courseRepository.findPage;
   let findPageCalled = false;
@@ -50,6 +82,24 @@ test('listCourses rejects invalid pagination without querying repository', async
 
   const response = createResponse();
   await courseController.listCourses({ query: { page: '0', limit: '3' } }, response);
+
+  assert.equal(response.statusCode, 400);
+  assert.equal(findPageCalled, false);
+});
+
+test('listCourses rejects invalid filter IDs without querying repository', async (t) => {
+  const originalFindPage = courseRepository.findPage;
+  let findPageCalled = false;
+  courseRepository.findPage = async () => {
+    findPageCalled = true;
+    return { courses: [], total: 0 };
+  };
+  t.after(() => {
+    courseRepository.findPage = originalFindPage;
+  });
+
+  const response = createResponse();
+  await courseController.listCourses({ query: { categoryId: 'not-an-id' } }, response);
 
   assert.equal(response.statusCode, 400);
   assert.equal(findPageCalled, false);

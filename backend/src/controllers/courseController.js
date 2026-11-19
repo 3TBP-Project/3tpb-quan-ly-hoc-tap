@@ -10,9 +10,18 @@ const parsePositiveInteger = (value, defaultValue) => {
   return Number.isSafeInteger(parsed) ? parsed : null;
 };
 
+const parseOptionalPositiveInteger = (value) => {
+  if (value === undefined || value === '') return undefined;
+  return parsePositiveInteger(value, null);
+};
+
 const listCourses = async (req, res) => {
   const page = parsePositiveInteger(req.query.page, 1);
   const limit = parsePositiveInteger(req.query.limit, 9);
+  const categoryId = parseOptionalPositiveInteger(req.query.categoryId);
+  const teacherId = parseOptionalPositiveInteger(req.query.teacherId);
+  const rawSearch = req.query.search;
+  const search = typeof rawSearch === 'string' ? rawSearch.trim() : '';
 
   if (!page || !limit || limit > 100) {
     return res.status(400).json({
@@ -21,8 +30,24 @@ const listCourses = async (req, res) => {
     });
   }
 
+  if (
+    categoryId === null ||
+    teacherId === null ||
+    (rawSearch !== undefined && typeof rawSearch !== 'string')
+  ) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Tham số search, categoryId hoặc teacherId không hợp lệ.'
+    });
+  }
+
   try {
-    const { courses, total } = await courseRepository.findPage({ page, limit });
+    const filters = {};
+    if (search) filters.search = search;
+    if (categoryId !== undefined) filters.categoryId = categoryId;
+    if (teacherId !== undefined) filters.teacherId = teacherId;
+
+    const { courses, total } = await courseRepository.findPage({ page, limit, ...filters });
 
     return res.status(200).json({
       status: 'success',

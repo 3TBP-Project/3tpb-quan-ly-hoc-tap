@@ -8,8 +8,28 @@ const { pool } = require('../config/db');
 
 class CourseRepository {
 
-  async findPage({ page, limit }) {
+  async findPage({ page, limit, search, categoryId, teacherId }) {
     const offset = (page - 1) * limit;
+    const conditions = [];
+    const filterParams = [];
+
+    if (search) {
+      conditions.push('c.title LIKE ?');
+      filterParams.push(`%${search}%`);
+    }
+    if (categoryId !== undefined) {
+      conditions.push('c.category_id = ?');
+      filterParams.push(categoryId);
+    }
+    if (teacherId !== undefined) {
+      conditions.push('c.user_id = ?');
+      filterParams.push(teacherId);
+    }
+
+    const whereClause = conditions.length > 0
+      ? `WHERE ${conditions.join(' AND ')}`
+      : '';
+
     const [courses] = await pool.query(
       `SELECT
          c.id,
@@ -24,6 +44,7 @@ class CourseRepository {
        LEFT JOIN users AS u ON u.id = c.user_id
        LEFT JOIN categories AS category ON category.id = c.category_id
        LEFT JOIN lessons AS lesson ON lesson.course_id = c.id
+       ${whereClause}
        GROUP BY
          c.id,
          c.title,
@@ -33,10 +54,11 @@ class CourseRepository {
          category.name
        ORDER BY c.id ASC
        LIMIT ? OFFSET ?`,
-      [limit, offset]
+      [...filterParams, limit, offset]
     );
     const [countRows] = await pool.query(
-      'SELECT COUNT(*) AS total FROM courses'
+      `SELECT COUNT(*) AS total FROM courses AS c ${whereClause}`,
+      filterParams
     );
 
     return {
