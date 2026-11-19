@@ -17,6 +17,36 @@ const stubRepository = (t, stubs) => {
   });
 };
 
+test('start returns four options and does not expose answer fields', async (t) => {
+  stubRepository(t, {
+    findCourseById: async () => ({ id: 12, title: 'Test course', quiz_duration: 30 }),
+    getQuestionsByCourseId: async () => [{
+      id: 1,
+      content: 'Question',
+      correct_answer: 'correct',
+      false_answer: 'wrong 1',
+      false_answer_2: 'wrong 2',
+      false_answer_3: 'wrong 3',
+      false_answer_4: 'unused wrong 4'
+    }],
+    createAttemptWithLock: async () => ({
+      attempt: { id: 100 },
+      attemptNumber: 1
+    })
+  });
+
+  const result = await quizService.start(7, 12);
+  const question = result.questions[0];
+
+  assert.equal(question.options.length, 4);
+  assert.deepEqual(
+    [...question.options].sort(),
+    ['correct', 'wrong 1', 'wrong 2', 'wrong 3'].sort()
+  );
+  assert.equal(Object.hasOwn(question, 'correct_answer'), false);
+  assert.equal(Object.hasOwn(question, 'false_answer_4'), false);
+});
+
 test('submit scores 8 correct answers out of 10 as 8.0', async (t) => {
   const questions = Array.from({ length: 10 }, (_, index) => ({
     id: index + 1,

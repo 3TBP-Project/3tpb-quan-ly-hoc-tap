@@ -11,8 +11,10 @@ exports.up = function(knex) {
     table.text('content').notNullable();
     table.string('correct_answer', 255).notNullable();
     
-    // Đổi từ string(255) sang text để có thể lưu danh sách các đáp án sai linh hoạt hơn
-    table.text('false_answer').nullable();
+    table.string('false_answer', 255).nullable();
+    table.string('false_answer_2', 255).nullable();
+    table.string('false_answer_3', 255).nullable();
+    table.string('false_answer_4', 255).nullable();
 
     // Thêm chỉ mục tối ưu hiệu suất truy vấn theo khóa học
     table.index(['course_id']);
