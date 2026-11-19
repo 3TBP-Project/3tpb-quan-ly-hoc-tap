@@ -126,3 +126,17 @@
   - **Sửa lại tên cột & import cho khớp repo:** AI viết theo tên mặc định (`status === 'published'`, `verifyToken`, `axiosClient`), mình phải mở file `migration.sql` và các file mẫu của nhóm ra đối chiếu rồi sửa lại tên cột CSDL, tên middleware và đường dẫn import cho chạy được trên source của nhóm.
   - **Lược bỏ phần dư:** Mình bỏ qua mấy phần râu ria như tính `% tiến độ` hay làm đẹp giao diện phức tạp vì yêu cầu Ngày 6 chỉ cần ghi danh chạy được và hiện danh sách khóa đã đăng ký.
   - **Tự chạy test kiểm tra:** Ghép code xong mình tự mở Thunder Client bắn thử 2 lần liên tiếp cùng 1 khóa và thử chèn ID khóa nháp để chắc chắn backend bắt lỗi trùng (409) với chặn khóa chưa công khai (403) hoạt động chuẩn.
+
+---
+
+---
+
+## [AI-12] Fix lỗi mất dữ liệu ghi danh và trắng trang "Khóa học của tôi" khi nhấn F5 (HT-04)
+- **Giai đoạn / Công việc:** Thẻ `[HT-04]` – Sửa lỗi giao diện trên nhánh `feature/HT-04-ghi-danh`
+- **Công cụ AI:** Gemini
+- **Prompt sử dụng:** Hỏi AI cách xử lý lỗi trang "Khóa học của tôi" (`/my-courses`) bị trắng xóa và mất danh sách khóa học đã đăng ký mỗi khi nhấn F5 tải lại trang.
+- **Kết quả AI gợi ý:** Gợi ý tách file `enrollmentStorage.js` để lưu đầy đủ thông tin thẻ khóa học xuống `localStorage` theo từng user, gộp dữ liệu khi gọi `getMyCourses` trong `courseService.js`, đồng thời thêm `SafeErrorBoundary.jsx` và kiểm tra mảng `Array.isArray` trước khi render ở `MyCoursesPage.jsx`.
+- **Phần tự lọc, chỉnh sửa & loại bỏ:**
+  - **Làm sạch dữ liệu cũ trên trình duyệt:** Lúc đầu chỉ lưu mỗi `id` khóa học nên F5 vẫn không hiện thẻ; sau khi ghép code mới mình phải xóa cache `localStorage` cũ rồi bấm ghi danh lại từ đầu để lưu đủ `title`, ảnh bìa và tên giảng viên.
+  - **Tự kiểm tra thực tế trên trình duyệt:** Mở trang chi tiết bấm ghi danh, chuyển sang `/my-courses` rồi nhấn F5 nhiều lần (kể cả lúc tắt backend để test chế độ mock) để chắc chắn danh sách vẫn giữ nguyên và không bị trắng trang do lỗi `.map()`.
+  - **Dọn file thừa trước khi push:** Lúc chạy lệnh kiểm tra vô tình phát sinh file `package-lock.json` ở thư mục gốc, mình tự lọc ra không commit nhầm vào nhánh `feature/HT-04-ghi-danh`.
