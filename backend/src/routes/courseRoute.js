@@ -4,39 +4,40 @@ const { verifyToken, authorizeRoles } = require('../middlewares/authMiddleware')
 const { ROLES } = require('../config/constants');
 
 const router = express.Router();
-const teacherOnly = [verifyToken, authorizeRoles(ROLES.TEACHER)];
+const courseManagers = [
+  verifyToken,
+  authorizeRoles(ROLES.TEACHER, ROLES.ADMIN)
+];
 
 router.get('/', courseController.listCourses);
 /**
  * Router định nghĩa các API endpoint cho Quản lý khóa học (HT-09)
  */
 
-// Giả định bạn đã có middleware kiểm tra đăng nhập/quyền giảng viên (ví dụ: verifyToken, isTeacher)
-// const { verifyToken, isTeacher } = require('../middlewares/authMiddleware');
-
 // ==========================================
-// 1. CREATE - Thêm khóa học mới
+// 1. CREATE - Thêm khóa học mới (Yêu cầu đăng nhập & đúng vai trò Giảng viên/Admin)
 // ==========================================
-router.post('/', ...teacherOnly, courseController.createCourse);
+router.post('/', ...courseManagers, courseController.createCourse);
 
 // ==========================================
 // 2. READ - Lấy danh sách khóa học của giảng viên đang đăng nhập
 // ==========================================
-router.get('/my-courses', ...teacherOnly, courseController.getMyCourses);
+router.get('/my-courses', ...courseManagers, courseController.getMyCourses);
 
 // ==========================================
-// 3. READ - Lấy chi tiết một khóa học theo id
+// 3. READ - Lấy chi tiết một khóa học theo id (Route công khai cho mọi người xem)
 // ==========================================
 router.get('/:id', courseController.getCourseDetail);
 
 // ==========================================
-// 4. UPDATE - Cập nhật thông tin khóa học
+// 4. UPDATE - Cập nhật thông tin khóa học (Yêu cầu đăng nhập & kiểm tra quyền sở hữu ở service)
 // ==========================================
-router.put('/:id', ...teacherOnly, courseController.updateCourse);
+router.put('/:id', ...courseManagers, courseController.updateCourse);
 
 // ==========================================
-// 5. DELETE - Xóa khóa học
+// 5. DELETE - Xóa khóa học (Yêu cầu đăng nhập & kiểm tra quyền)
 // ==========================================
-router.delete('/:id', ...teacherOnly, courseController.deleteCourse);
+router.delete('/:id', ...courseManagers, courseController.deleteCourse);
 
 module.exports = router;
+//AI-assisted: <Gemini> [AI-04]

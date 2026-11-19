@@ -159,10 +159,11 @@ class CourseController {
   async updateCourse(req, res) {
     try {
       const userId = req.user ? req.user.id : req.userId;
+      const userRole = req.user ? req.user.role : 'teacher';
       const courseId = req.params.id;
       const updateData = req.body;
 
-      const updatedCourse = await courseService.updateCourse(userId, courseId, updateData);
+      const updatedCourse = await courseService.updateCourse(userId, courseId, updateData, userRole);
       return res.status(200).json({
         success: true,
         message: 'Cập nhật khóa học thành công!',
@@ -181,15 +182,16 @@ class CourseController {
     }
   }
 
-  // ==========================================
+ // ==========================================
   // 5. DELETE - Xóa khóa học
   // ==========================================
   async deleteCourse(req, res) {
     try {
       const userId = req.user ? req.user.id : req.userId;
+      const userRole = req.user ? req.user.role : 'teacher'; // Lấy role để Service kiểm tra quyền Admin
       const courseId = req.params.id;
 
-      await courseService.deleteCourse(userId, courseId);
+      await courseService.deleteCourse(userId, courseId, userRole);
       return res.status(200).json({
         success: true,
         message: 'Xóa khóa học thành công!'
@@ -212,3 +214,4 @@ const courseController = new CourseController();
 courseController.listCourses = listCourses;
 
 module.exports = courseController;
+//AI-assisted: <Gemini> [AI-02]

@@ -22,7 +22,6 @@ app.use('/api', catalogRoutes);
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
 app.use('/api/auth', authRoutes);
-
 // Các route kiểm chứng phân quyền 3 vai trò
 app.get('/student/dashboard', verifyToken, authorizeRoles(ROLES.STUDENT), (req, res) => {
   res.json({ status: 'success', message: 'Chào mừng Học viên!', user: req.user });
