@@ -11,6 +11,7 @@ exports.up = function(knex) {
     table.integer('course_id').unsigned().notNullable();
     table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
     table.float('score').nullable();
+    table.string('status', 50).notNullable().defaultTo('doing');
     
     // Đã sửa cú pháp, sửa lỗi chính tả subbmitted_at -> submitted_at và đổi sang dateTime
     table.dateTime('started_at').nullable();

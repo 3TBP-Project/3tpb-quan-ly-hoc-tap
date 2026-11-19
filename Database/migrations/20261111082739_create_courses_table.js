@@ -17,7 +17,7 @@ exports.up = function(knex) {
     table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
     
     table.float('price_course').defaultTo(0);
-    table.integer('quiz_duration').nullable();
+    table.integer('quiz_minutes').nullable();
     
     // Thêm cột status theo đặc tả đề tài (ví dụ: draft, public, hidden)
     table.string('status', 50).defaultTo('draft').notNullable();
