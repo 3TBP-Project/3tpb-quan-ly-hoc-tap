@@ -23,6 +23,7 @@
 | AI-10 | 17/11 | Thiết kế | Chỉnh wireframe: tiểu mục bài học | #27 |
 | AI-11 | 17/11 | Thiết kế | Chỉnh wireframe: bình luận khóa học | #27 |
 | AI-12 | 17/11 | Thiết kế | Chỉnh wireframe: bỏ màn 04b | #27 |
+| AI-13 | 18/11 | Lập trình | Trang học bài, đánh dấu hoàn thành và chặn khi chưa ghi danh (HT-05) | #38 |
 
 ---
 
@@ -255,7 +256,7 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Ngày / Người dùng: 2026-11-17 / Lê Đức Phong
 - Công cụ: Claude Code + Figwright MCP (Sonnet 5.5 - High)
 - Giai đoạn: Thiết kế
-- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / 27
+- Task / Commit / PR: [HT-02] / 96a778146e72ca6ba7da1c6ca7a0a5f11901f605 / #27
 - Mục đích: Cập nhật wireframe cho khớp trang chi tiết khóa học và trang học: thêm tiểu mục nội dung bài, thêm mục bình luận, bỏ các thành phần và màn không còn dùng.
 - Prompt chính (nguyên văn): Check Figwright connection. Add section Comments in 02 - Chi tiết khóa học contains number Comment and when click, it view all comments in Course Detail. For Mobile too with 03 - Trang học and 02 - Chi tiết khóa học
 - Kết quả AI trả về (tóm tắt): Thêm mục bình luận kèm số lượng ở 02 – Chi tiết khóa học, thêm màn mới 02b – Tất cả bình luận, cập nhật bản di động M02 và M03.
@@ -278,6 +279,23 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: Xuất lại PNG từ Figma và đối chiếu từng màn trong `docs/wireframes/`.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
 - Điều học được: Thiết kế giao diện
+
+### [AI-13] Trang học bài, đánh dấu hoàn thành và chặn khi chưa ghi danh (HT-05)
+- Ngày / Người dùng: 2026-11-18 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-05] / 8f43159aeec9065d03a9653fe3150c326b202b35 / #38
+- Mục đích: Làm trang học bài `/courses/:id/learn/:lessonId` theo wireframe màn 03 và M03: danh sách bài bên trái, nội dung bên phải, video nhúng, liên kết tải PDF, bài trước/sau, nút "Đánh dấu hoàn thành", chưa ghi danh thì không vào được (HT-NFR2); dùng dữ liệu giả cho tới khi backend có API bài học và tiến độ.
+- Prompt chính: "Gợi ý file và code hôm nay, các tài liệu tham khảo, các tài liệu giảng viên đã cho nằm ở đâu trong các bài lab"; "Kiểm tra tiến trình hiện tại"; "Sửa giúp tôi"
+- Kết quả AI trả về (tóm tắt): 
++ Đối chiếu Lab 4, 5, 8, 13, 14, 15, gợi ý `LearnPage`, `LessonSidebar` (dùng `NavLink`), `LessonContent` (khung video 16:9), `LessonNav`, `utils/video.js` (chỉ nhận link YouTube/Facebook), `services/lessonService.js`, `mocks/lessonApi.js`, hai route có `ProtectedRoute` và thông báo ở trang chi tiết khi bị chặn.
++ Gợi ý cách kiểm tra quyền ở server: middleware kiểm tra `enrollments` hoặc giảng viên sở hữu rồi trả 403, ghi tiến độ bằng `INSERT ... ON DUPLICATE KEY UPDATE` để không trùng.
++ Sau khi kiểm tra mã đã gõ, AI chỉ ra 9 lỗi lint và sửa trực tiếp.
+- Đánh giá: Đúng một phần: mã gõ lại có lỗi (thiếu import trong `App.jsx`, sai tên `mockCourse` và `mockGetLessonById`, biến `lesson` không tồn tại, hàm `fail` luôn trả 404 nên không kiểm tra được HT-NFR2, `mockCompleteLesson` nhận sai tham số); `lessonService` đọc `VITE_USE_MOCK` ngược với `courseService` nên trang học gọi backend thật trong khi trang chi tiết dùng dữ liệu giả. Wireframe có tab tiểu mục nhưng bảng `lessons` chỉ có một cột `content`, cần chốt với TV4.
+- Đã chỉnh sửa gì: Sửa các lỗi trên; trang chi tiết và trang học dùng chung `buildLessons` để cùng một danh sách bài; gộp import `useLocation`; thay link video mẫu bằng hằng `SAMPLE_VIDEO`; đường dẫn API `/api/courses/:id/learn` và `/api/lessons/:id/complete` để tạm, chờ chốt với TV4 và TV5.
+- Cách kiểm chứng: `npm run lint` (0 lỗi), `npm run build` thành công; kiểm tra trên trình duyệt với dữ liệu giả: khách mở trang học bị chuyển sang `/login`; học viên chưa ghi danh bị đưa về trang chi tiết kèm thông báo "Bạn cần ghi danh để vào học."; ghi danh rồi bấm "Vào học" vào bài 1; "Đánh dấu hoàn thành" làm tiến độ tăng 0/10 lên 1/10 và nút bị tắt; "Bài sau" chuyển bài và tô đúng bài ở cột trái; bài hoặc khóa không tồn tại ra trang 404; 360 px không tràn ngang.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 85%
+- Điều học được: Kiểm tra quyền xem bài phải làm ở server, giao diện chỉ ẩn nút; `NavLink` tự gắn class `active` cho bài đang học; route có hai tham số `:id` và `:lessonId`; cờ dữ liệu giả phải thống nhất giữa các service; thẻ `<a href>` không gửi token nên tải tệp có kiểm tra quyền phải tải qua Axios.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
