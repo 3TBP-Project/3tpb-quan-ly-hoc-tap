@@ -132,9 +132,17 @@ class CourseController {
   // 3. READ - Lấy chi tiết một khóa học theo id
   // ==========================================
   async getCourseDetail(req, res) {
+    const courseId = parsePositiveInteger(req.params.id, null);
+    if (!courseId) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID khóa học không hợp lệ.'
+      });
+    }
+
     try {
-      const courseId = req.params.id;
-      const course = await courseService.getCourseById(courseId);
+      const userId = req.user ? req.user.id : null;
+      const course = await courseService.getCourseById(courseId, userId);
 
       return res.status(200).json({
         success: true,
