@@ -7,6 +7,7 @@ const { verifyToken, authorizeRoles } = require('./middlewares/authMiddleware');
 const authRoutes = require('./routes/authRoute');
 const quizRoutes = require('./routes/quizRoute');
 const courseRoutes = require('./routes/courseRoute');
+const enrollmentRoutes = require('./routes/enrollmentRoute');
 const catalogRoutes = require('./routes/catalogRoute');
 
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api', catalogRoutes);
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
