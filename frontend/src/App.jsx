@@ -5,6 +5,8 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import NotFoundPage from './pages/NotFoundPage'
+import LearnPage from './pages/LearnPage'
+import ProtectedRoute from './components/auth/ProtectedRoute'
 
 function App() {
   return (
@@ -14,7 +16,17 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
-        <Route path="*" element={<NotFoundPage />} /> 
+        <Route path="/courses/:id/learn" element={
+          <ProtectedRoute>
+            <LearnPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/courses/:id/learn/:lessonId" element={
+          <ProtectedRoute>
+            <LearnPage />
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   )
