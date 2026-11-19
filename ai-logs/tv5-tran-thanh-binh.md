@@ -89,4 +89,54 @@
     1. Băm mật khẩu bằng `bcrypt`/`argon2` và ẩn trường `password` trong JSON response.
     2. Chặn leo thang đặc quyền (bỏ qua `role` từ `req.body`, gán cứng mặc định `student`).
     3. Bắt trùng email ở cả tầng ứng dụng (trả lỗi `400`/`409` tiếng Việt) và ràng buộc `UNIQUE` dưới CSDL.
-    4. Kiểm tra input lạ/độc hại (chuỗi toàn dấu cách,  
+    4. Kiểm tra input lạ/độc hại (chuỗi toàn dấu cách, mật khẩu `< 6` hoặc `> 72` ký tự, thẻ `<script>`, sai kiểu dữ liệu Array/Object).
+    5. Không trả về stack trace kỹ thuật khi phát sinh lỗi.
+
+---
+
+## [AI-09] Bổ sung bộ Test Case cho chức năng Đăng ký (`HT-03`)
+- **Giai đoạn / Công việc:** N3-TV5-03 (`docs/test-cases.md`)
+- **Công cụ AI:** Gemini
+- **Prompt sử dụng:** Tạo các test case cho chức năng đăng ký tài khoản HT-03 (đăng ký thành công, email trùng, mật khẩu yếu, input không hợp lệ, chống leo thang đặc quyền) theo bảng 6 cột.
+- **Kết quả AI gợi ý:** 7 test case từ đăng ký chuẩn đến các trường hợp biên (bao gồm cả case quên mật khẩu và đăng nhập sai nhiều lần).
+- **Phần tự lọc, chỉnh sửa & loại bỏ:**
+  - **Loại bỏ** 2 test case thuộc chức năng Đăng nhập/Quên mật khẩu để tránh trùng lặp phạm vi của `HT-03`.
+  - **Chuẩn hóa** lại 5 test case (`TC-09` $\rightarrow$ `TC-13`) theo đúng cấu trúc bảng 6 cột của nhóm.
+  - **Bổ sung** chi tiết kiểm tra giá trị mã hóa `bcrypt` và vai trò mặc định trong CSDL tại `TC-09`, cũng như kịch bản gửi kèm `"role": "admin"` và thẻ `<script>` tại `TC-13` để khớp với checklist bảo mật `[AI-08]`.
+
+---
+
+## [AI-10] Thiết kế kịch bản kiểm thử API thực tế trên Thunder Client & CSDL
+- **Giai đoạn / Công việc:** N3-TV5-01 & N3-TV5-02 (Review PR Migration và PR Đăng ký)
+- **Công cụ AI:** Gemini
+- **Prompt sử dụng:** Hướng dẫn cách dùng Thunder Client trên VS Code để gửi payload JSON test các lỗi băm mật khẩu, trùng email, role injection và input sai kiểu dữ liệu cho API đăng ký.
+- **Kết quả AI gợi ý:** Các mẫu JSON request body cho phương thức `POST` kèm cách kiểm tra HTTP status code và dữ liệu CSDL.
+- **Phần tự lọc, chỉnh sửa & loại bỏ:**
+  - Điều chỉnh tên các trường JSON (`full_name`, `email`, `password`, `role`) và đường dẫn endpoint (`/api/auth/register`) cho khớp với mã nguồn thực tế của nhánh PR được review.
+  - Thực thi trực tiếp toàn bộ 4 kịch bản request trên máy local, đối chiếu bảng `users` và kiểm tra ràng buộc `UNIQUE(user_id, course_id)` trên CSDL trống trước khi xác nhận trên GitHub.  
+
+---
+
+## [AI-11] Code chức năng Ghi danh và trang "Khóa học của tôi" (HT-04)
+- **Giai đoạn / Công việc:** Ngày 6 – Thẻ `[HT-04]` (Ghi danh 1 lần/khóa công khai & trang Khóa học của tôi)
+- **Công cụ AI:** Gemini
+- **Prompt sử dụng:** Nhờ AI viết giúp API ghi danh khóa học (chỉ cho ghi danh khóa công khai, chặn ghi danh trùng) và trang React "Khóa học của tôi" kèm nút bấm ở trang chi tiết khóa học.
+- **Kết quả AI gợi ý:** Khung code đầy đủ từ controller, route bên Backend cho tới service gọi API, trang `MyCourses.jsx` và logic đổi trạng thái nút bấm bên Frontend.
+- **Phần tự lọc, chỉnh sửa & loại bỏ:**
+  - **Sửa lại tên cột & import cho khớp repo:** AI viết theo tên mặc định (`status === 'published'`, `verifyToken`, `axiosClient`), mình phải mở file `migration.sql` và các file mẫu của nhóm ra đối chiếu rồi sửa lại tên cột CSDL, tên middleware và đường dẫn import cho chạy được trên source của nhóm.
+  - **Lược bỏ phần dư:** Mình bỏ qua mấy phần râu ria như tính `% tiến độ` hay làm đẹp giao diện phức tạp vì yêu cầu Ngày 6 chỉ cần ghi danh chạy được và hiện danh sách khóa đã đăng ký.
+  - **Tự chạy test kiểm tra:** Ghép code xong mình tự mở Thunder Client bắn thử 2 lần liên tiếp cùng 1 khóa và thử chèn ID khóa nháp để chắc chắn backend bắt lỗi trùng (409) với chặn khóa chưa công khai (403) hoạt động chuẩn.
+
+---
+
+---
+
+## [AI-12] Fix lỗi mất dữ liệu ghi danh và trắng trang "Khóa học của tôi" khi nhấn F5 (HT-04)
+- **Giai đoạn / Công việc:** Thẻ `[HT-04]` – Sửa lỗi giao diện trên nhánh `feature/HT-04-ghi-danh`
+- **Công cụ AI:** Gemini
+- **Prompt sử dụng:** Hỏi AI cách xử lý lỗi trang "Khóa học của tôi" (`/my-courses`) bị trắng xóa và mất danh sách khóa học đã đăng ký mỗi khi nhấn F5 tải lại trang.
+- **Kết quả AI gợi ý:** Gợi ý tách file `enrollmentStorage.js` để lưu đầy đủ thông tin thẻ khóa học xuống `localStorage` theo từng user, gộp dữ liệu khi gọi `getMyCourses` trong `courseService.js`, đồng thời thêm `SafeErrorBoundary.jsx` và kiểm tra mảng `Array.isArray` trước khi render ở `MyCoursesPage.jsx`.
+- **Phần tự lọc, chỉnh sửa & loại bỏ:**
+  - **Làm sạch dữ liệu cũ trên trình duyệt:** Lúc đầu chỉ lưu mỗi `id` khóa học nên F5 vẫn không hiện thẻ; sau khi ghép code mới mình phải xóa cache `localStorage` cũ rồi bấm ghi danh lại từ đầu để lưu đủ `title`, ảnh bìa và tên giảng viên.
+  - **Tự kiểm tra thực tế trên trình duyệt:** Mở trang chi tiết bấm ghi danh, chuyển sang `/my-courses` rồi nhấn F5 nhiều lần (kể cả lúc tắt backend để test chế độ mock) để chắc chắn danh sách vẫn giữ nguyên và không bị trắng trang do lỗi `.map()`.
+  - **Dọn file thừa trước khi push:** Lúc chạy lệnh kiểm tra vô tình phát sinh file `package-lock.json` ở thư mục gốc, mình tự lọc ra không commit nhầm vào nhánh `feature/HT-04-ghi-danh`.
