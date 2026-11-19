@@ -8,7 +8,8 @@ import CourseDetailPage from './pages/CourseDetailPage'
 import MyCoursesPage from './pages/MyCoursesPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import NotFoundPage from './pages/NotFoundPage'
-
+import LearnPage from './pages/LearnPage'
+import UserManagementPage from './pages/admin/UserManagementPage'
 function App() {
   return (
     <Routes>
@@ -36,6 +37,14 @@ function App() {
             <LearnPage />
           </ProtectedRoute>
         } />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <UserManagementPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

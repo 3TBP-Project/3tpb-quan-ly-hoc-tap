@@ -53,7 +53,7 @@ function CourseDetailPage() {
           <p className="text-muted">Giảng viên: {course.teacherName}</p>
           <h2 className="h5 mt-4">Mô tả</h2>
           <p>{course.description}</p>
-          <h2 className="h5 mt-4">Danh sách bài học ({course.lessons.length})</h2>
+          <h2 className="h5 mt-4">Danh sách bài học ({course?.lessons?.length || 0})</h2>
           <LessonList lessons={course.lessons} unlocked={isEnrolled} />
         </Col>
         <Col className="order-first order-lg-last">

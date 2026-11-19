@@ -9,6 +9,7 @@ const quizRoutes = require('./routes/quizRoute');
 const courseRoutes = require('./routes/courseRoute');
 const enrollmentRoutes = require('./routes/enrollmentRoute');
 const catalogRoutes = require('./routes/catalogRoute');
+const userRoutes = require('./routes/userRoute');
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/admin/users', userRoutes);
 app.use('/api', catalogRoutes);
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)

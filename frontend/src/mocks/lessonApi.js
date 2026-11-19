@@ -1,7 +1,7 @@
 // AI-assisted [AI-13]
 // Giả lập API trang học bài (HT-05) cho tới khi backend có route bài học và tiến độ.
 import { mockCourses } from './course';
-import { buildLessons, isMockEnrolled } from './courseDetailApi';
+// import { buildLessons, isMockEnrolled } from './courseDetailApi';
 
 // Dán link YouTube bài giảng thật vào đây để thử phần video nhúng
 const SAMPLE_VIDEO = 'https://www.youtube.com/watch?v=VIDEO_ID';
