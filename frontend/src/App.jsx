@@ -8,6 +8,8 @@ import CourseDetailPage from './pages/CourseDetailPage'
 import NotFoundPage from './pages/NotFoundPage'
 import LearnPage from './pages/LearnPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import ProtectedRoute from './components/auth/ProtectedRoute'
+import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
 
 function App() {
   return (
@@ -30,6 +32,22 @@ function App() {
         } />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
+      <Route
+        path="/teacher/courses"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <TeacherQuestionsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher/courses/:courseId/questions"
+        element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <TeacherQuestionsPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   )
 }

@@ -7,6 +7,7 @@ const { verifyToken, authorizeRoles } = require('./middlewares/authMiddleware');
 const authRoutes = require('./routes/authRoute');
 const quizRoutes = require('./routes/quizRoute');
 const courseRoutes = require('./routes/courseRoute');
+const questionRoutes = require('./routes/questionRoute');
 const catalogRoutes = require('./routes/catalogRoute');
 
 dotenv.config();
@@ -22,6 +23,8 @@ app.use('/api', catalogRoutes);
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
 app.use('/api/auth', authRoutes);
+
+app.use('/api/teacher', questionRoutes);
 // Các route kiểm chứng phân quyền 3 vai trò
 app.get('/student/dashboard', verifyToken, authorizeRoles(ROLES.STUDENT), (req, res) => {
   res.json({ status: 'success', message: 'Chào mừng Học viên!', user: req.user });
