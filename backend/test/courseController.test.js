@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const courseRepository = require('../src/repositories/courseRepository');
 const courseController = require('../src/controllers/courseController');
+const courseService = require('../src/services/courseService');
 
 const createResponse = () => ({
   statusCode: null,
@@ -103,4 +104,24 @@ test('listCourses rejects invalid filter IDs without querying repository', async
 
   assert.equal(response.statusCode, 400);
   assert.equal(findPageCalled, false);
+});
+
+test('createCourse does not expose internal errors to clients', async (t) => {
+  const originalCreateCourse = courseService.createCourse;
+  const originalConsoleError = console.error;
+  courseService.createCourse = async () => {
+    throw new Error('ER_BAD_FIELD_ERROR: internal_course_column');
+  };
+  console.error = () => {};
+  t.after(() => {
+    courseService.createCourse = originalCreateCourse;
+    console.error = originalConsoleError;
+  });
+
+  const response = createResponse();
+  await courseController.createCourse({ body: {}, user: { id: 2 } }, response);
+
+  assert.equal(response.statusCode, 500);
+  assert.equal(response.body.message, 'Không thể tạo khóa học lúc này.');
+  assert.doesNotMatch(response.body.message, /internal_course_column/);
 });

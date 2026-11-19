@@ -1,5 +1,6 @@
 // AI-assisted [AI-02]
 const authService = require('../services/authService');
+const { toPublicError } = require('../utils/errorResponse');
 
 const isPlainObject = (value) => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -21,10 +22,14 @@ const register = async (req, res) => {
       data: user
     });
   } catch (error) {
-    const statusCode = error.statusCode || 500;
+    const { statusCode, message } = toPublicError(
+      error,
+      'Không thể đăng ký tài khoản lúc này.',
+      'Lỗi khi đăng ký tài khoản:'
+    );
     return res.status(statusCode).json({
       status: 'error',
-      message: error.message || 'Lỗi hệ thống khi đăng ký tài khoản.'
+      message
     });
   }
 };
@@ -45,10 +50,14 @@ const login = async (req, res) => {
       data: result
     });
   } catch (error) {
-    const statusCode = error.statusCode || 500;
+    const { statusCode, message } = toPublicError(
+      error,
+      'Không thể đăng nhập lúc này.',
+      'Lỗi khi đăng nhập:'
+    );
     return res.status(statusCode).json({
       status: 'error',
-      message: error.message || 'Lỗi hệ thống khi đăng nhập.'
+      message
     });
   }
 };

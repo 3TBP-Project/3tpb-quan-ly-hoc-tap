@@ -1,6 +1,7 @@
 // AI-assisted [AI-05]
 const courseRepository = require('../repositories/courseRepository');
 const courseService = require('../services/courseService');
+const { toPublicError } = require('../utils/errorResponse');
 
 const parsePositiveInteger = (value, defaultValue) => {
   if (value === undefined) return defaultValue;
@@ -90,9 +91,14 @@ class CourseController {
         data: newCourse
       });
     } catch (error) {
-      return res.status(400).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể tạo khóa học lúc này.',
+        'Lỗi khi tạo khóa học:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
@@ -110,9 +116,14 @@ class CourseController {
         data: courses
       });
     } catch (error) {
-      return res.status(400).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể tải danh sách khóa học của giảng viên lúc này.',
+        'Lỗi khi tải khóa học của giảng viên:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
@@ -130,9 +141,14 @@ class CourseController {
         data: course
       });
     } catch (error) {
-      return res.status(404).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể tải chi tiết khóa học lúc này.',
+        'Lỗi khi tải chi tiết khóa học:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
@@ -153,9 +169,14 @@ class CourseController {
         data: updatedCourse
       });
     } catch (error) {
-      return res.status(403).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể cập nhật khóa học lúc này.',
+        'Lỗi khi cập nhật khóa học:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
@@ -174,9 +195,14 @@ class CourseController {
         message: 'Xóa khóa học thành công!'
       });
     } catch (error) {
-      return res.status(403).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể xóa khóa học lúc này.',
+        'Lỗi khi xóa khóa học:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }

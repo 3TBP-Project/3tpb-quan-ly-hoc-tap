@@ -1,7 +1,10 @@
 const express = require('express');
 const courseController = require('../controllers/courseController');
+const { verifyToken, authorizeRoles } = require('../middlewares/authMiddleware');
+const { ROLES } = require('../config/constants');
 
 const router = express.Router();
+const teacherOnly = [verifyToken, authorizeRoles(ROLES.TEACHER)];
 
 router.get('/', courseController.listCourses);
 /**
@@ -14,14 +17,12 @@ router.get('/', courseController.listCourses);
 // ==========================================
 // 1. CREATE - Thêm khóa học mới
 // ==========================================
-// router.post('/', verifyToken, isTeacher, courseController.createCourse);
-router.post('/', courseController.createCourse);
+router.post('/', ...teacherOnly, courseController.createCourse);
 
 // ==========================================
 // 2. READ - Lấy danh sách khóa học của giảng viên đang đăng nhập
 // ==========================================
-// router.get('/my-courses', verifyToken, isTeacher, courseController.getMyCourses);
-router.get('/my-courses', courseController.getMyCourses);
+router.get('/my-courses', ...teacherOnly, courseController.getMyCourses);
 
 // ==========================================
 // 3. READ - Lấy chi tiết một khóa học theo id
@@ -31,13 +32,11 @@ router.get('/:id', courseController.getCourseDetail);
 // ==========================================
 // 4. UPDATE - Cập nhật thông tin khóa học
 // ==========================================
-// router.put('/:id', verifyToken, isTeacher, courseController.updateCourse);
-router.put('/:id', courseController.updateCourse);
+router.put('/:id', ...teacherOnly, courseController.updateCourse);
 
 // ==========================================
 // 5. DELETE - Xóa khóa học
 // ==========================================
-// router.delete('/:id', verifyToken, isTeacher, courseController.deleteCourse);
-router.delete('/:id', courseController.deleteCourse);
+router.delete('/:id', ...teacherOnly, courseController.deleteCourse);
 
 module.exports = router;

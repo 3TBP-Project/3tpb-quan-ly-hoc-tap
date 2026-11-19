@@ -4,6 +4,12 @@
  */
 const courseRepository = require('../repositories/courseRepository');
 
+const createCourseError = (message, statusCode) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+};
+
 class CourseService {
 
   // ==========================================
@@ -31,7 +37,7 @@ class CourseService {
   async getCourseById(id) {
     const course = await courseRepository.findById(id);
     if (!course) {
-      throw new Error('Không tìm thấy khóa học!');
+      throw createCourseError('Không tìm thấy khóa học!', 404);
     }
     return course;
   }
@@ -42,12 +48,12 @@ class CourseService {
   async updateCourse(userId, courseId, updateData) {
     const course = await courseRepository.findById(courseId);
     if (!course) {
-      throw new Error('Không tìm thấy khóa học!');
+      throw createCourseError('Không tìm thấy khóa học!', 404);
     }
 
     // Kiểm tra chủ sở hữu: Giảng viên chỉ được sửa khóa học của chính mình
     if (course.user_id !== userId) {
-      throw new Error('Bạn không có quyền chỉnh sửa khóa học này!');
+      throw createCourseError('Bạn không có quyền chỉnh sửa khóa học này!', 403);
     }
 
     await courseRepository.update(courseId, updateData);
@@ -60,12 +66,12 @@ class CourseService {
   async deleteCourse(userId, courseId) {
     const course = await courseRepository.findById(courseId);
     if (!course) {
-      throw new Error('Không tìm thấy khóa học!');
+      throw createCourseError('Không tìm thấy khóa học!', 404);
     }
 
     // Kiểm tra chủ sở hữu: Giảng viên chỉ được xóa khóa học của chính mình
     if (course.user_id !== userId) {
-      throw new Error('Bạn không có quyền xóa khóa học này!');
+      throw createCourseError('Bạn không có quyền xóa khóa học này!', 403);
     }
 
     const affectedRows = await courseRepository.remove(courseId);
