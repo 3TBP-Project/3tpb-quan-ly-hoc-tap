@@ -9,7 +9,7 @@ const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(401).json({
       status: 'error',
-      message: 'Truy cập bị từ chối. Vui lòng đăng nhập để lấy token.'
+      message: 'Vui lòng đăng nhập để làm bài trắc nghiệm. Nếu chưa có tài khoản, hãy đăng ký trước.'
     });
   }
 
@@ -20,7 +20,7 @@ const verifyToken = (req, res, next) => {
   } catch (error) {
     return res.status(401).json({
       status: 'error',
-      message: 'Token không hợp lệ hoặc đã hết hạn.'
+      message: 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.'
     });
   }
 };

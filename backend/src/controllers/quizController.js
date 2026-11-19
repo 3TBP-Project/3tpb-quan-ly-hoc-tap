@@ -1,5 +1,6 @@
 // AI-assisted [AI-04]
 const quizService = require('../services/quizService');
+const { toPublicError } = require('../utils/errorResponse');
 
 const parsePositiveIntId = (rawId) => {
     const parsed = Number(rawId);
@@ -29,9 +30,14 @@ const startQuiz = async (req, res) => {
             data
         });
     } catch (error) {
-        return res.status(error.statusCode || 500).json({
+        const { statusCode, message } = toPublicError(
+            error,
+            'Không thể khởi tạo bài trắc nghiệm lúc này.',
+            'Lỗi khi khởi tạo bài trắc nghiệm:'
+        );
+        return res.status(statusCode).json({
             status: 'error',
-            message: error.message || 'Lỗi hệ thống khi khởi tạo bài trắc nghiệm.'
+            message
         });
     }
 };
@@ -72,9 +78,14 @@ const submitQuiz = async (req, res) => {
             data
         });
     } catch (error) {
-        return res.status(error.statusCode || 500).json({
+        const { statusCode, message } = toPublicError(
+            error,
+            'Không thể nộp bài trắc nghiệm lúc này.',
+            'Lỗi khi nộp bài trắc nghiệm:'
+        );
+        return res.status(statusCode).json({
             status: 'error',
-            message: error.message || 'Lỗi hệ thống khi nộp bài trắc nghiệm.'
+            message
         });
     }
 };

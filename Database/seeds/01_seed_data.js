@@ -3,6 +3,9 @@
  * @returns { Promise<void> }
  */
 exports.seed = async function(knex) {
+  // bcrypt hash for the demo password "password123".
+  const demoPasswordHash = '$2b$10$hOdnrC.YD1n6pDUbTYLP7.P01EuOp5tqVbGw3xST1EB3gnoPtPeOm';
+
   // 1. Tắt ràng buộc khóa ngoại để làm sạch dữ liệu cũ
   await knex.raw('SET FOREIGN_KEY_CHECKS = 0');
   await knex('lesson_progress').truncate();
@@ -28,12 +31,12 @@ exports.seed = async function(knex) {
   // 3. Chèn ĐÚNG 19 Người dùng (1 Admin + 3 Giảng viên + 15 Học viên)
   const users = [
     // 1 Admin (id = 1)
-    { id: 1, name: 'Quản trị viên', email: 'admin@gmail.com', password: 'password123', role: 'admin' },
+    { id: 1, name: 'Quản trị viên', email: 'admin@gmail.com', password: demoPasswordHash, role: 'admin' },
 
     // 3 Giảng viên (id = 2, 3, 4)
-    { id: 2, name: 'Nguyễn Văn A (Giảng viên)', email: 'teacher1@gmail.com', password: 'password123', role: 'teacher' },
-    { id: 3, name: 'Trần Thị B (Giảng viên)', email: 'teacher2@gmail.com', password: 'password123', role: 'teacher' },
-    { id: 4, name: 'Lê Hoàng C (Giảng viên)', email: 'teacher3@gmail.com', password: 'password123', role: 'teacher' },
+    { id: 2, name: 'Nguyễn Văn A (Giảng viên)', email: 'teacher1@gmail.com', password: demoPasswordHash, role: 'teacher' },
+    { id: 3, name: 'Trần Thị B (Giảng viên)', email: 'teacher2@gmail.com', password: demoPasswordHash, role: 'teacher' },
+    { id: 4, name: 'Lê Hoàng C (Giảng viên)', email: 'teacher3@gmail.com', password: demoPasswordHash, role: 'teacher' },
   ];
 
   // 15 Học viên (id = 5 đến 19)
@@ -42,7 +45,7 @@ exports.seed = async function(knex) {
       id: i + 4,
       name: `Học viên ${i}`,
       email: `student${i}@gmail.com`,
-      password: 'password123',
+      password: demoPasswordHash,
       role: 'student'
     });
   }
@@ -50,14 +53,14 @@ exports.seed = async function(knex) {
 
   // 4. Chèn ĐÚNG 8 Khóa học (courses)
   const courses = [
-    { id: 1, title: 'Node.js & ExpressJS Cơ bản', description: 'Khóa học Node.js cho người mới bắt đầu', category_id: 1, user_id: 2, price_course: 499000, quiz_duration: 30 },
-    { id: 2, title: 'ReactJS Nâng cao', description: 'Xây dựng ứng dụng Web thực tế với ReactJS', category_id: 1, user_id: 2, price_course: 699000, quiz_duration: 45 },
-    { id: 3, title: 'Lập trình Flutter Cross-platform', description: 'Tạo ứng dụng iOS & Android với Flutter', category_id: 2, user_id: 3, price_course: 599000, quiz_duration: 30 },
-    { id: 4, title: 'Lập trình Android với Kotlin', description: 'Phát triển ứng dụng Android thuần', category_id: 2, user_id: 3, price_course: 550000, quiz_duration: 40 },
-    { id: 5, title: 'Cơ sở dữ liệu MySQL từ A-Z', description: 'Thiết kế DB và tối ưu truy vấn MySQL', category_id: 3, user_id: 4, price_course: 399000, quiz_duration: 25 },
-    { id: 6, title: 'Phân tích Dữ liệu với Python', description: 'Sử dụng Pandas, Numpy cho Data Science', category_id: 4, user_id: 4, price_course: 799000, quiz_duration: 60 },
-    { id: 7, title: 'Figma Thiết kế UI/UX Chuyên nghiệp', description: 'Thiết kế giao diện người dùng đỉnh cao', category_id: 5, user_id: 2, price_course: 450000, quiz_duration: 20 },
-    { id: 8, title: 'Machine Learning Cơ bản', description: 'Học máy và ứng dụng thực tế', category_id: 4, user_id: 3, price_course: 899000, quiz_duration: 45 },
+    { id: 1, title: 'Node.js & ExpressJS Cơ bản', description: 'Khóa học Node.js cho người mới bắt đầu', category_id: 1, user_id: 2, price_course: 499000, quiz_minutes: 30 },
+    { id: 2, title: 'ReactJS Nâng cao', description: 'Xây dựng ứng dụng Web thực tế với ReactJS', category_id: 1, user_id: 2, price_course: 699000, quiz_minutes: 45 },
+    { id: 3, title: 'Lập trình Flutter Cross-platform', description: 'Tạo ứng dụng iOS & Android với Flutter', category_id: 2, user_id: 3, price_course: 599000, quiz_minutes: 30 },
+    { id: 4, title: 'Lập trình Android với Kotlin', description: 'Phát triển ứng dụng Android thuần', category_id: 2, user_id: 3, price_course: 550000, quiz_minutes: 40 },
+    { id: 5, title: 'Cơ sở dữ liệu MySQL từ A-Z', description: 'Thiết kế DB và tối ưu truy vấn MySQL', category_id: 3, user_id: 4, price_course: 399000, quiz_minutes: 25 },
+    { id: 6, title: 'Phân tích Dữ liệu với Python', description: 'Sử dụng Pandas, Numpy cho Data Science', category_id: 4, user_id: 4, price_course: 799000, quiz_minutes: 60 },
+    { id: 7, title: 'Figma Thiết kế UI/UX Chuyên nghiệp', description: 'Thiết kế giao diện người dùng đỉnh cao', category_id: 5, user_id: 2, price_course: 450000, quiz_minutes: 20 },
+    { id: 8, title: 'Machine Learning Cơ bản', description: 'Học máy và ứng dụng thực tế', category_id: 4, user_id: 3, price_course: 899000, quiz_minutes: 45 },
   ];
   await knex('courses').insert(courses);
 
@@ -89,7 +92,9 @@ exports.seed = async function(knex) {
         course_id: courseId,
         content: `Câu hỏi số ${qIndex} của khóa học ${courseId}?`,
         correct_answer: `Đáp án đúng câu ${qIndex}`,
-        false_answer: `Đáp án sai câu ${qIndex}`
+        false_answer: `Đáp án sai 1 câu ${qIndex}`,
+        false_answer_2: `Đáp án sai 2 câu ${qIndex}`,
+        false_answer_3: `Đáp án sai 3 câu ${qIndex}`,
       });
       questionIdCounter++;
     }

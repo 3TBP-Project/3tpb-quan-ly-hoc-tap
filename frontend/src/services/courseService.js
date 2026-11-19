@@ -17,7 +17,13 @@ const clean = (params = {}) =>
 export const getCourses = (params, signal) =>
   USE_MOCK
     ? mockGetCourses(params)
-    : axiosClient.get('/api/courses', { params: clean(params), signal });
+    : axiosClient.get('/api/courses', { params: clean(params), signal }).then((response) => ({
+        status: response.status,
+        data: {
+          items: response.data,
+          ...response.pagination
+        }
+      }));
 
 export const getCategories = (_params, signal) =>
   USE_MOCK ? mockGetCategories() : axiosClient.get('/api/categories', { signal });

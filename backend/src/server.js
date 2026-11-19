@@ -8,6 +8,7 @@ const authRoutes = require('./routes/authRoute');
 const quizRoutes = require('./routes/quizRoute');
 const courseRoutes = require('./routes/courseRoute');
 const enrollmentRoutes = require('./routes/enrollmentRoute');
+const catalogRoutes = require('./routes/catalogRoute');
 
 dotenv.config();
 
@@ -19,11 +20,10 @@ app.use(express.json());
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api', catalogRoutes);
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
 app.use('/api/auth', authRoutes);
-// Sử dụng route khóa học với tiền tố /api/courses
-app.use('/api/courses', courseRoute);
 // Các route kiểm chứng phân quyền 3 vai trò
 app.get('/student/dashboard', verifyToken, authorizeRoles(ROLES.STUDENT), (req, res) => {
   res.json({ status: 'success', message: 'Chào mừng Học viên!', user: req.user });
@@ -37,6 +37,21 @@ app.get('/admin/dashboard', verifyToken, authorizeRoles(ROLES.ADMIN), (req, res)
   res.json({ status: 'success', message: 'Chào mừng Quản trị viên!', user: req.user });
 });
 
-app.listen(PORT, () => {
-  console.log(`>>> Server đang chạy tại http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await testConnection();
+  } catch (error) {
+    console.error('>>> Không thể kết nối CSDL; server không được khởi động:', error.message);
+    await pool.end().catch((shutdownError) => {
+      console.error('>>> Lỗi khi đóng pool CSDL:', shutdownError.message);
+    });
+    process.exitCode = 1;
+    return;
+  }
+
+  app.listen(PORT, () => {
+    console.log(`>>> Server đang chạy tại http://localhost:${PORT}`);
+  });
+};
+
+startServer();

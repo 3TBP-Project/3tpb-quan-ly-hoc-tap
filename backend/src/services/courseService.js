@@ -4,6 +4,12 @@
  */
 const courseRepository = require('../repositories/courseRepository');
 
+const createCourseError = (message, statusCode) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+};
+
 class CourseService {
 
   // ==========================================
@@ -14,13 +20,13 @@ class CourseService {
       title: courseData.title,
       description: courseData.description || null,
       category_id: courseData.category_id,
-      user_id: userId, // Gắn ID của giảng viên đang đăng nhập làm chủ sở hữu
+      user_id: userId,
       price_course: courseData.price_course !== undefined ? courseData.price_course : 0,
-      quiz_minutes: courseData.quiz_minutes !== undefined ? courseData.quiz_minutes : null, // Đã đồng bộ quiz_minutes
+      quiz_minutes: courseData.quiz_minutes ?? courseData.quiz_duration ?? null,
       thumbnail: courseData.thumbnail || null,
-      status: courseData.status || 'draft' // Mặc định là nháp khi mới tạo theo yêu cầu HT-09
+      status: courseData.status || 'draft'
     };
-    
+
     const courseId = await courseRepository.create(payload);
     return { id: courseId, ...payload };
   }
@@ -38,7 +44,7 @@ class CourseService {
   async getCourseById(id) {
     const course = await courseRepository.findById(id);
     if (!course) {
-      throw new Error('Không tìm thấy khóa học!');
+      throw createCourseError('Không tìm thấy khóa học!', 404);
     }
     return course;
   }
@@ -46,31 +52,31 @@ class CourseService {
   // ==========================================
   // 4. UPDATE - Cập nhật khóa học (Kiểm tra quyền sở hữu & Merge dữ liệu)
   // ==========================================
-  async updateCourse(userId, courseId, updateData) {
+  async updateCourse(userId, courseId, updateData, userRole = 'teacher') {
     const course = await courseRepository.findById(courseId);
     if (!course) {
-      throw new Error('Không tìm thấy khóa học!');
+      throw createCourseError('Không tìm thấy khóa học!', 404);
     }
 
-    // Kiểm tra chủ sở hữu: Giảng viên chỉ được sửa khóa học của chính mình
-    if (course.user_id !== userId) {
-      throw new Error('Bạn không có quyền chỉnh sửa khóa học này!');
+    if (course.user_id !== userId && userRole !== 'admin') {
+      throw createCourseError('Bạn không có quyền chỉnh sửa khóa học này!', 403);
     }
 
-    // Trộn dữ liệu cũ và mới để hỗ trợ cập nhật từng phần (tránh bị mất dữ liệu các cột không truyền lên)
     const mergedData = {
       title: updateData.title !== undefined ? updateData.title : course.title,
       description: updateData.description !== undefined ? updateData.description : course.description,
       category_id: updateData.category_id !== undefined ? updateData.category_id : course.category_id,
       price_course: updateData.price_course !== undefined ? updateData.price_course : course.price_course,
-      quiz_minutes: updateData.quiz_minutes !== undefined ? updateData.quiz_minutes : course.quiz_minutes, // Đã đồng bộ quiz_minutes
+      quiz_minutes: updateData.quiz_minutes !== undefined
+        ? updateData.quiz_minutes
+        : updateData.quiz_duration !== undefined
+          ? updateData.quiz_duration
+          : course.quiz_minutes,
       thumbnail: updateData.thumbnail !== undefined ? updateData.thumbnail : course.thumbnail,
-      status: updateData.status !== undefined ? updateData.status : course.status,
+      status: updateData.status !== undefined ? updateData.status : course.status
     };
 
     await courseRepository.update(courseId, mergedData);
-    
-    // Trả về dữ liệu mới nhất từ database
     return await courseRepository.findById(courseId);
   }
 
@@ -80,12 +86,11 @@ class CourseService {
   async deleteCourse(userId, courseId, userRole = 'teacher') {
     const course = await courseRepository.findById(courseId);
     if (!course) {
-      throw new Error('Không tìm thấy khóa học!');
+      throw createCourseError('Không tìm thấy khóa học!', 404);
     }
 
-    // Kiểm tra quyền: Giảng viên sở hữu HOẶC Quản trị viên (admin) mới được phép xóa
     if (course.user_id !== userId && userRole !== 'admin') {
-      throw new Error('Bạn không có quyền xóa khóa học này!');
+      throw createCourseError('Bạn không có quyền xóa khóa học này!', 403);
     }
 
     const affectedRows = await courseRepository.remove(courseId);
