@@ -66,6 +66,7 @@ const start = async (userId, courseId) => {
   }
 
   const sanitizedQuestions = rawQuestions.map((q) => {
+    const falseOptions = parseFalseAnswers(q.false_answer);
     const falseOptions = getFalseOptions(q);
     if (falseOptions.length !== 3) {
       throw createHttpError(`Câu hỏi ${q.id} chưa được cấu hình đủ 4 lựa chọn.`, 500);

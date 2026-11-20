@@ -31,6 +31,11 @@ export const getCategories = (_params, signal) =>
 export const getTeachers = (_params, signal) =>
   USE_MOCK ? mockGetTeachers() : axiosClient.get('/api/teachers', { signal });
 
+export const getCourseById = ({ id }, signal) =>
+  USE_MOCK ? mockGetCourseById({ id }) : axiosClient.get(`/api/courses/${id}`, { signal });
+
+export const enrollCourse = (id) =>
+  USE_MOCK ? mockEnroll(id) : axiosClient.post(`/api/courses/${id}/enroll`);
 export const getCourseById = async ({ id }, signal) => {
   const res = USE_MOCK
     ? await mockGetCourseById({ id })

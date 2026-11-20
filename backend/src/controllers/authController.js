@@ -6,6 +6,10 @@ const isPlainObject = (value) => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
+const isPlainObject = (value) => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+};
+
 const register = async (req, res) => {
   if (!isPlainObject(req.body)) {
     return res.status(400).json({
