@@ -41,12 +41,14 @@ class CourseService {
   // ==========================================
   // 3. READ - Lấy chi tiết một khóa học
   // ==========================================
-  async getCourseById(id) {
-    const course = await courseRepository.findById(id);
+  async getCourseById(id, userId = null) {
+    const course = await courseRepository.findDetailById(id, userId);
     if (!course) {
       throw createCourseError('Không tìm thấy khóa học!', 404);
     }
-    return course;
+
+    const lessons = await courseRepository.findLessonSummariesByCourseId(id);
+    return { ...course, lessons };
   }
 
   // ==========================================

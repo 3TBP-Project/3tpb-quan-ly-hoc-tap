@@ -41,3 +41,51 @@ test('findPage applies filters to both results and total count', async (t) => {
   assert.equal(result.total, 1);
   assert.equal(result.courses[0].id, 2);
 });
+test('findDetailById returns mapped catalog fields and uses the optional user ID', async (t) => {
+  const originalQuery = pool.query;
+  let received;
+  pool.query = async (sql, params) => {
+    received = { sql, params };
+    return [[{
+      id: '4',
+      title: 'React',
+      teacherId: '9',
+      teacherName: 'Teacher',
+      categoryId: '2',
+      categoryName: 'Web',
+      lessonCount: '3',
+      studentCount: '8',
+      isEnrolled: 1
+    }], []];
+  };
+  t.after(() => {
+    pool.query = originalQuery;
+  });
+
+  const result = await courseRepository.findDetailById(4, 12);
+
+  assert.deepEqual(received.params, [12, 4]);
+  assert.match(received.sql, /FROM enrollments AS current_enrollment/);
+  assert.equal(result.id, 4);
+  assert.equal(result.lessonCount, 3);
+  assert.equal(result.studentCount, 8);
+  assert.equal(result.isEnrolled, true);
+});
+
+test('findLessonSummariesByCourseId returns lessons in course order', async (t) => {
+  const originalQuery = pool.query;
+  let received;
+  pool.query = async (sql, params) => {
+    received = { sql, params };
+    return [[{ id: '5', order: '2', title: 'Second' }], []];
+  };
+  t.after(() => {
+    pool.query = originalQuery;
+  });
+
+  const result = await courseRepository.findLessonSummariesByCourseId(4);
+
+  assert.deepEqual(received.params, [4]);
+  assert.match(received.sql, /ORDER BY position ASC, id ASC/);
+  assert.deepEqual(result, [{ id: 5, order: 2, title: 'Second' }]);
+});
