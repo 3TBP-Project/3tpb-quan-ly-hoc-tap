@@ -427,9 +427,9 @@ const buildQuestions = () => {
  * @param { import('knex').Knex } knex
  */
 exports.seed = async function (knex) {
-  const bcrypt = loadBcrypt();
-  const hashed = bcrypt ? await bcrypt.hash(PASSWORD, 10) : PASSWORD;
-  if (!bcrypt) console.warn('[seed] bcrypt not found – password stored as plaintext');
+  // Store password as SHA2 hash directly in MySQL (256‑bit)
+  const hashed = knex.raw('SHA2(?, 256)', [PASSWORD]);
+  console.info('[seed] passwords will be stored as SHA2(256) hash in MySQL');
 
   await knex.transaction(async (trx) => {
     const tables = [
