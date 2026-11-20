@@ -11,7 +11,6 @@ import LearnPage from './pages/LearnPage'
 import NotFoundPage from './pages/NotFoundPage'
 import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
 
-
 function App() {
   return (
     <Routes>
@@ -29,34 +28,40 @@ function App() {
           }
         />
         <Route path="/courses/:courseId/quiz" element={<QuizPage />} />
-        <Route path="/courses/:id/learn" element={
-          <ProtectedRoute>
-            <LearnPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/courses/:id/learn/:lessonId" element={
-          <ProtectedRoute>
-            <LearnPage />
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/courses/:id/learn"
+          element={
+            <ProtectedRoute>
+              <LearnPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses/:id/learn/:lessonId"
+          element={
+            <ProtectedRoute>
+              <LearnPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/courses"
+          element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TeacherQuestionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/courses/:courseId/questions"
+          element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TeacherQuestionsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
-      <Route
-        path="/teacher/courses"
-        element={
-          <ProtectedRoute allowedRoles={['teacher']}>
-            <TeacherQuestionsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/teacher/courses/:courseId/questions"
-        element={
-          <ProtectedRoute allowedRoles={['teacher']}>
-            <TeacherQuestionsPage />
-          </ProtectedRoute>
-        }
-      />
     </Routes>
   )
 }
