@@ -61,9 +61,6 @@ export function saveEnrolledCourse(courseOrId) {
       teacherName: courseObj.teacherName || existing.teacherName || 'Giảng viên',
       categoryName: courseObj.categoryName || existing.categoryName || '',
       lessonCount: courseObj.lessonCount ?? existing.lessonCount ?? 0,
-      // [HT-04] Giữ lại tiến độ đã biết để F5 hiển thị ngay trước khi API về
-      completedLessonCount: courseObj.completedLessonCount ?? existing.completedLessonCount ?? 0,
-      progressPercent: courseObj.progressPercent ?? existing.progressPercent ?? 0,
     };
 
     const next = [merged, ...current.filter((c) => Number(c.id) !== id)];

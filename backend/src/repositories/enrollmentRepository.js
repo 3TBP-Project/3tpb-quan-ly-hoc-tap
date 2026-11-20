@@ -53,26 +53,12 @@ class EnrollmentRepository {
       [studentId]
     );
 
-    return rows.map((course) => {
-      const lessonCount = Number(course.lessonCount) || 0;
-      const completedLessonCount = Math.min(
-        lessonCount,
-        Number(course.completedLessonCount) || 0
-      );
-      const progressPercent =
-        lessonCount > 0
-          ? Math.min(100, Math.max(0, Math.round((completedLessonCount / lessonCount) * 100)))
-          : 0;
-
-      return {
-        ...course,
-        id: Number(course.id),
-        categoryId: Number(course.categoryId),
-        lessonCount,
-        completedLessonCount,
-        progressPercent
-      };
-    });
+    return rows.map((course) => ({
+      ...course,
+      id: Number(course.id),
+      categoryId: Number(course.categoryId),
+      lessonCount: Number(course.lessonCount)
+    }));
   }
 }
 

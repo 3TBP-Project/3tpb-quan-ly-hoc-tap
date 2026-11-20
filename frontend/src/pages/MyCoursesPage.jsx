@@ -16,6 +16,12 @@ function MyCoursesPage() {
   // [HT-04] Đảm bảo mọi thẻ đều có completedLessonCount + progressPercent
   // (% tiến độ = số bài đã hoàn thành / tổng số bài của khóa)
   const safeCourses = rawCourses.map((c) => withCourseProgress(c));
+import { useFetch } from '../hooks/useFetch';
+import { getMyCourses } from '../services/courseService';
+
+function MyCoursesPage() {
+  const { data: courses, loading, error } = useFetch(getMyCourses);
+  const safeCourses = Array.isArray(courses) ? courses.filter((c) => c && c.id != null) : [];
 
   if (loading && safeCourses.length === 0) return <Loading />;
 
@@ -38,6 +44,7 @@ function MyCoursesPage() {
                   progressPercent={course.progressPercent}
                 />
               </CourseCard>
+              <CourseCard course={course} />
             </Col>
           ))}
         </Row>
@@ -48,4 +55,5 @@ function MyCoursesPage() {
   );
 }
 
+export default MyCoursesPage;
 export default MyCoursesPage;

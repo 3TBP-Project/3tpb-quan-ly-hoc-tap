@@ -114,10 +114,14 @@
 - **Phần tự lọc, chỉnh sửa & loại bỏ:**
   - Điều chỉnh tên các trường JSON (`full_name`, `email`, `password`, `role`) và đường dẫn endpoint (`/api/auth/register`) cho khớp với mã nguồn thực tế của nhánh PR được review.
 <<<<<<< HEAD
+<<<<<<< HEAD
   - Thực thi trực tiếp toàn bộ 4 kịch bản request trên máy local, đối chiếu bảng `users` và kiểm tra ràng buộc `UNIQUE(user_id, course_id)` trên CSDL trống trước khi xác nhận trên GitHub.
 =======
   - Thực thi trực tiếp toàn bộ 4 kịch bản request trên máy local, đối chiếu bảng `users` và kiểm tra ràng buộc `UNIQUE(user_id, course_id)` trên CSDL trống trước khi xác nhận trên GitHub.  
 >>>>>>> 5861a8d4e1e7d657b2f86211faa0fe1ceab47d7b
+=======
+  - Thực thi trực tiếp toàn bộ 4 kịch bản request trên máy local, đối chiếu bảng `users` và kiểm tra ràng buộc `UNIQUE(user_id, course_id)` trên CSDL trống trước khi xác nhận trên GitHub.  
+>>>>>>> origin/develop
 
 ---
 
@@ -134,10 +138,15 @@
 ---
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 ---
 
 >>>>>>> 5861a8d4e1e7d657b2f86211faa0fe1ceab47d7b
+=======
+---
+
+>>>>>>> origin/develop
 ## [AI-12] Fix lỗi mất dữ liệu ghi danh và trắng trang "Khóa học của tôi" khi nhấn F5 (HT-04)
 - **Giai đoạn / Công việc:** Thẻ `[HT-04]` – Sửa lỗi giao diện trên nhánh `feature/HT-04-ghi-danh`
 - **Công cụ AI:** Gemini
@@ -146,6 +155,7 @@
 - **Phần tự lọc, chỉnh sửa & loại bỏ:**
   - **Làm sạch dữ liệu cũ trên trình duyệt:** Lúc đầu chỉ lưu mỗi `id` khóa học nên F5 vẫn không hiện thẻ; sau khi ghép code mới mình phải xóa cache `localStorage` cũ rồi bấm ghi danh lại từ đầu để lưu đủ `title`, ảnh bìa và tên giảng viên.
   - **Tự kiểm tra thực tế trên trình duyệt:** Mở trang chi tiết bấm ghi danh, chuyển sang `/my-courses` rồi nhấn F5 nhiều lần (kể cả lúc tắt backend để test chế độ mock) để chắc chắn danh sách vẫn giữ nguyên và không bị trắng trang do lỗi `.map()`.
+<<<<<<< HEAD
 <<<<<<< HEAD
   - **Dọn file thừa trước khi push:** Lúc chạy lệnh kiểm tra vô tình phát sinh file `package-lock.json` ở thư mục gốc, mình tự lọc ra không commit nhầm vào nhánh `feature/HT-04-ghi-danh`.
 
@@ -182,3 +192,6 @@
   - Cài đặt công thức `% tiến độ = số bài học đã hoàn thành / tổng số bài học của khóa` tại `backend/src/utils/progress.js` và tích hợp truy vấn đếm số bài hoàn thành theo từng khóa học trong `backend/src/repositories/enrollmentRepository.js`.
   - Xây dựng component thanh tiến độ `frontend/src/components/course/CourseProgress.jsx` cùng bộ hàm xử lý/lưu trữ tiến độ (`frontend/src/utils/progress.js`, `frontend/src/utils/progressStorage.js`).
   - Tích hợp hiển thị thanh tiến độ và con số `%` trực tiếp lên từng thẻ khóa học tại `frontend/src/pages/MyCoursesPage.jsx`.
+=======
+  - **Dọn file thừa trước khi push:** Lúc chạy lệnh kiểm tra vô tình phát sinh file `package-lock.json` ở thư mục gốc, mình tự lọc ra không commit nhầm vào nhánh `feature/HT-04-ghi-danh`.
+>>>>>>> origin/develop

@@ -7,9 +7,13 @@ import QuizPage from './pages/QuizPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import MyCoursesPage from './pages/MyCoursesPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+<<<<<<< HEAD
 import LearnPage from './pages/LearnPage'
 import NotFoundPage from './pages/NotFoundPage'
 import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
+=======
+import NotFoundPage from './pages/NotFoundPage'
+>>>>>>> origin/develop
 
 function App() {
   return (
