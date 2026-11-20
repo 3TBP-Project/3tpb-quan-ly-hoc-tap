@@ -106,6 +106,28 @@ test('listCourses rejects invalid filter IDs without querying repository', async
   assert.equal(findPageCalled, false);
 });
 
+test('getCourseDetail forwards the authenticated user for enrollment status', async (t) => {
+  const originalGetCourseById = courseService.getCourseById;
+  let received;
+  courseService.getCourseById = async (...args) => {
+    received = args;
+    return { id: 7, isEnrolled: true, lessons: [] };
+  };
+  t.after(() => {
+    courseService.getCourseById = originalGetCourseById;
+  });
+
+  const response = createResponse();
+  await courseController.getCourseDetail({
+    params: { id: '7' },
+    user: { id: 12, role: 'student' }
+  }, response);
+
+  assert.deepEqual(received, [7, 12]);
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.data.isEnrolled, true);
+});
+
 test('createCourse does not expose internal errors to clients', async (t) => {
   const originalCreateCourse = courseService.createCourse;
   const originalConsoleError = console.error;

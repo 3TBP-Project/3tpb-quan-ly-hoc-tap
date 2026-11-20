@@ -1,6 +1,11 @@
 const express = require('express');
 const courseController = require('../controllers/courseController');
-const { verifyToken, authorizeRoles } = require('../middlewares/authMiddleware');
+const enrollmentController = require('../controllers/enrollmentController');
+const {
+  verifyToken,
+  optionalVerifyToken,
+  authorizeRoles
+} = require('../middlewares/authMiddleware');
 const { ROLES } = require('../config/constants');
 
 const router = express.Router();
@@ -8,6 +13,7 @@ const courseManagers = [
   verifyToken,
   authorizeRoles(ROLES.TEACHER, ROLES.ADMIN)
 ];
+const studentsOnly = [verifyToken, authorizeRoles(ROLES.STUDENT)];
 
 router.get('/', courseController.listCourses);
 /**
@@ -24,10 +30,12 @@ router.post('/', ...courseManagers, courseController.createCourse);
 // ==========================================
 router.get('/my-courses', ...courseManagers, courseController.getMyCourses);
 
+router.post('/:courseId/enroll', ...studentsOnly, enrollmentController.enroll);
+
 // ==========================================
 // 3. READ - Lấy chi tiết một khóa học theo id (Route công khai cho mọi người xem)
 // ==========================================
-router.get('/:id', courseController.getCourseDetail);
+router.get('/:id', optionalVerifyToken, courseController.getCourseDetail);
 
 // ==========================================
 // 4. UPDATE - Cập nhật thông tin khóa học (Yêu cầu đăng nhập & kiểm tra quyền sở hữu ở service)
