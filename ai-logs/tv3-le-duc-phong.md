@@ -24,6 +24,7 @@
 | AI-11 | 17/11 | Thiết kế | Chỉnh wireframe: bình luận khóa học | #27 |
 | AI-12 | 17/11 | Thiết kế | Chỉnh wireframe: bỏ màn 04b | #27 |
 | AI-13 | 18/11 | Lập trình | Trang học bài, đánh dấu hoàn thành và chặn khi chưa ghi danh (HT-05) | #38 |
+| AI-14 | 19/11 | Lập trình | Nút xem chi tiết, làm bài kiểm tra và thông báo đăng nhập trên thẻ khóa học (HT-01) | #44 |
 
 ---
 
@@ -296,6 +297,23 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: `npm run lint` (0 lỗi), `npm run build` thành công; kiểm tra trên trình duyệt với dữ liệu giả: khách mở trang học bị chuyển sang `/login`; học viên chưa ghi danh bị đưa về trang chi tiết kèm thông báo "Bạn cần ghi danh để vào học."; ghi danh rồi bấm "Vào học" vào bài 1; "Đánh dấu hoàn thành" làm tiến độ tăng 0/10 lên 1/10 và nút bị tắt; "Bài sau" chuyển bài và tô đúng bài ở cột trái; bài hoặc khóa không tồn tại ra trang 404; 360 px không tràn ngang.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 85%
 - Điều học được: Kiểm tra quyền xem bài phải làm ở server, giao diện chỉ ẩn nút; `NavLink` tự gắn class `active` cho bài đang học; route có hai tham số `:id` và `:lessonId`; cờ dữ liệu giả phải thống nhất giữa các service; thẻ `<a href>` không gửi token nên tải tệp có kiểm tra quyền phải tải qua Axios.
+
+### [AI-14] Nút xem chi tiết, làm bài kiểm tra và thông báo đăng nhập trên thẻ khóa học (HT-01)
+- Ngày / Người dùng: 2026-11-19 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-01] / 1ed577712863a45ad5080d9142a7f7e5f507e23b / #44
+- Mục đích: Sửa lỗi sau khi merge PR #41: bấm vào thẻ khóa học thì vào trang làm bài kiểm tra thay vì trang chi tiết; tách thành hai nút riêng "Xem chi tiết" và "Làm bài kiểm tra"; khách chưa đăng nhập bấm vào thẻ thì hiện thông báo đăng nhập.
+- Prompt chính (nguyên văn): "Kiểm tra nhánh develop hiện tại, ở PR#38 và #41 có xung đột gì trong lúc merge khiến khi nhấn vào khóa học thì không vào chi tiết khóa học mà lại vào phần làm bài kiểm tra hay không"; "Ở CourseListPage, hãy thêm 1 nút xem chi tiết khác biệt với nút Làm bài kiểm tra"; "Hãy thêm thông báo khi khách vãng lai chưa đăng nhập mà nhấn nút "Xem khóa học" khi trỏ chuột vào khóa học sẽ hiển thị thông báo vui lòng đăng nhập"; "Thông báo nhìn không hợp với giao diện web hiện tại"
+- Kết quả AI trả về (tóm tắt):
++ Đối chiếu lịch sử `develop`: không phải xung đột merge, commit `3280c8a` (HT-06) đổi link thẻ trong `CourseListPage.jsx` sang `/courses/:id/quiz`; `App.jsx` sau merge vẫn đủ route.
++ Trả link thẻ về trang chi tiết, thêm hai nút `Button as={Link}` "Xem chi tiết" và "Làm bài kiểm tra" qua `children` của `CourseCard`.
++ Thêm prop `onClick` cho `CourseCard`; với khách thì chặn chuyển trang (`preventDefault`) và mở thông báo có nút "Đăng nhập" kèm `state.from` để đăng nhập xong quay lại đúng khóa học.
+- Đánh giá: Bản đầu dùng `Toast` nền vàng, không hợp giao diện nên đổi sang `Modal` trắng ở giữa màn hình. Nút "Xem chi tiết" và "Làm bài kiểm tra" chưa chặn khách nên chưa đồng nhất với bấm vào thẻ
+- Đã chỉnh sửa gì: Thay `Toast` bằng `Modal` (nút "Để sau" và "Đăng nhập"); giữ prop `actionLabel` TV2 đã thêm vào `CourseCard`; thêm mã AI vào đầu `CourseListPage.jsx`.
+- Cách kiểm chứng: `npm run lint` (0 lỗi), `npm run build` thành công; kiểm tra trên trình duyệt với dữ liệu giả: 8 thẻ đều có hai nút đúng đường dẫn `/courses/:id` và `/courses/:id/quiz`; khách bấm vào thẻ thì ở lại trang và hiện thông báo; bấm "Đăng nhập" chuyển sang `/login` mang theo `/courses/1`; học viên đã đăng nhập bấm vào thẻ thì vào `/courses/1`; 360 px hai nút cùng một hàng, không tràn ngang.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 90%
+- Điều học được: Lỗi sau merge không phải lúc nào cũng do xung đột, cần xem `git diff` từng commit để tìm ai đổi gì
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 

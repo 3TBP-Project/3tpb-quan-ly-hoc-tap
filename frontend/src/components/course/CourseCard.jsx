@@ -13,6 +13,7 @@ function CourseCard({
   course,
   to = `/courses/${course.id}`,
   actionLabel = 'Xem khóa học',
+  onClick, // tùy chọn: chặn điều hướng, ví dụ khách chưa đăng nhập
   children,
 }) {
   return (
@@ -39,7 +40,7 @@ function CourseCard({
         )}
 
         <Card.Title as="h3" className="h6">
-          <Link to={to} className="stretched-link text-decoration-none text-dark">
+          <Link to={to} onClick={onClick} className="stretched-link text-decoration-none text-dark">
             {course.title}
           </Link>
         </Card.Title>

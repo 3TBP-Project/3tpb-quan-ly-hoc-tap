@@ -113,7 +113,11 @@
 - **Kết quả AI gợi ý:** Các mẫu JSON request body cho phương thức `POST` kèm cách kiểm tra HTTP status code và dữ liệu CSDL.
 - **Phần tự lọc, chỉnh sửa & loại bỏ:**
   - Điều chỉnh tên các trường JSON (`full_name`, `email`, `password`, `role`) và đường dẫn endpoint (`/api/auth/register`) cho khớp với mã nguồn thực tế của nhánh PR được review.
+<<<<<<< HEAD
   - Thực thi trực tiếp toàn bộ 4 kịch bản request trên máy local, đối chiếu bảng `users` và kiểm tra ràng buộc `UNIQUE(user_id, course_id)` trên CSDL trống trước khi xác nhận trên GitHub.
+=======
+  - Thực thi trực tiếp toàn bộ 4 kịch bản request trên máy local, đối chiếu bảng `users` và kiểm tra ràng buộc `UNIQUE(user_id, course_id)` trên CSDL trống trước khi xác nhận trên GitHub.  
+>>>>>>> 5861a8d4e1e7d657b2f86211faa0fe1ceab47d7b
 
 ---
 
@@ -129,6 +133,11 @@
 
 ---
 
+<<<<<<< HEAD
+=======
+---
+
+>>>>>>> 5861a8d4e1e7d657b2f86211faa0fe1ceab47d7b
 ## [AI-12] Fix lỗi mất dữ liệu ghi danh và trắng trang "Khóa học của tôi" khi nhấn F5 (HT-04)
 - **Giai đoạn / Công việc:** Thẻ `[HT-04]` – Sửa lỗi giao diện trên nhánh `feature/HT-04-ghi-danh`
 - **Công cụ AI:** Gemini
@@ -137,6 +146,7 @@
 - **Phần tự lọc, chỉnh sửa & loại bỏ:**
   - **Làm sạch dữ liệu cũ trên trình duyệt:** Lúc đầu chỉ lưu mỗi `id` khóa học nên F5 vẫn không hiện thẻ; sau khi ghép code mới mình phải xóa cache `localStorage` cũ rồi bấm ghi danh lại từ đầu để lưu đủ `title`, ảnh bìa và tên giảng viên.
   - **Tự kiểm tra thực tế trên trình duyệt:** Mở trang chi tiết bấm ghi danh, chuyển sang `/my-courses` rồi nhấn F5 nhiều lần (kể cả lúc tắt backend để test chế độ mock) để chắc chắn danh sách vẫn giữ nguyên và không bị trắng trang do lỗi `.map()`.
+<<<<<<< HEAD
   - **Dọn file thừa trước khi push:** Lúc chạy lệnh kiểm tra vô tình phát sinh file `package-lock.json` ở thư mục gốc, mình tự lọc ra không commit nhầm vào nhánh `feature/HT-04-ghi-danh`.
 
 ---
@@ -158,3 +168,17 @@
   - **Đồng bộ định dạng JSON với phần chấm thi (`HT-06`):** Đối chiếu `quizService.js` của TV2 để lưu `correct_answer` và mảng 3 đáp án sai dạng JSON vào cột `false_answer` của bảng `questions`, đảm bảo giảng viên tạo câu hỏi xong học viên vào làm bài và chấm điểm được ngay.
   - **Chặt chẽ kiểm tra quyền sở hữu (`HT-NFR3`):** Bổ sung hàm `assertCourseOwnership` kiểm tra `course.user_id === req.user.id` trước mọi thao tác thêm/sửa/xóa câu hỏi và đổi `quiz_duration`, viết kèm 3 unit test bằng `node:test` để xác nhận.
   - **Giữ sạch phạm vi file:** Tách toàn bộ nghiệp vụ câu hỏi sang file riêng, chỉ gắn route vào `server.js` và `App.jsx` để không xung đột với nhánh của các thành viên khác.
+=======
+  - **Dọn file thừa trước khi push:** Lúc chạy lệnh kiểm tra vô tình phát sinh file `package-lock.json` ở thư mục gốc, mình tự lọc ra không commit nhầm vào nhánh `feature/HT-04-ghi-danh`.
+>>>>>>> 5861a8d4e1e7d657b2f86211faa0fe1ceab47d7b
+
+---
+
+### [AI-14] Bổ sung tính năng % tiến độ học tập cho trang Khóa học của tôi (HT-04)
+- **Thời gian:** Ngày 8
+- **Công cụ:** Gemini
+- **Mục tiêu:** Tính toán công thức phần trăm tiến độ học tập và hiển thị trực tiếp thanh/con số `%` lên từng thẻ khóa học tại trang "Khóa học của tôi".
+- **Nội dung thực hiện:**
+  - Cài đặt công thức `% tiến độ = số bài học đã hoàn thành / tổng số bài học của khóa` tại `backend/src/utils/progress.js` và tích hợp truy vấn đếm số bài hoàn thành theo từng khóa học trong `backend/src/repositories/enrollmentRepository.js`.
+  - Xây dựng component thanh tiến độ `frontend/src/components/course/CourseProgress.jsx` cùng bộ hàm xử lý/lưu trữ tiến độ (`frontend/src/utils/progress.js`, `frontend/src/utils/progressStorage.js`).
+  - Tích hợp hiển thị thanh tiến độ và con số `%` trực tiếp lên từng thẻ khóa học tại `frontend/src/pages/MyCoursesPage.jsx`.
