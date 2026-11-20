@@ -1,9 +1,5 @@
 const express = require('express');
 const courseController = require('../controllers/courseController');
-
-const router = express.Router();
-
-router.get('/', courseController.listCourses);
 /**
  * Router định nghĩa các API endpoint cho Quản lý khóa học (HT-09)
  */

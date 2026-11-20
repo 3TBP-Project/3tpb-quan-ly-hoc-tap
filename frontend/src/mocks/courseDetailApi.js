@@ -4,17 +4,25 @@ import { mockCourses } from './course';
 const delay = (value, ms = 250) => new Promise((r) => setTimeout(() => r(value), ms));
 const enrolledIds = new Set(); // giả lập "đã ghi danh" trong phiên chạy
 
+export function buildLessons(course) {
+  return Array.from({ length: course.lessonCount }, (_, i) => ({
+    id: course.id * 100 + i + 1,
+    order: i + 1,
+    title: `Bài ${i + 1}: Nội dung bài học ${i + 1}`,
+  }));
+}
+
+export function isMockEnrolled(courseId) {
+  return enrolledIds.has(Number(courseId));
+}
+
 export function mockGetCourseById({ id }) {
   const course = mockCourses.find((c) => c.id === Number(id));
   if (!course) {
     // Cùng hình dạng lỗi axios mà parseApiError đang đọc
     return Promise.reject({ response: { status: 404, data: { message: 'Không tìm thấy khóa học' } } });
   }
-  const lessons = Array.from({ length: course.lessonCount }, (_, i) => ({
-    id: course.id * 100 + i + 1,
-    order: i + 1,
-    title: `Bài ${i + 1}: Nội dung bài học ${i + 1}`,
-  }));
+  const lessons = buildLessons(course);
   return delay({
     status: 'success',
     data: {

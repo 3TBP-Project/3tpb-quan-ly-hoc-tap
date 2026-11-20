@@ -13,9 +13,6 @@ exports.up = function(knex) {
     table.float('score').nullable();
     table.string('status', 50).notNullable().defaultTo('doing');
     
-    // Bổ sung cột status theo đúng ERD (ví dụ: doing, submitted, late)
-    table.string('status', 50).defaultTo('doing').notNullable();
-    
     table.dateTime('started_at').nullable();
     table.dateTime('submitted_at').nullable();
 

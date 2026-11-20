@@ -257,3 +257,14 @@ Kết quả AI trả về (tóm tắt): Sinh code của mỗi file
 - Cách kiểm chứng: Chưa được kiểm trứng vì cần được xác thực thêm khi vận hành
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+
+### [AI-015] Kết nối CRUD Lesson vào giao diện
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Antigravity (Gemini)
+- Giai đoạn - Thời Gian: 
+Ngày 20/Tháng 11/Năm 2026
+- Task:
+- Mục đích: Kết nối toàn bộ các hàm API CRUD Lesson đã xây dựng ở backend vào giao diện React để đồng bộ với CSDL.
+Prompt chính: "Tôi muốn bạn kết nối các CRUD lesson của tôi vào các trang lesson. Nhớ là làm theo những nguồn có sẵn cấm lấy bên ngoài. Tôi là thành viên 4 nên là chỉ cần kết nối sao cho CRUD chạy được đồng bộ giao diện với backend và database. Cấm can thiệp hay chỉnh sửa lại các file cốt lỗi và chỉ cần thực hiện yêu cầu là kết nối mà thôi"
+Kết quả AI trả về (tóm tắt): Kết nối CRUD với giao diện và tự tạo một giao diện mới là TeacherLessonsPage.jsx
+- Điều học được: Đồng bộ hóa chặt chẽ giữa tên trường dữ liệu backend và state form frontend giúp kết nối API hoạt động trơn tru.

@@ -30,9 +30,6 @@ const startQuiz = async (req, res) => {
             data
         });
     } catch (error) {
-        return res.status(error.statusCode || 500).json({
-            status: 'error',
-            message: error.message || 'Lỗi hệ thống khi khởi tạo bài trắc nghiệm.'
         const { statusCode, message } = toPublicError(
             error,
             'Không thể khởi tạo bài trắc nghiệm lúc này.',
@@ -81,9 +78,6 @@ const submitQuiz = async (req, res) => {
             data
         });
     } catch (error) {
-        return res.status(error.statusCode || 500).json({
-            status: 'error',
-            message: error.message || 'Lỗi hệ thống khi nộp bài trắc nghiệm.'
         const { statusCode, message } = toPublicError(
             error,
             'Không thể nộp bài trắc nghiệm lúc này.',
