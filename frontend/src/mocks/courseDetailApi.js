@@ -31,3 +31,8 @@ export function mockEnroll(id) {
   enrolledIds.add(Number(id));
   return delay({ status: 'success', message: 'Ghi danh thành công' });
 }
+
+export function mockGetMyCourses() {
+  const courses = mockCourses.filter((course) => enrolledIds.has(course.id));
+  return delay({ status: 'success', data: courses });
+}

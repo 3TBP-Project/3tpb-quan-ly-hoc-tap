@@ -5,6 +5,7 @@ const { pool } = require('../config/db');
 const findCourseById = async (courseId) => {
   const [rows] = await pool.query(
     'SELECT id, title, quiz_duration FROM courses WHERE id = ? LIMIT 1',
+    'SELECT id, title, quiz_minutes AS quiz_duration FROM courses WHERE id = ? LIMIT 1',
     [courseId]
   );
   return rows[0] || null;
@@ -14,6 +15,11 @@ const findCourseById = async (courseId) => {
 const getQuestionsByCourseId = async (courseId) => {
   const [rows] = await pool.query(
     'SELECT id, course_id, content, correct_answer, false_answer FROM questions WHERE course_id = ? ORDER BY id ASC',
+    `SELECT id, course_id, content, correct_answer, false_answer,
+            false_answer_2, false_answer_3
+     FROM questions
+     WHERE course_id = ?
+     ORDER BY id ASC`,
     [courseId]
   );
   return rows;
@@ -40,6 +46,7 @@ const createAttemptWithLock = async ({ userId, courseId, startedAt, maxAttempts 
     // Đếm số lượt hiện tại bên trong transaction đã khóa
     const [countRows] = await connection.query(
       'SELECT COUNT(*) AS total FROM quiz_attempts WHERE user_id = ? AND course_id = ?',
+      'SELECT COUNT(*) AS total FROM quiz_attempts WHERE user_id = ? AND course_id = ? AND started_at IS NOT NULL',
       [userId, courseId]
     );
     const attemptCount = countRows[0].total;
@@ -53,6 +60,8 @@ const createAttemptWithLock = async ({ userId, courseId, startedAt, maxAttempts 
     // Tạo lượt làm bài mới
     const [result] = await connection.query(
       'INSERT INTO quiz_attempts (user_id, course_id, score, started_at, submitted_at) VALUES (?, ?, NULL, ?, NULL)',
+      `INSERT INTO quiz_attempts (user_id, course_id, score, status, started_at, submitted_at)
+       VALUES (?, ?, NULL, 'doing', ?, NULL)`,
       [userId, courseId, startedAt]
     );
 
@@ -90,6 +99,9 @@ const findAttemptById = async (attemptId) => {
 const updateAttemptResultIfNotSubmitted = async (attemptId, userId, { score, submitted_at }) => {
   const [result] = await pool.query(
     'UPDATE quiz_attempts SET score = ?, submitted_at = ? WHERE id = ? AND user_id = ? AND submitted_at IS NULL',
+    `UPDATE quiz_attempts
+     SET score = ?, status = 'submitted', submitted_at = ?
+     WHERE id = ? AND user_id = ? AND submitted_at IS NULL`,
     [score, submitted_at, attemptId, userId]
   );
   return result.affectedRows > 0;

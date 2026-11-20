@@ -9,7 +9,13 @@ const DEFAULT_COVER = '/images/course-default.jpg';
  * - to: đường dẫn khi bấm vào thẻ (mặc định trang chi tiết khóa học)
  * - children: nội dung thêm ở cuối thẻ, ví dụ thanh tiến độ hoặc nút thao tác
  */
-function CourseCard({ course, to = `/courses/${course.id}`, children }) {
+function CourseCard({
+  course,
+  to = `/courses/${course.id}`,
+  actionLabel = 'Xem khóa học',
+  onClick, // tùy chọn: chặn điều hướng, ví dụ khách chưa đăng nhập
+  children,
+}) {
   return (
     <Card className="course-card h-100 shadow-sm">
       <div className="position-relative">
@@ -20,7 +26,7 @@ function CourseCard({ course, to = `/courses/${course.id}`, children }) {
           style={{ aspectRatio: '4 / 3', objectFit: 'cover' }}
         />
         <span className="course-card-cta btn btn-secondary btn-sm position-absolute bottom-0 start-0 m-2">
-          Xem khóa học
+          {actionLabel}
         </span>
       </div>
 
@@ -34,7 +40,7 @@ function CourseCard({ course, to = `/courses/${course.id}`, children }) {
         )}
 
         <Card.Title as="h3" className="h6">
-          <Link to={to} className="stretched-link text-decoration-none text-dark">
+          <Link to={to} onClick={onClick} className="stretched-link text-decoration-none text-dark">
             {course.title}
           </Link>
         </Card.Title>

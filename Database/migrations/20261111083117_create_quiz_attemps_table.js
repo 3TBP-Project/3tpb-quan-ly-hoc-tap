@@ -11,6 +11,7 @@ exports.up = function(knex) {
     table.integer('course_id').unsigned().notNullable();
     table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
     table.float('score').nullable();
+    table.string('status', 50).notNullable().defaultTo('doing');
     
     // Bổ sung cột status theo đúng ERD (ví dụ: doing, submitted, late)
     table.string('status', 50).defaultTo('doing').notNullable();

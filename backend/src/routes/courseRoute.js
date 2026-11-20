@@ -7,37 +7,52 @@ router.get('/', courseController.listCourses);
 /**
  * Router định nghĩa các API endpoint cho Quản lý khóa học (HT-09)
  */
+const enrollmentController = require('../controllers/enrollmentController');
+const {
+  verifyToken,
+  optionalVerifyToken,
+  authorizeRoles
+} = require('../middlewares/authMiddleware');
+const { ROLES } = require('../config/constants');
 
-// Giả định bạn đã có middleware kiểm tra đăng nhập/quyền giảng viên (ví dụ: verifyToken, isTeacher)
-// const { verifyToken, isTeacher } = require('../middlewares/authMiddleware');
+const router = express.Router();
+const courseManagers = [
+  verifyToken,
+  authorizeRoles(ROLES.TEACHER, ROLES.ADMIN)
+];
+const studentsOnly = [verifyToken, authorizeRoles(ROLES.STUDENT)];
+
+router.get('/', courseController.listCourses);
+/**
+ * Router định nghĩa các API endpoint cho Quản lý khóa học (HT-09)
+ */
 
 // ==========================================
-// 1. CREATE - Thêm khóa học mới
+// 1. CREATE - Thêm khóa học mới (Yêu cầu đăng nhập & đúng vai trò Giảng viên/Admin)
 // ==========================================
-// router.post('/', verifyToken, isTeacher, courseController.createCourse);
-router.post('/', courseController.createCourse);
+router.post('/', ...courseManagers, courseController.createCourse);
 
 // ==========================================
 // 2. READ - Lấy danh sách khóa học của giảng viên đang đăng nhập
 // ==========================================
-// router.get('/my-courses', verifyToken, isTeacher, courseController.getMyCourses);
-router.get('/my-courses', courseController.getMyCourses);
+router.get('/my-courses', ...courseManagers, courseController.getMyCourses);
+
+router.post('/:courseId/enroll', ...studentsOnly, enrollmentController.enroll);
 
 // ==========================================
-// 3. READ - Lấy chi tiết một khóa học theo id
+// 3. READ - Lấy chi tiết một khóa học theo id (Route công khai cho mọi người xem)
 // ==========================================
-router.get('/:id', courseController.getCourseDetail);
+router.get('/:id', optionalVerifyToken, courseController.getCourseDetail);
 
 // ==========================================
-// 4. UPDATE - Cập nhật thông tin khóa học
+// 4. UPDATE - Cập nhật thông tin khóa học (Yêu cầu đăng nhập & kiểm tra quyền sở hữu ở service)
 // ==========================================
-// router.put('/:id', verifyToken, isTeacher, courseController.updateCourse);
-router.put('/:id', courseController.updateCourse);
+router.put('/:id', ...courseManagers, courseController.updateCourse);
 
 // ==========================================
-// 5. DELETE - Xóa khóa học
+// 5. DELETE - Xóa khóa học (Yêu cầu đăng nhập & kiểm tra quyền)
 // ==========================================
-// router.delete('/:id', verifyToken, isTeacher, courseController.deleteCourse);
-router.delete('/:id', courseController.deleteCourse);
+router.delete('/:id', ...courseManagers, courseController.deleteCourse);
 
 module.exports = router;
+//AI-assisted: <Gemini> [AI-04]

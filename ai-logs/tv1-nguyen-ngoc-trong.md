@@ -176,3 +176,91 @@ Mình chưa vẽ 4 chức năng mức C (HT-08, 12, 13, 16) cho đỡ rối. N�
 - Đánh giá: Đúng  (Vì bám sát những gì mà file đặc tả yêu cầu)
 - Cách kiểm chứng: file đặc tả yêu cầu
 - Điều học được: Học cách mở rộng và yêu cầu từng chức năng phải làm như thế nào
+
+# [AI-05] Sửa usecase
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude - Opus 5.5 (Medium)
+- Giai đoạn - Thời Gian: 
+Thiết kế
+17/11/2026
+- PR: #29 
+- Mục đích: Sửa usecase ở những điểm thiếu sót
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại):
+Bây giờ bạn vẽ lại use case giúp mình nha 12 chức năng bắt buộc thì là mỗi chức năng là use case (Viết theo động từ)
+* Actor: Khách vẵng lai
+   * Xem Danh Sách Khóa Học
+      * Tìm theo tên khóa học
+      * Lọc theo: danh mục, giảng viên
+      * Chọn Phân trang 1,2,3,4,5
+   * Xem Chi Tiết Khóa Học
+      * Mô Tả (Nội dung khóa học)
+      * Xem thông tin giảng viên ( avatar và tên giảng viên)
+      * Xem Danh sách Bài học (Chưa xem được nội dung bài giảng, Tiêu đề đã đc phép coi rồi)
+      * Hiện số lượng học viên đã đăng ký
+   * Đăng ký, Đăng nhập tài khoản
+* Actor: Học Viên
+   * Ghi danh ,khóa học của tôi
+      * Ghi danh (đăng ký) khóa học trên một tài khoản
+      * Xem danh sách đã đăng ký khóa học (% tiến độ học)
+   * Học bài
+      * Xem nội dung bài học bằng văn bản, Tệp PDF
+      * Coi video (Youtube)
+      * Đánh dấu đã hoàn thành nội dung
+      * Chuyển bài trước/ sau
+   * Làm bài trắc nghiệm
+      * Câu hỏi trắc nghiệm (4 đáp án - 1 đáp án đúng)
+      * Giới hạn thời gian làm bài
+      * Mỗi bài trắc nghiệm làm đc làm tối đa 3 lần (lấy điểm cao nhất)
+   * Xem hồ sơ kết quả học tập
+      * Sửa thông tin hồ sơ
+      * Đổi mật khẩu tài khoản
+      * Lịch sử làm bài và điểm số trên bài trắc nghiệm đó
+   * Hỏi đáp trong học tập
+      * Bình luận dưới bài học đó (Nội dung đang học)
+      * Giảng viên trả lời bình luận đó
+* Actor: Giảng Viên
+   * Quản Lý Khóa Học
+      * Tạo, Xem, xóa Sửa khóa học của mình ( Tiêu đề, Mô tả, Ảnh bìa, nháp bài viết, công khai)
+   * Quản lý bài học
+      * Tạo, Xem, Xóa, Sửa nội dung bài học (trong khóa học đó)
+      *  Sắp xếp thứ tự theo nội dung 1.<...> 2.<....>
+      *  Tải tệp nội dung pdf dưới 5MB trở xuống
+   * Quản lý câu hỏi trắc nghiệm
+      * Tạo danh sách câu hỏi và danh sách câu trả lời
+      * Setup thời gian làm bài
+   * Theo dõi học viên
+      * Thêm danh sách câu hỏi thông qua file CSV/Execl mẫu
+      * Thông báo lỗi nếu có
+* Actor: Quản Trị
+   * Quản Lý Người Dùng
+      * Tạo tài khoản giảng viên
+      * Tìm kiếm theo tên người dùng hoặc email
+      * Trạng thái hoạt động hoặc bị chặn (khóa/mở khóa)
+   * Danh Mục và duyệt khóa học
+      * Tạo, xem, sửa, xóa danh mục
+      * Ẩn khóa học bị vi phạm
+- Kết quả AI trả về (tóm tắt):
+Mình vẽ lại xong, gửi kèm hai file. Bản PNG mình đã mở ra xem, các đường nối không còn cắt ngang use case khác. File .drawio thì mình chỉ kiểm tra được là đúng định dạng, chưa mở thử trên draw.io. Nếu bạn mở ra thấy chỗ nào lệch thì báo mình.
+
+Cách vẽ: mỗi chức năng là một use case chính, chữ in đậm, tên bắt đầu bằng động từ. Các ý con bạn liệt kê trở thành use case phụ:
+
+«include» (xanh, gốc → phụ) cho phần luôn xảy ra. Ví dụ “Xem chi tiết khóa học” luôn hiện mô tả, giảng viên, danh sách bài học và số học viên.
+«extend» (đỏ, phụ → gốc) cho phần người dùng chọn làm hay không. Ví dụ tìm theo tên, lọc, chuyển trang, các thao tác thêm/sửa/xóa.
+
+Một số use case mình tách đôi để mỗi cái chỉ có một động từ:
+
+HT-03 thành “Đăng ký tài khoản” và “Đăng nhập”.
+HT-04 thành “Ghi danh khóa học” và “Xem khóa học của tôi” (có «include» “Xem tiến độ học tập (%)”).
+HT-08 Hỏi đáp thành “Đặt câu hỏi trong bài học” của Học viên và “Trả lời câu hỏi của học viên” của Giảng viên.
+
+Ba chỗ mình làm khác danh sách của bạn:
+
+Danh sách có 14 chức năng, không phải 12. Hỏi đáp (HT-08) và mục “Theo dõi học viên” của bạn đều là chức năng mức C (cộng điểm). Mình vẫn vẽ cả hai, nhưng dùng elip nét đứt nền xám và ghi rõ trong chú thích, để GV thấy nhóm phân biệt được chức năng bắt buộc với chức năng cộng điểm.
+Mục “Theo dõi học viên” mình đặt tên lại là “Nhập câu hỏi từ tệp”. Các ý con bạn ghi (nhập câu hỏi từ CSV/Excel, báo lỗi) là nội dung của HT-13. Còn HT-12 Theo dõi học viên trong Đặc tả là xem danh sách học viên kèm tiến độ, điểm và xuất CSV. Nếu nhóm định làm HT-12 thì báo mình, mình đổi lại.
+Thêm “Chấm điểm tự động” vào HT-06. Ý này không có trong danh sách của bạn nhưng có trong Đặc tả, và là bước GV sẽ hỏi khi xem sequence diagram.
+
+Ngoài ra mình sửa tên “Làm Bài Tập Trắc Nghiệm” thành “Làm bài trắc nghiệm” cho khớp Đặc tả. Mũi tên kế thừa (tam giác rỗng) từ Học viên chỉ về Khách vãng lai vẫn giữ như cũ.
+- Đánh giá: THiếu Sót - (Có những use case không đúng định dạnh - Vòng use case sử dụng nét đứt ở chức năng mức C) và Lập usecase những chức năng mà nhóm em không hướng tới
+- Đã chỉnh sửa gì: Chỉnh lại thành nét liền và
+- Cách kiểm chứng: Tài liệu trên mạng
+- Điều học được: Xây dựng và chỉnh sửa những điều thiếu sót ở usecase cũ

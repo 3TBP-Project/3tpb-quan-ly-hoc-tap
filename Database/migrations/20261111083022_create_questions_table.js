@@ -11,10 +11,10 @@ exports.up = function(knex) {
     table.text('content').notNullable();
     table.string('correct_answer', 255).notNullable();
     
-    // Tách đủ 4 đáp án sai theo chuẩn ERD đã thống nhất
     table.string('false_answer', 255).nullable();
     table.string('false_answer_2', 255).nullable();
     table.string('false_answer_3', 255).nullable();
+    table.string('false_answer_4', 255).nullable();
 
     // Thêm chỉ mục tối ưu hiệu suất truy vấn theo khóa học
     table.index(['course_id']);

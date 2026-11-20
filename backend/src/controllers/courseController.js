@@ -1,6 +1,7 @@
 // AI-assisted [AI-05]
 const courseRepository = require('../repositories/courseRepository');
 const courseService = require('../services/courseService');
+const { toPublicError } = require('../utils/errorResponse');
 
 const parsePositiveInteger = (value, defaultValue) => {
   if (value === undefined) return defaultValue;
@@ -13,6 +14,18 @@ const parsePositiveInteger = (value, defaultValue) => {
 const listCourses = async (req, res) => {
   const page = parsePositiveInteger(req.query.page, 1);
   const limit = parsePositiveInteger(req.query.limit, 9);
+const parseOptionalPositiveInteger = (value) => {
+  if (value === undefined || value === '') return undefined;
+  return parsePositiveInteger(value, null);
+};
+
+const listCourses = async (req, res) => {
+  const page = parsePositiveInteger(req.query.page, 1);
+  const limit = parsePositiveInteger(req.query.limit, 9);
+  const categoryId = parseOptionalPositiveInteger(req.query.categoryId);
+  const teacherId = parseOptionalPositiveInteger(req.query.teacherId);
+  const rawSearch = req.query.search;
+  const search = typeof rawSearch === 'string' ? rawSearch.trim() : '';
 
   if (!page || !limit || limit > 100) {
     return res.status(400).json({
@@ -23,6 +36,24 @@ const listCourses = async (req, res) => {
 
   try {
     const { courses, total } = await courseRepository.findPage({ page, limit });
+  if (
+    categoryId === null ||
+    teacherId === null ||
+    (rawSearch !== undefined && typeof rawSearch !== 'string')
+  ) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Tham số search, categoryId hoặc teacherId không hợp lệ.'
+    });
+  }
+
+  try {
+    const filters = {};
+    if (search) filters.search = search;
+    if (categoryId !== undefined) filters.categoryId = categoryId;
+    if (teacherId !== undefined) filters.teacherId = teacherId;
+
+    const { courses, total } = await courseRepository.findPage({ page, limit, ...filters });
 
     return res.status(200).json({
       status: 'success',
@@ -65,9 +96,14 @@ class CourseController {
         data: newCourse
       });
     } catch (error) {
-      return res.status(400).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể tạo khóa học lúc này.',
+        'Lỗi khi tạo khóa học:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
@@ -85,9 +121,14 @@ class CourseController {
         data: courses
       });
     } catch (error) {
-      return res.status(400).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể tải danh sách khóa học của giảng viên lúc này.',
+        'Lỗi khi tải khóa học của giảng viên:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
@@ -96,18 +137,31 @@ class CourseController {
   // 3. READ - Lấy chi tiết một khóa học theo id
   // ==========================================
   async getCourseDetail(req, res) {
+    const courseId = parsePositiveInteger(req.params.id, null);
+    if (!courseId) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID khóa học không hợp lệ.'
+      });
+    }
+
     try {
-      const courseId = req.params.id;
-      const course = await courseService.getCourseById(courseId);
+      const userId = req.user ? req.user.id : null;
+      const course = await courseService.getCourseById(courseId, userId);
 
       return res.status(200).json({
         success: true,
         data: course
       });
     } catch (error) {
-      return res.status(404).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể tải chi tiết khóa học lúc này.',
+        'Lỗi khi tải chi tiết khóa học:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
@@ -118,40 +172,52 @@ class CourseController {
   async updateCourse(req, res) {
     try {
       const userId = req.user ? req.user.id : req.userId;
+      const userRole = req.user ? req.user.role : 'teacher';
       const courseId = req.params.id;
       const updateData = req.body;
 
-      const updatedCourse = await courseService.updateCourse(userId, courseId, updateData);
+      const updatedCourse = await courseService.updateCourse(userId, courseId, updateData, userRole);
       return res.status(200).json({
         success: true,
         message: 'Cập nhật khóa học thành công!',
         data: updatedCourse
       });
     } catch (error) {
-      return res.status(403).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể cập nhật khóa học lúc này.',
+        'Lỗi khi cập nhật khóa học:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
 
-  // ==========================================
+ // ==========================================
   // 5. DELETE - Xóa khóa học
   // ==========================================
   async deleteCourse(req, res) {
     try {
       const userId = req.user ? req.user.id : req.userId;
+      const userRole = req.user ? req.user.role : 'teacher'; // Lấy role để Service kiểm tra quyền Admin
       const courseId = req.params.id;
 
-      await courseService.deleteCourse(userId, courseId);
+      await courseService.deleteCourse(userId, courseId, userRole);
       return res.status(200).json({
         success: true,
         message: 'Xóa khóa học thành công!'
       });
     } catch (error) {
-      return res.status(403).json({
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể xóa khóa học lúc này.',
+        'Lỗi khi xóa khóa học:'
+      );
+      return res.status(statusCode).json({
         success: false,
-        message: error.message
+        message
       });
     }
   }
@@ -161,3 +227,4 @@ const courseController = new CourseController();
 courseController.listCourses = listCourses;
 
 module.exports = courseController;
+//AI-assisted: <Gemini> [AI-02]

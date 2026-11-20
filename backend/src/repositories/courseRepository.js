@@ -3,13 +3,34 @@ const { pool } = require('../config/db');
 
 /**
  * Repository xử lý thao tác cơ sở dữ liệu cho bảng courses
- * Sử dụng thư viện kết nối MySQL thuần (hoặc Query Builder phù hợp trong dự án)
  */
 
 class CourseRepository {
 
   async findPage({ page, limit }) {
     const offset = (page - 1) * limit;
+  async findPage({ page, limit, search, categoryId, teacherId }) {
+    const offset = (page - 1) * limit;
+    const conditions = [];
+    const filterParams = [];
+
+    if (search) {
+      conditions.push('c.title LIKE ?');
+      filterParams.push(`%${search}%`);
+    }
+    if (categoryId !== undefined) {
+      conditions.push('c.category_id = ?');
+      filterParams.push(categoryId);
+    }
+    if (teacherId !== undefined) {
+      conditions.push('c.user_id = ?');
+      filterParams.push(teacherId);
+    }
+
+    const whereClause = conditions.length > 0
+      ? `WHERE ${conditions.join(' AND ')}`
+      : '';
+
     const [courses] = await pool.query(
       `SELECT
          c.id,
@@ -24,6 +45,7 @@ class CourseRepository {
        LEFT JOIN users AS u ON u.id = c.user_id
        LEFT JOIN categories AS category ON category.id = c.category_id
        LEFT JOIN lessons AS lesson ON lesson.course_id = c.id
+       ${whereClause}
        GROUP BY
          c.id,
          c.title,
@@ -37,6 +59,11 @@ class CourseRepository {
     );
     const [countRows] = await pool.query(
       'SELECT COUNT(*) AS total FROM courses'
+      [...filterParams, limit, offset]
+    );
+    const [countRows] = await pool.query(
+      `SELECT COUNT(*) AS total FROM courses AS c ${whereClause}`,
+      filterParams
     );
 
     return {
@@ -60,6 +87,29 @@ class CourseRepository {
       `INSERT INTO courses (title, description, category_id, user_id, price_course, quiz_duration)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [title, description, category_id, user_id, price_course, quiz_duration]
+    const {
+      title,
+      description,
+      category_id,
+      user_id,
+      price_course,
+      quiz_minutes,
+      thumbnail,
+      status
+    } = courseData;
+    const [result] = await pool.query(
+      `INSERT INTO courses (title, description, category_id, user_id, price_course, quiz_minutes, thumbnail, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        title,
+        description,
+        category_id,
+        user_id,
+        price_course,
+        quiz_minutes ?? null,
+        thumbnail ?? null,
+        status ?? 'draft'
+      ]
     );
     return result.insertId;
   }
@@ -70,6 +120,11 @@ class CourseRepository {
   async findByTeacherId(userId) {
     const [rows] = await pool.query(
       `SELECT * FROM courses WHERE user_id = ?`,
+      `SELECT id, thumbnail, title, description, category_id, user_id,
+              price_course, quiz_minutes, status
+       FROM courses
+       WHERE user_id = ?
+       ORDER BY id DESC`,
       [userId]
     );
     return rows;
@@ -81,9 +136,69 @@ class CourseRepository {
   async findById(id) {
     const [rows] = await pool.query(
       `SELECT * FROM courses WHERE id = ?`,
+      `SELECT id, thumbnail, title, description, category_id, user_id,
+              price_course, quiz_minutes, status
+       FROM courses
+       WHERE id = ?`,
       [id]
     );
     return rows[0];
+  }
+
+  async findDetailById(id, userId = null) {
+    const [rows] = await pool.query(
+      `SELECT
+         c.id,
+         c.title,
+         c.description,
+         COALESCE(c.thumbnail, '/images/course-default.jpg') AS coverImage,
+         c.user_id AS teacherId,
+         u.name AS teacherName,
+         c.category_id AS categoryId,
+         category.name AS categoryName,
+         (SELECT COUNT(*) FROM lessons AS l WHERE l.course_id = c.id) AS lessonCount,
+         (SELECT COUNT(*) FROM enrollments AS e WHERE e.course_id = c.id) AS studentCount,
+         EXISTS(
+           SELECT 1
+           FROM enrollments AS current_enrollment
+           WHERE current_enrollment.course_id = c.id
+             AND current_enrollment.user_id = ?
+         ) AS isEnrolled
+       FROM courses AS c
+       LEFT JOIN users AS u ON u.id = c.user_id
+       LEFT JOIN categories AS category ON category.id = c.category_id
+       WHERE c.id = ?
+       LIMIT 1`,
+      [userId, id]
+    );
+
+    if (!rows[0]) return null;
+
+    const course = rows[0];
+    return {
+      ...course,
+      id: Number(course.id),
+      teacherId: Number(course.teacherId),
+      categoryId: Number(course.categoryId),
+      lessonCount: Number(course.lessonCount),
+      studentCount: Number(course.studentCount),
+      isEnrolled: Boolean(course.isEnrolled)
+    };
+  }
+
+  async findLessonSummariesByCourseId(courseId) {
+    const [rows] = await pool.query(
+      `SELECT id, position AS \`order\`, title
+       FROM lessons
+       WHERE course_id = ?
+       ORDER BY position ASC, id ASC`,
+      [courseId]
+    );
+    return rows.map((lesson) => ({
+      ...lesson,
+      id: Number(lesson.id),
+      order: Number(lesson.order)
+    }));
   }
 
   // ==========================================
@@ -94,8 +209,12 @@ class CourseRepository {
     const [result] = await pool.query(
       `UPDATE courses
        SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_duration = ?
+    const { title, description, category_id, price_course, quiz_minutes, thumbnail, status } = courseData;
+    const [result] = await pool.query(
+      `UPDATE courses
+       SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_minutes = ?, thumbnail = ?, status = ?
        WHERE id = ?`,
-      [title, description, category_id, price_course, quiz_duration, id]
+      [title, description, category_id, price_course, quiz_minutes, thumbnail, status, id]
     );
     return result.affectedRows;
   }
@@ -113,3 +232,4 @@ class CourseRepository {
 }
 
 module.exports = new CourseRepository();
+//AI-assisted: <Gemini> [AI-01]
