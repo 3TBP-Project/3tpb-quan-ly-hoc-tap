@@ -1,6 +1,32 @@
 // AI-assisted [AI-02]
 const jwt = require('jsonwebtoken');
 
+const optionalVerifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return next();
+
+  const [scheme, token, ...extraParts] = authHeader.trim().split(/\s+/);
+  if (scheme !== 'Bearer' || !token || extraParts.length > 0) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.'
+    });
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.'
+    });
+  }
+
+  req.user = decoded;
+  return next();
+};
+
 // 1. Xác thực JWT Token từ Header Authorization
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -13,16 +39,18 @@ const verifyToken = (req, res, next) => {
     });
   }
 
+  let decoded;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Gắn { id, email, role } vào req để các bước sau sử dụng
-    next();
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
     return res.status(401).json({
       status: 'error',
       message: 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.'
     });
   }
+
+  req.user = decoded; // Gắn { id, email, role } vào req để các bước sau sử dụng
+  return next();
 };
 
 // 2. Kiểm tra vai trò được phép truy cập
@@ -38,4 +66,4 @@ const authorizeRoles = (...allowedRoles) => {
   };
 };
 
-module.exports = { verifyToken, authorizeRoles };
+module.exports = { verifyToken, optionalVerifyToken, authorizeRoles };

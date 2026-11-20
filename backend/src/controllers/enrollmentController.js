@@ -1,27 +1,36 @@
 const enrollmentService = require('../services/enrollmentService');
+const { toPublicError } = require('../utils/errorResponse');
 
-const parseCourseId = (value) => {
-  const courseId = Number(value);
-  return Number.isSafeInteger(courseId) && courseId > 0 ? courseId : null;
+const parsePositiveId = (value) => {
+  if (typeof value !== 'string' || !/^[1-9]\d*$/.test(value)) return null;
+  const id = Number(value);
+  return Number.isSafeInteger(id) ? id : null;
 };
 
 const enroll = async (req, res) => {
-  const courseId = parseCourseId(req.params.courseId);
+  const courseId = parsePositiveId(req.params.courseId);
   if (!courseId) {
     return res.status(400).json({ status: 'error', message: 'ID khóa học không hợp lệ.' });
   }
 
   try {
     const enrollment = await enrollmentService.enroll(req.user.id, courseId);
-    return res.status(201).json({
+    return res.status(enrollment.alreadyEnrolled ? 200 : 201).json({
       status: 'success',
-      message: 'Ghi danh khóa học thành công!',
+      message: enrollment.alreadyEnrolled
+        ? 'Bạn đã ghi danh khóa học này.'
+        : 'Ghi danh khóa học thành công.',
       data: enrollment
     });
   } catch (error) {
-    return res.status(error.statusCode || 500).json({
+    const { statusCode, message } = toPublicError(
+      error,
+      'Không thể ghi danh khóa học.',
+      'Lỗi khi ghi danh khóa học:'
+    );
+    return res.status(statusCode).json({
       status: 'error',
-      message: error.message || 'Không thể ghi danh khóa học.'
+      message
     });
   }
 };
