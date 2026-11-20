@@ -38,6 +38,7 @@ function CourseDetailPage() {
   if (loading) return <Loading />;
   if (status === 404) return <NotFoundPage />;
   if (error) return <ErrorMessage message={error} />;
+  if (!course) return <Loading />;
 
   const isEnrolled = course.isEnrolled || justEnrolled;
 
