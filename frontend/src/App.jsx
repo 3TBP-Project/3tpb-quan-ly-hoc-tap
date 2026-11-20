@@ -11,7 +11,9 @@ import LearnPage from './pages/LearnPage'
 import TeacherLessonsPage from './pages/TeacherLessonsPage'
 import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import LearnPage from './pages/LearnPage'
 import NotFoundPage from './pages/NotFoundPage'
+import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
 
 function App() {
   return (
