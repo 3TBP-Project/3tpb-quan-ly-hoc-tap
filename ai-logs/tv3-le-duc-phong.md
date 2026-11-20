@@ -25,6 +25,7 @@
 | AI-12 | 17/11 | Thiết kế | Chỉnh wireframe: bỏ màn 04b | #27 |
 | AI-13 | 18/11 | Lập trình | Trang học bài, đánh dấu hoàn thành và chặn khi chưa ghi danh (HT-05) | #38 |
 | AI-14 | 19/11 | Lập trình | Nút xem chi tiết, làm bài kiểm tra và thông báo đăng nhập trên thẻ khóa học (HT-01) | #44 |
+| AI-15 | 19/11 | Lập trình | Responsive trang học bài và trang làm bài ở 360 px ([FE] Responsive) | #48 |
 
 ---
 
@@ -314,6 +315,25 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: `npm run lint` (0 lỗi), `npm run build` thành công; kiểm tra trên trình duyệt với dữ liệu giả: 8 thẻ đều có hai nút đúng đường dẫn `/courses/:id` và `/courses/:id/quiz`; khách bấm vào thẻ thì ở lại trang và hiện thông báo; bấm "Đăng nhập" chuyển sang `/login` mang theo `/courses/1`; học viên đã đăng nhập bấm vào thẻ thì vào `/courses/1`; 360 px hai nút cùng một hàng, không tràn ngang.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 90%
 - Điều học được: Lỗi sau merge không phải lúc nào cũng do xung đột, cần xem `git diff` từng commit để tìm ai đổi gì
+
+### [AI-15] Responsive trang học bài và trang làm bài ở 360 px ([FE] Responsive)
+- Ngày / Người dùng: 2026-11-19 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5 - High)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [FE] Responsive / db8570c360c581623da4faeaaece701f6493f594 / #48
+- Mục đích: Rà trang học bài và trang làm bài ở 360 px theo hướng dẫn Ngày 9 (video co giãn, câu hỏi dễ chọn) và sửa lỗi hiển thị.
+- Prompt chính (nguyên văn): "Gợi ý tài liệu tham khảo, nguồn từ các bài lab của giảng viên, file và code cho hôm nay"
+- Kết quả AI trả về (tóm tắt):
++ Các bài lab không có bài riêng về responsive; dùng lab10 Phần 3 (Flexbox, Box Model), lab09 Phần 2 (CSS theo component), lab04 (`useState` bật/tắt), lab05 (render theo điều kiện).
++ `LessonNav`: dùng `Row`/`Col` để nút "Đánh dấu hoàn thành" rộng cả hàng trên điện thoại, "Bài trước / Bài sau" chia đôi bên dưới (theo M03); thêm lớp `w-md-auto` vào `index.css`.
++ `LearnPage`: tên khóa dài xuống dòng (`text-break`), thanh tiến độ rộng hết hàng trên điện thoại.
++ `LessonSidebar`: nút "Nội dung khóa học (x/y)" thu gọn mục lục trên điện thoại.
++ `QuizPage.css` (của TV2): `scroll-margin-top` để câu hỏi không bị thanh dính che, rút gọn tiêu đề, radio to hơn, 10 ô số câu trên một hàng ở màn ≤ 420 px.
+- Đánh giá: Video đã co giãn sẵn nhờ `Ratio 16x9`; trang làm bài của TV2 đã có `@media` và dòng đáp án cao 44 px nên chỉ cần sửa nhỏ. Mã gõ lại có lỗi: `useState` đặt ngoài hàm `LessonSidebar` (ESLint `rules-of-hooks`, trang học bị lỗi khi chạy); tiêu đề "Nội dung khóa học" hiện trùng với nút trên điện thoại; nút "Đánh dấu hoàn thành" thiếu `w-100`; khối `@media (max-width: 420px)` trong `QuizPage.css` bị xóa mất 2 luật cũ của TV2 (`.quiz-result__metrics`, `.quiz-intro-card`). Trang làm bài cần backend chạy mới thử được.
+- Đã chỉnh sửa gì: Đưa `useState` vào trong hàm, thêm `d-none d-lg-block` cho tiêu đề, thêm `w-100` cho nút hoàn thành, trả lại 2 luật CSS cũ của TV2
+- Cách kiểm chứng: `npm run lint` 0 lỗi, `npm run build`; Chrome DevTools 360 × 740: không tràn ngang, nút bài học và mục lục, trang làm bài với backend thật
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+- Điều học được: Bootstrap có `order-*` và `d-*-none` để đổi vị trí, ẩn hiện theo kích thước màn hình; hook chỉ được gọi bên trong component
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
