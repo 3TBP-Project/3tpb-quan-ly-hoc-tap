@@ -25,6 +25,14 @@ class EnrollmentRepository {
     return result.insertId;
   }
 
+  async exists(studentId, courseId) {
+    const [rows] = await pool.query(
+      'SELECT id FROM enrollments WHERE user_id = ? AND course_id = ? LIMIT 1',
+      [studentId, courseId]
+    );
+    return rows.length > 0;
+  }
+
   async findCoursesByStudent(studentId) {
     const [rows] = await pool.query(
       `SELECT

@@ -1,3 +1,4 @@
+const courseRepository = require('../repositories/courseRepository');
 const enrollmentRepository = require('../repositories/enrollmentRepository');
 
 const createError = (message, statusCode) => {
@@ -8,20 +9,23 @@ const createError = (message, statusCode) => {
 
 class EnrollmentService {
   async enroll(studentId, courseId) {
-    const course = await enrollmentRepository.findCourseById(courseId);
+    const course = await (
+      enrollmentRepository.findCourseById
+        ? enrollmentRepository.findCourseById(courseId)
+        : courseRepository.findById(courseId)
+    );
 
     if (!course) {
       throw createError('Không tìm thấy khóa học.', 404);
     }
 
-    if (course.status !== 'public') {
+    if (course.status && course.status !== 'public') {
       throw createError('Chỉ được ghi danh vào khóa học đang công khai.', 400);
     }
 
-    const existingEnrollment = await enrollmentRepository.findByStudentAndCourse(
-      studentId,
-      courseId
-    );
+    const existingEnrollment = enrollmentRepository.findByStudentAndCourse
+      ? await enrollmentRepository.findByStudentAndCourse(studentId, courseId)
+      : await enrollmentRepository.exists(studentId, courseId);
 
     if (existingEnrollment) {
       throw createError('Bạn đã ghi danh khóa học này rồi.', 409);
@@ -29,7 +33,13 @@ class EnrollmentService {
 
     try {
       const enrollmentId = await enrollmentRepository.create(studentId, courseId);
-      return { id: enrollmentId, studentId, courseId };
+      return {
+        id: enrollmentId,
+        studentId,
+        courseId,
+        enrolled: true,
+        alreadyEnrolled: false
+      };
     } catch (error) {
       // Ràng buộc UNIQUE(user_id, course_id) xử lý cả trường hợp hai request đồng thời.
       if (error.code === 'ER_DUP_ENTRY') {
