@@ -7,6 +7,8 @@ const { pool } = require('../config/db');
 
 class CourseRepository {
 
+  async findPage({ page, limit }) {
+    const offset = (page - 1) * limit;
   async findPage({ page, limit, search, categoryId, teacherId }) {
     const offset = (page - 1) * limit;
     const conditions = [];
@@ -53,6 +55,10 @@ class CourseRepository {
          category.name
        ORDER BY c.id ASC
        LIMIT ? OFFSET ?`,
+      [limit, offset]
+    );
+    const [countRows] = await pool.query(
+      'SELECT COUNT(*) AS total FROM courses'
       [...filterParams, limit, offset]
     );
     const [countRows] = await pool.query(
@@ -76,6 +82,11 @@ class CourseRepository {
   // 1. CREATE - Thêm khóa học mới
   // ==========================================
   async create(courseData) {
+    const { title, description, category_id, user_id, price_course, quiz_duration } = courseData;
+    const [result] = await pool.query(
+      `INSERT INTO courses (title, description, category_id, user_id, price_course, quiz_duration)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [title, description, category_id, user_id, price_course, quiz_duration]
     const {
       title,
       description,
@@ -108,6 +119,7 @@ class CourseRepository {
   // ==========================================
   async findByTeacherId(userId) {
     const [rows] = await pool.query(
+      `SELECT * FROM courses WHERE user_id = ?`,
       `SELECT id, thumbnail, title, description, category_id, user_id,
               price_course, quiz_minutes, status
        FROM courses
@@ -123,6 +135,7 @@ class CourseRepository {
   // ==========================================
   async findById(id) {
     const [rows] = await pool.query(
+      `SELECT * FROM courses WHERE id = ?`,
       `SELECT id, thumbnail, title, description, category_id, user_id,
               price_course, quiz_minutes, status
        FROM courses
@@ -192,6 +205,10 @@ class CourseRepository {
   // 4. UPDATE - Cập nhật thông tin khóa học
   // ==========================================
   async update(id, courseData) {
+    const { title, description, category_id, price_course, quiz_duration } = courseData;
+    const [result] = await pool.query(
+      `UPDATE courses
+       SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_duration = ?
     const { title, description, category_id, price_course, quiz_minutes, thumbnail, status } = courseData;
     const [result] = await pool.query(
       `UPDATE courses
