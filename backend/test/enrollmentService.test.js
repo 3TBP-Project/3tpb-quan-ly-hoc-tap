@@ -58,7 +58,9 @@ test('ghi danh thành công khi khóa học công khai và chưa ghi danh', asyn
   assert.deepEqual(await enrollmentService.enroll(5, 1), {
     id: 20,
     studentId: 5,
-    courseId: 1
+    courseId: 1,
+    enrolled: true,
+    alreadyEnrolled: false
   });
 });
 

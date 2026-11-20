@@ -103,8 +103,22 @@
 - Mục đích: Kiểm tra xác thực/phân quyền API, truy vấn database và nguy cơ tiết lộ thông tin nhạy cảm trong phản hồi lỗi.
 - Prompt chính: Kiểm tra đầu vào, quyền truy cập, truy vấn database và thông tin nhạy cảm trong phản hồi/lỗi của backend.
 - Kết quả AI trả về (tóm tắt): Rà soát tĩnh phát hiện các route quản lý khóa học chưa gắn middleware giảng viên và một số controller trả nguyên thông báo lỗi nội bộ cho client. Các truy vấn lọc đã kiểm tra sử dụng tham số hóa.
-- Đánh giá: Đủ 
+- Đánh giá: Đủ
 - Đã chỉnh sửa gì: Bảo vệ API tạo/xem khóa học của giảng viên/cập nhật/xóa bằng xác thực JWT và vai trò giảng viên, phản hồi lỗi 500 để chỉ ghi chi tiết ở log server và trả thông báo chung cho client.
 - Cách kiểm chứng: `npm test` tại `backend` (15/15 test đạt), gồm kiểm tra request không token nhận 401, học viên nhận 403 và lỗi nội bộ không bị lộ trong phản hồi.
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%.
 - Điều học được: Cần bảo vệ API ở route bằng xác thực/phân quyền, tiếp tục kiểm tra quyền sở hữu ở service, và không gửi chi tiết lỗi hệ thống hoặc database về client.
+
+### [AI-09] Bổ sung API người dùng, bài học, ghi danh, câu hỏi và quản trị
+- Ngày / Người dùng: 2026-11-19 / Nguyễn Quang Thông
+- Công cụ: GitHub Copilot (Copilot SDK trong VS Code)
+- Giai đoạn: Lập trình / Kiểm thử
+- Task / Commit / PR: Commit "feat: Bo sung cac API con thieu" / #45
+- Mục đích: Hoàn thiện các API hồ sơ người dùng, khóa học đã ghi danh, bài học và tiến độ, ngân hàng câu hỏi, đánh giá/thảo luận, ghi danh và quản trị tài khoản.
+- Prompt chính: Theo cấu trúc dự án, xác định API còn thiếu và triển khai đầy đủ controller, service, repository, route cùng test cho backend.
+- Kết quả AI trả về (tóm tắt): Thêm các API quản lý người dùng, bài học, ghi danh và tiến độ học tập, câu hỏi trắc nghiệm, đánh giá và thảo luận cùng quản trị tài khoản. Bổ sung đăng ký route trong server, middleware phân quyền theo vai trò và kiểm thử xác thực cho từng nhóm API.
+- Đánh giá: Đủ
+- Đã chỉnh sửa gì: Tích hợp các controller, service, repository và route mới; loại bỏ marker xung đột khi khôi phục thay đổi, rà soát và giữ các route của khóa học, học viên, giảng viên và quản trị trong cấu trúc server.
+- Cách kiểm chứng: Chạy `npm test` trong thư mục `backend`; kết quả đạt 35/35 test, bao gồm xác thực, phân quyền, ghi danh, tiến độ học tập, câu hỏi và bảo vệ dữ liệu trong phản hồi lỗi.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần triển khai API theo đầy đủ ba lớp của dự án, dùng middleware phân quyền tại route, kiểm tra quyền sở hữu ở service và giải quyết xung đột bằng cách tích hợp cả hai phần thay đổi thay vì chọn bỏ một phần.
