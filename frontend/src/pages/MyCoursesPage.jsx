@@ -1,0 +1,40 @@
+import { Col, Row } from 'react-bootstrap';
+import EmptyState from '../components/common/EmptyState';
+import ErrorMessage from '../components/common/ErrorMessage';
+import Loading from '../components/common/Loading';
+import PageHeader from '../components/common/PageHeader';
+import SafeErrorBoundary from '../components/common/SafeErrorBoundary';
+import CourseCard from '../components/course/CourseCard';
+import { useFetch } from '../hooks/useFetch';
+import { getMyCourses } from '../services/courseService';
+
+function MyCoursesPage() {
+  const { data: courses, loading, error } = useFetch(getMyCourses);
+  const safeCourses = Array.isArray(courses) ? courses.filter((c) => c && c.id != null) : [];
+
+  if (loading && safeCourses.length === 0) return <Loading />;
+
+  return (
+    <SafeErrorBoundary>
+      <PageHeader
+        title="Khóa học của tôi"
+        subtitle="Danh sách các khóa học bạn đã ghi danh thành công."
+      />
+      {error && safeCourses.length === 0 ? (
+        <ErrorMessage message={error} />
+      ) : safeCourses.length > 0 ? (
+        <Row xs={1} sm={2} md={3} xl={4} className="g-3">
+          {safeCourses.map((course) => (
+            <Col key={course.id}>
+              <CourseCard course={course} />
+            </Col>
+          ))}
+        </Row>
+      ) : (
+        <EmptyState message="Bạn chưa ghi danh khóa học nào." />
+      )}
+    </SafeErrorBoundary>
+  );
+}
+
+export default MyCoursesPage;
