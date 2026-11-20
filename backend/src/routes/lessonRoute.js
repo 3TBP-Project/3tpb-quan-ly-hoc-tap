@@ -1,45 +1,18 @@
 const express = require('express');
-const router = express.Router();
 const lessonController = require('../controllers/lessonController');
 const { verifyToken, authorizeRoles } = require('../middlewares/authMiddleware');
 const { ROLES } = require('../config/constants');
-const { validateYouTubeVideo } = require('../middlewares/youtubeMiddleware');
-const { uploadLessonPdf } = require('../middlewares/pdfUploadMiddleware');
 
-router.post(
-  '/',
-  verifyToken,
-  authorizeRoles(ROLES.TEACHER, ROLES.ADMIN),
-  uploadLessonPdf,
-  validateYouTubeVideo,
-  lessonController.createLesson
-);
+const router = express.Router();
+const studentOnly = [verifyToken, authorizeRoles(ROLES.STUDENT)];
+const courseManagers = [verifyToken, authorizeRoles(ROLES.TEACHER, ROLES.ADMIN)];
 
-router.put(
-  '/reorder',
-  verifyToken,
-  authorizeRoles(ROLES.TEACHER, ROLES.ADMIN),
-  lessonController.reorderLessons
-);
-
-router.get('/course/:courseId', lessonController.getLessonsByCourse);
-router.get('/:id', lessonController.getLessonDetail);
-
-router.put(
-  '/:id',
-  verifyToken,
-  authorizeRoles(ROLES.TEACHER, ROLES.ADMIN),
-  uploadLessonPdf,
-  validateYouTubeVideo,
-  lessonController.updateLesson
-);
-
-router.delete(
-  '/:id',
-  verifyToken,
-  authorizeRoles(ROLES.TEACHER, ROLES.ADMIN),
-  lessonController.deleteLesson
-);
+router.get('/courses/:courseId/lessons', lessonController.getCourseLessons);
+router.post('/courses/:courseId/lessons', ...courseManagers, lessonController.createLesson);
+router.get('/courses/:courseId/learn', ...studentOnly, lessonController.getLearnData);
+router.get('/lessons/:lessonId', ...studentOnly, lessonController.getLesson);
+router.post('/lessons/:lessonId/complete', ...studentOnly, lessonController.completeLesson);
+router.put('/lessons/:lessonId', ...courseManagers, lessonController.updateLesson);
+router.delete('/lessons/:lessonId', ...courseManagers, lessonController.deleteLesson);
 
 module.exports = router;
-//AI-assisted: <Gemini> [AI-05]

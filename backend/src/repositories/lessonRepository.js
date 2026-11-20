@@ -1,67 +1,103 @@
-const db = require('../config/db');
+const { pool } = require('../config/db');
 
-class LessonRepository {
-  async create(lessonData) {
-    const { course_id, title, content, video_path, file_path, position } = lessonData;
-    const [result] = await db.query(
-      `INSERT INTO lessons (course_id, title, content, video_path, file_path, position)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [course_id, title, content || null, video_path || null, file_path || null, position]
-    );
-    return result.insertId;
-  }
+const findCourseById = async (courseId) => {
+  const [rows] = await pool.query(
+    'SELECT id, title, user_id FROM courses WHERE id = ? LIMIT 1',
+    [courseId]
+  );
+  return rows[0] || null;
+};
 
-  async findByCourseId(courseId) {
-    const [rows] = await db.query(
-      `SELECT * FROM lessons WHERE course_id = ? ORDER BY position ASC, id ASC`,
-      [courseId]
-    );
-    return rows;
-  }
+const findById = async (lessonId) => {
+  const [rows] = await pool.query(
+    'SELECT id, course_id, title, content, video_path, file_path, position FROM lessons WHERE id = ? LIMIT 1',
+    [lessonId]
+  );
+  return rows[0] || null;
+};
 
-  async findById(id) {
-    const [rows] = await db.query(
-      `SELECT * FROM lessons WHERE id = ?`,
-      [id]
-    );
-    return rows[0] || null;
-  }
+const findSummariesByCourseId = async (courseId) => {
+  const [rows] = await pool.query(
+    `SELECT id, course_id AS courseId, position AS \`order\`, title
+     FROM lessons
+     WHERE course_id = ?
+     ORDER BY position ASC, id ASC`,
+    [courseId]
+  );
+  return rows.map((lesson) => ({
+    ...lesson,
+    id: Number(lesson.id),
+    courseId: Number(lesson.courseId),
+    order: Number(lesson.order)
+  }));
+};
 
-  async getMaxPosition(courseId) {
-    const [rows] = await db.query(
-      `SELECT COALESCE(MAX(position), 0) AS maxPos FROM lessons WHERE course_id = ?`,
-      [courseId]
-    );
-    return Number(rows[0].maxPos) || 0;
-  }
+const create = async ({ courseId, title, content, videoPath, filePath, position }) => {
+  const [result] = await pool.query(
+    `INSERT INTO lessons (course_id, title, content, video_path, file_path, position)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [courseId, title, content, videoPath, filePath, position]
+  );
+  return result.insertId;
+};
 
-  async update(id, lessonData) {
-    const { title, content, video_path, file_path, position } = lessonData;
-    const [result] = await db.query(
-      `UPDATE lessons
-       SET title = ?, content = ?, video_path = ?, file_path = ?, position = ?
-       WHERE id = ?`,
-      [title, content, video_path, file_path, position, id]
-    );
-    return result.affectedRows;
-  }
+const update = async (lessonId, { title, content, videoPath, filePath, position }) => {
+  const [result] = await pool.query(
+    `UPDATE lessons
+     SET title = ?, content = ?, video_path = ?, file_path = ?, position = ?
+     WHERE id = ?`,
+    [title, content, videoPath, filePath, position, lessonId]
+  );
+  return result.affectedRows > 0;
+};
 
-  async updatePosition(id, position) {
-    const [result] = await db.query(
-      `UPDATE lessons SET position = ? WHERE id = ?`,
-      [position, id]
-    );
-    return result.affectedRows;
-  }
+const remove = async (lessonId) => {
+  const [result] = await pool.query('DELETE FROM lessons WHERE id = ?', [lessonId]);
+  return result.affectedRows > 0;
+};
 
-  async remove(id) {
-    const [result] = await db.query(
-      `DELETE FROM lessons WHERE id = ?`,
-      [id]
-    );
-    return result.affectedRows;
-  }
-}
+const findByCourseIdWithProgress = async (courseId, userId) => {
+  const [rows] = await pool.query(
+    `SELECT
+       l.id,
+       l.position AS \`order\`,
+       l.title,
+       l.content,
+       l.video_path AS videoUrl,
+       l.file_path AS fileUrl,
+       COALESCE(lp.is_completed, 0) AS isCompleted
+     FROM lessons AS l
+     LEFT JOIN lesson_progress AS lp
+       ON lp.lesson_id = l.id AND lp.user_id = ?
+     WHERE l.course_id = ?
+     ORDER BY l.position ASC, l.id ASC`,
+    [userId, courseId]
+  );
 
-module.exports = new LessonRepository();
-//AI-assisted: <Gemini> [AI-02]
+  return rows.map((lesson) => ({
+    ...lesson,
+    id: Number(lesson.id),
+    order: Number(lesson.order),
+    isCompleted: Boolean(lesson.isCompleted)
+  }));
+};
+
+const markCompleted = async (userId, lessonId) => {
+  await pool.query(
+    `INSERT INTO lesson_progress (user_id, lesson_id, is_completed)
+     VALUES (?, ?, TRUE)
+     ON DUPLICATE KEY UPDATE is_completed = TRUE`,
+    [userId, lessonId]
+  );
+};
+
+module.exports = {
+  findCourseById,
+  findById,
+  findSummariesByCourseId,
+  create,
+  update,
+  remove,
+  findByCourseIdWithProgress,
+  markCompleted
+};

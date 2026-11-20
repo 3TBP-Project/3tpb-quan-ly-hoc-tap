@@ -132,6 +132,62 @@ class CourseRepository {
     return rows[0];
   }
 
+  async findDetailById(id, userId = null) {
+    const [rows] = await pool.query(
+      `SELECT
+         c.id,
+         c.title,
+         c.description,
+         COALESCE(c.thumbnail, '/images/course-default.jpg') AS coverImage,
+         c.user_id AS teacherId,
+         u.name AS teacherName,
+         c.category_id AS categoryId,
+         category.name AS categoryName,
+         (SELECT COUNT(*) FROM lessons AS l WHERE l.course_id = c.id) AS lessonCount,
+         (SELECT COUNT(*) FROM enrollments AS e WHERE e.course_id = c.id) AS studentCount,
+         EXISTS(
+           SELECT 1
+           FROM enrollments AS current_enrollment
+           WHERE current_enrollment.course_id = c.id
+             AND current_enrollment.user_id = ?
+         ) AS isEnrolled
+       FROM courses AS c
+       LEFT JOIN users AS u ON u.id = c.user_id
+       LEFT JOIN categories AS category ON category.id = c.category_id
+       WHERE c.id = ?
+       LIMIT 1`,
+      [userId, id]
+    );
+
+    if (!rows[0]) return null;
+
+    const course = rows[0];
+    return {
+      ...course,
+      id: Number(course.id),
+      teacherId: Number(course.teacherId),
+      categoryId: Number(course.categoryId),
+      lessonCount: Number(course.lessonCount),
+      studentCount: Number(course.studentCount),
+      isEnrolled: Boolean(course.isEnrolled)
+    };
+  }
+
+  async findLessonSummariesByCourseId(courseId) {
+    const [rows] = await pool.query(
+      `SELECT id, position AS \`order\`, title
+       FROM lessons
+       WHERE course_id = ?
+       ORDER BY position ASC, id ASC`,
+      [courseId]
+    );
+    return rows.map((lesson) => ({
+      ...lesson,
+      id: Number(lesson.id),
+      order: Number(lesson.order)
+    }));
+  }
+
   // ==========================================
   // 4. UPDATE - Cập nhật thông tin khóa học
   // ==========================================
