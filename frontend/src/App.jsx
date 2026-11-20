@@ -8,6 +8,7 @@ import CourseDetailPage from './pages/CourseDetailPage'
 import MyCoursesPage from './pages/MyCoursesPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import NotFoundPage from './pages/NotFoundPage'
+import LearnPage from './pages/LearnPage'
 
 function App() {
   return (

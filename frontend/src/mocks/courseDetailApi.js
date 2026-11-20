@@ -1,5 +1,6 @@
 // AI-assisted [AI-09]
 import { mockCourses } from './course';
+import { isCourseEnrolledSaved } from '../utils/enrollmentStorage';
 
 const delay = (value, ms = 250) => new Promise((r) => setTimeout(() => r(value), ms));
 const enrolledIds = new Set(); // giả lập "đã ghi danh" trong phiên chạy
@@ -36,3 +37,13 @@ export function mockGetMyCourses() {
   const courses = mockCourses.filter((course) => enrolledIds.has(course.id));
   return delay({ status: 'success', data: courses });
 }
+
+export function buildLessons(course) {
+  return Array.from({ length: course.lessonCount }, (_, i) => ({
+    id: course.id * 100 + i + 1,
+    order: i + 1,
+    title: `Bài ${i + 1}: Nội dung bài học ${i + 1}`,
+  }));
+}
+
+export const isMockEnrolled = (id) => enrolledIds.has(Number(id)) || isCourseEnrolledSaved(id);
