@@ -69,9 +69,6 @@ export const getMyCourses = async (_params, signal) => {
   if (USE_MOCK) {
     const data = savedLocal.map(applyLocalProgress);
     return { status: 'success', data };
-
-  if (USE_MOCK) {
-    return { status: 'success', data: savedLocal };
   }
 
   try {
@@ -87,19 +84,13 @@ export const getMyCourses = async (_params, signal) => {
         const merged = prev ? { ...prev, ...c } : c;
         mergedMap.set(cid, applyLocalProgress(merged));
       }
-    // Gộp dữ liệu từ API và localStorage theo id để F5 không bao giờ bị trống
-    const mergedMap = new Map();
-    [...apiList, ...savedLocal].forEach((c) => {
-      if (c && c.id != null) mergedMap.set(Number(c.id), c);
     });
 
     return { status: 'success', data: Array.from(mergedMap.values()) };
   } catch (err) {
-    if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') throw err;
-    return { status: 'success', data: savedLocal.map(applyLocalProgress) };
     // Nếu request bị hủy khi unmount thì ném lại cho useFetch xử lý
     if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') throw err;
     // Nếu backend lỗi/mất kết nối khi F5, vẫn hiển thị danh sách đã lưu ở client
-    return { status: 'success', data: savedLocal };
+    return { status: 'success', data: savedLocal.map(applyLocalProgress) };
   }
 };
