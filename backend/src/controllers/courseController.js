@@ -11,6 +11,9 @@ const parsePositiveInteger = (value, defaultValue) => {
   return Number.isSafeInteger(parsed) ? parsed : null;
 };
 
+const listCourses = async (req, res) => {
+  const page = parsePositiveInteger(req.query.page, 1);
+  const limit = parsePositiveInteger(req.query.limit, 9);
 const parseOptionalPositiveInteger = (value) => {
   if (value === undefined || value === '') return undefined;
   return parsePositiveInteger(value, null);
@@ -31,6 +34,8 @@ const listCourses = async (req, res) => {
     });
   }
 
+  try {
+    const { courses, total } = await courseRepository.findPage({ page, limit });
   if (
     categoryId === null ||
     teacherId === null ||

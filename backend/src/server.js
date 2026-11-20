@@ -28,12 +28,14 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin/users', adminUserRoutes);
 app.use('/api', lessonRoutes);
 app.use('/api', questionRoutes);
+app.use('/api/teacher', questionRoutes);
 app.use('/api', engagementRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api', catalogRoutes);
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
 app.use('/api/auth', authRoutes);
+
 // Các route kiểm chứng phân quyền 3 vai trò
 app.get('/student/dashboard', verifyToken, authorizeRoles(ROLES.STUDENT), (req, res) => {
   res.json({ status: 'success', message: 'Chào mừng Học viên!', user: req.user });
