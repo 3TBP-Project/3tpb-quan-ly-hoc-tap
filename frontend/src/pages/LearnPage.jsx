@@ -53,11 +53,11 @@ function LearnPage() {
   return (
     <>
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <div>
+        <div className="text-break">
           <Link to={`/courses/${id}`} className="small">‹ Thoát</Link>
           <h1 className="h5 mb-0">{course.title}</h1>
         </div>
-        <div style={{ minWidth: 220 }}>
+        <div className="flex-grow-1 flex-md-grow-0" style={{ minWidth: 220 }}>
           <small className="text-muted">Tiến độ: {completed.size}/{lessons.length} bài ({percent}%)</small>
           <ProgressBar now={percent} />
         </div>
