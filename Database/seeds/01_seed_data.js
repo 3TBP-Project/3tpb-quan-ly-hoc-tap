@@ -1,6 +1,13 @@
+// Seed dữ liệu mẫu cho hệ thống quản lý học tập (với băm mật khẩu bcrypt)
 /**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
+ * Yêu cầu:
+ * - 5 danh mục
+ * - 19 người dùng (1 admin, 3 giảng viên, 15 học viên)
+ * - 8 khóa học, mỗi khóa 5 bài học và 10 câu hỏi trắc nghiệm
+ * - Ghi danh, một số lượt làm bài, tiến độ bài học, bình luận và thảo luận mẫu
+ * - Mật khẩu demo: 12345678 (được băm bằng bcrypt nếu có)
+ *
+ * Chạy: cd Database && npx knex seed:run
  */
 exports.seed = async function(knex) {
   // bcrypt hash for the demo password "password123".
@@ -62,20 +69,42 @@ exports.seed = async function(knex) {
     { id: 7, title: 'Figma Thiết kế UI/UX Chuyên nghiệp', description: 'Thiết kế giao diện người dùng đỉnh cao', category_id: 5, user_id: 2, price_course: 450000, quiz_minutes: 20 },
     { id: 8, title: 'Machine Learning Cơ bản', description: 'Học máy và ứng dụng thực tế', category_id: 4, user_id: 3, price_course: 899000, quiz_minutes: 45 },
   ];
-  await knex('courses').insert(courses);
+  STUDENT_NAMES.forEach((name, idx) => {
+    base.push({
+      id: idx + 5,
+      name,
+      email: `student${idx + 1}@gmail.com`,
+      password: hashedPassword,
+      role: 'student',
+      status: 'active'
+    });
+  });
+  return base;
+};
 
-  // 5. Chèn ĐÚNG 40 Bài học (8 khóa × 5 bài/khóa)
+const buildCourses = () =>
+  COURSES.map((c) => ({
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    category_id: c.category_id,
+    user_id: c.user_id,
+    price_course: 0,
+    quiz_minutes: c.quiz_minutes,
+    status: 'public'
+  }));
+
+const buildLessons = () => {
   const lessons = [];
-  let lessonIdCounter = 1;
-  for (let courseId = 1; courseId <= 8; courseId++) {
-    for (let lessonIndex = 1; lessonIndex <= 5; lessonIndex++) {
+  COURSES.forEach((course) => {
+    course.lessons.forEach((title, i) => {
       lessons.push({
-        id: lessonIdCounter,
-        course_id: courseId,
-        title: `Bài ${lessonIndex}: Kiến thức thuộc khóa học ${courseId}`,
-        content: `Nội dung chi tiết bài học số ${lessonIndex} của khóa ${courseId}.`,
-        video_path: `https://storage.example.com/videos/course_${courseId}_lesson_${lessonIndex}.mp4`,
-        file_path: `https://storage.example.com/docs/course_${courseId}_lesson_${lessonIndex}.pdf`
+        id: (course.id - 1) * 5 + i + 1,
+        course_id: course.id,
+        title,
+        content: `Nội dung bài học "${title}" của khóa "${course.title}".`,
+        video_path: `https://www.youtube.com/results?search_query=${encodeURIComponent(title)}`,
+        position: i + 1
       });
       lessonIdCounter++;
     }
@@ -96,40 +125,54 @@ exports.seed = async function(knex) {
         false_answer_2: `Đáp án sai 2 câu ${qIndex}`,
         false_answer_3: `Đáp án sai 3 câu ${qIndex}`,
       });
-      questionIdCounter++;
-    }
-  }
-  await knex('questions').insert(questions);
-
-  // 7. Chèn dữ liệu mẫu Ghi danh (enrollments)
-  const enrollments = [
-    { id: 1, user_id: 5, course_id: 1 },
-    { id: 2, user_id: 5, course_id: 2 },
-    { id: 3, user_id: 6, course_id: 1 },
-    { id: 4, user_id: 7, course_id: 3 },
-    { id: 5, user_id: 8, course_id: 5 },
-    { id: 6, user_id: 9, course_id: 6 },
-    { id: 7, user_id: 10, course_id: 8 },
-  ];
-  await knex('enrollments').insert(enrollments);
-
-  // 8. Chèn dữ liệu mẫu Lượt làm bài (quiz_attempts)
-  const quizAttempts = [
-    { id: 1, user_id: 5, course_id: 1, score: 9.5 },
-    { id: 2, user_id: 5, course_id: 2, score: 8.0 },
-    { id: 3, user_id: 6, course_id: 1, score: 7.0 },
-    { id: 4, user_id: 7, course_id: 3, score: 10.0 },
-    { id: 5, user_id: 8, course_id: 5, score: 6.5 },
-  ];
-  await knex('quiz_attempts').insert(quizAttempts);
-
-  // 9. Chèn dữ liệu mẫu Tiến độ bài học (lesson_progress)
-  const lessonProgress = [
-    { id: 1, user_id: 5, lesson_id: 1, is_completed: true },
-    { id: 2, user_id: 5, lesson_id: 2, is_completed: true },
-    { id: 3, user_id: 6, lesson_id: 1, is_completed: true },
-    { id: 4, user_id: 7, lesson_id: 11, is_completed: true },
-  ];
-  await knex('lesson_progress').insert(lessonProgress);
+    });
+  });
+  return qs;
 };
-//AI-assisted: <Gemini> [AI-09]
+
+/**
+ * @param { import('knex').Knex } knex
+ */
+exports.seed = async function (knex) {
+  // Store password as SHA2 hash directly in MySQL (256‑bit)
+  const hashed = knex.raw('SHA2(?, 256)', [PASSWORD]);
+  console.info('[seed] passwords will be stored as SHA2(256) hash in MySQL');
+
+  await knex.transaction(async (trx) => {
+    const tables = [
+      'lesson_progress',
+      'quiz_attempts',
+      'discussions',
+      'comments',
+      'questions',
+      'lessons',
+      'enrollments',
+      'courses',
+      'users',
+      'categories'
+    ];
+    for (const t of tables) await trx(t).del();
+  });
+
+  await knex('categories').insert(CATEGORIES);
+  await knex('users').insert(buildUsers(hashed));
+  await knex('courses').insert(buildCourses());
+  await knex('lessons').insert(buildLessons());
+  await knex('questions').insert(buildQuestions());
+  await knex('enrollments').insert(ENROLLMENTS);
+
+  await knex('quiz_attempts').insert(
+    QUIZ_ATTEMPTS.map((a, i) => ({ id: i + 1, ...a, status: 'submitted' }))
+  );
+  await knex('lesson_progress').insert(
+    LESSON_PROGRESS.map((p, i) => ({ id: i + 1, ...p }))
+  );
+  await knex('comments').insert(
+    COMMENTS.map((c, i) => ({ id: i + 1, ...c }))
+  );
+
+  // Đầu tiên chèn các discussion gốc (parent_id = null) để tránh vi phạm FK
+  await knex('discussions').insert(DISCUSSIONS.filter((d) => d.parent_id === null));
+  await knex('discussions').insert(DISCUSSIONS.filter((d) => d.parent_id !== null));
+};
+// End of seed file

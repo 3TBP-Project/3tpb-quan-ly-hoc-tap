@@ -13,7 +13,6 @@ exports.up = function(knex) {
     table.float('score').nullable();
     table.string('status', 50).notNullable().defaultTo('doing');
     
-    // Đã sửa cú pháp, sửa lỗi chính tả subbmitted_at -> submitted_at và đổi sang dateTime
     table.dateTime('started_at').nullable();
     table.dateTime('submitted_at').nullable();
 

@@ -43,12 +43,17 @@ class EnrollmentRepository {
          c.category_id AS categoryId,
          category.name AS categoryName,
          COUNT(DISTINCT lesson.id) AS lessonCount,
+         COUNT(DISTINCT lp.lesson_id) AS completedLessonCount,
          enrollment.id AS enrollmentId
        FROM enrollments AS enrollment
        INNER JOIN courses AS c ON c.id = enrollment.course_id
        LEFT JOIN users AS u ON u.id = c.user_id
        LEFT JOIN categories AS category ON category.id = c.category_id
        LEFT JOIN lessons AS lesson ON lesson.course_id = c.id
+       LEFT JOIN lesson_progress AS lp
+         ON lp.lesson_id = lesson.id
+         AND lp.user_id = enrollment.user_id
+         AND lp.is_completed = 1
        WHERE enrollment.user_id = ?
        GROUP BY c.id, c.title, c.thumbnail, u.name, c.category_id,
                 category.name, enrollment.id
