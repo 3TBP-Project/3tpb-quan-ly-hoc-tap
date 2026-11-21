@@ -21,7 +21,7 @@ const stubMethods = (t, repository, stubs) => {
   t.after(() => Object.assign(repository, originals));
 };
 
-test('updateProfile validates and normalizes only allowed profile data', async (t) => {
+test('updateProfile chỉ sửa họ tên, giữ nguyên email đăng nhập', async (t) => {
   let received;
   stubMethods(t, userRepository, {
     findProfileById: async () => ({ id: 2, name: 'Old name', email: 'old@example.com' }),
@@ -31,11 +31,8 @@ test('updateProfile validates and normalizes only allowed profile data', async (
     }
   });
 
-  const profile = await userService.updateProfile(2, {
-    name: ' New name ',
-    email: ' NEW@example.com '
-  });
-  assert.deepEqual(received, { name: 'New name', email: 'new@example.com' });
+  const profile = await userService.updateProfile(2, { name: ' New name ' });
+  assert.deepEqual(received, { name: 'New name', email: 'old@example.com' });
   assert.equal(profile.name, 'New name');
   await assert.rejects(
     userService.updateProfile(2, { name: 7 }),

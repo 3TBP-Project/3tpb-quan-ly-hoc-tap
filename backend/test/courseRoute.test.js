@@ -119,6 +119,7 @@ test('new user, management, and engagement routes enforce authentication and rol
   const protectedRoutes = [
     { method: 'GET', path: '/api/users/profile' },
     { method: 'PUT', path: '/api/users/profile', body: { name: 'Name' } },
+    { method: 'PUT', path: '/api/users/password', body: {} },
     { method: 'GET', path: '/api/users/my-courses', wrongRoleToken: teacherToken },
     { method: 'GET', path: '/api/users/my-quizzes', wrongRoleToken: teacherToken },
     { method: 'GET', path: '/api/lessons/1', wrongRoleToken: teacherToken },

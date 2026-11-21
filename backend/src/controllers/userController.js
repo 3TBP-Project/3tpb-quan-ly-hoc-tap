@@ -1,3 +1,4 @@
+// AI-assisted [AI-06]
 const userService = require('../services/userService');
 const { toPublicError } = require('../utils/errorResponse');
 
@@ -24,10 +25,10 @@ const updateProfile = async (req, res) => {
     return res.status(400).json({ status: 'error', message: 'Dữ liệu hồ sơ không hợp lệ.' });
   }
   const keys = Object.keys(req.body);
-  if (keys.length === 0 || keys.some((key) => !['name', 'email'].includes(key))) {
+  if (keys.length !== 1 || keys[0] !== 'name') {
     return res.status(400).json({
       status: 'error',
-      message: 'Chỉ được cập nhật các trường name và email.'
+      message: 'Chỉ được cập nhật họ tên (name). Email dùng để đăng nhập nên không thể thay đổi.'
     });
   }
 
@@ -36,6 +37,20 @@ const updateProfile = async (req, res) => {
     return res.status(200).json({ status: 'success', message: 'Cập nhật hồ sơ thành công.', data });
   } catch (error) {
     return handleError(res, error, 'Không thể cập nhật hồ sơ lúc này.', 'Lỗi khi cập nhật hồ sơ:');
+  }
+};
+
+// HT-07: đổi mật khẩu
+const changePassword = async (req, res) => {
+  if (!isPlainObject(req.body)) {
+    return res.status(400).json({ status: 'error', message: 'Dữ liệu đổi mật khẩu không hợp lệ.' });
+  }
+
+  try {
+    await userService.changePassword(req.user.id, req.body);
+    return res.status(200).json({ status: 'success', message: 'Đổi mật khẩu thành công.' });
+  } catch (error) {
+    return handleError(res, error, 'Không thể đổi mật khẩu lúc này.', 'Lỗi khi đổi mật khẩu:');
   }
 };
 
@@ -57,4 +72,4 @@ const getMyQuizzes = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updateProfile, getMyCourses, getMyQuizzes };
+module.exports = { getProfile, updateProfile, changePassword, getMyCourses, getMyQuizzes };
