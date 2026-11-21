@@ -19,6 +19,8 @@ class CourseRepository {
       conditions.push('c.user_id = ?');
       filterParams.push(teacherId);
     }
+    // HT-15: khóa học bị quản trị viên ẩn không hiện trong danh sách công khai
+    conditions.push("c.status <> 'hidden'");
 
     const whereClause = conditions.length > 0
       ? `WHERE ${conditions.join(' AND ')}`
@@ -132,6 +134,7 @@ class CourseRepository {
          u.name AS teacherName,
          c.category_id AS categoryId,
          category.name AS categoryName,
+         c.status,
          (SELECT COUNT(*) FROM lessons AS l WHERE l.course_id = c.id) AS lessonCount,
          (SELECT COUNT(*) FROM enrollments AS e WHERE e.course_id = c.id) AS studentCount,
          EXISTS(

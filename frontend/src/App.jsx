@@ -13,6 +13,7 @@ import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
 import UserManagementPage from './pages/admin/UserManagementPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import NotFoundPage from './pages/NotFoundPage'
+import CategoryCoursePage from './pages/admin/CategoryCoursePage'
 
 function App() {
   return (
@@ -68,6 +69,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['teacher']}>
               <TeacherQuestionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/categories"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <CategoryCoursePage />
             </ProtectedRoute>
           }
         />

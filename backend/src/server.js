@@ -14,6 +14,7 @@ const userRoutes = require('./routes/userRoute');
 const adminUserRoutes = require('./routes/adminUserRoute');
 const enrollmentRoutes = require('./routes/enrollmentRoute');
 const catalogRoutes = require('./routes/catalogRoute');
+const adminCatalogRoutes = require('./routes/adminCatalogRoute');
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use('/api/teacher', questionRoutes);
 app.use('/api', engagementRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api', catalogRoutes);
+app.use('/api/admin', adminCatalogRoutes); // HT-15
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
 app.use('/api/auth', authRoutes);
