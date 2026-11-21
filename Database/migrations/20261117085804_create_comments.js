@@ -1,29 +1,30 @@
+//comments table
 /**
- * Migration tạo bảng comments (Hỗ trợ cả Đánh giá khóa học & Hỏi đáp bài học HT-08)
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
  */
 exports.up = function(knex) {
   return knex.schema.createTable('comments', function(table) {
     table.increments('id').primary();
-    table.integer('user_id').unsigned().notNullable();
     table.integer('course_id').unsigned().notNullable();
-    table.integer('lesson_id').unsigned().nullable();
-    table.integer('parent_id').unsigned().nullable();
-    table.integer('rating').nullable();
+    table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
+    table.integer('user_id').unsigned().notNullable();
+    table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
+    
+    table.integer('rating').nullable(); // Số sao đánh giá (1-5)
     table.text('content').notNullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
 
-    // Thiết lập các khóa ngoại
-    table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
-    table.foreign('course_id').references('id').inTable('courses').onDelete('CASCADE');
-    table.foreign('lesson_id').references('id').inTable('lessons').onDelete('CASCADE');
-    table.foreign('parent_id').references('id').inTable('comments').onDelete('CASCADE');
-
-    // Đánh chỉ mục tối ưu tốc độ truy vấn
+    // Chỉ mục tối ưu
     table.index(['course_id']);
-    table.index(['lesson_id']);
+    table.index(['user_id']);
   });
 };
 
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
 exports.down = function(knex) {
   return knex.schema.dropTable('comments');
 };

@@ -32,11 +32,7 @@ export function mockGetCourseById({ id }) {
     // Cùng hình dạng lỗi axios mà parseApiError đang đọc
     return Promise.reject({ response: { status: 404, data: { message: 'Không tìm thấy khóa học' } } });
   }
-  const lessons = Array.from({ length: course.lessonCount }, (_, i) => ({
-    id: course.id * 100 + i + 1,
-    order: i + 1,
-    title: `Bài ${i + 1}: Nội dung bài học ${i + 1}`,
-  }));
+  const lessons = buildLessons(course);
   return delay({
     status: 'success',
     data: {
@@ -54,7 +50,13 @@ export function mockEnroll(id) {
   return delay({ status: 'success', message: 'Ghi danh thành công' });
 }
 
-export function mockGetMyCourses() {
-  const courses = mockCourses.filter((course) => enrolledIds.has(course.id));
-  return delay({ status: 'success', data: courses });
+// Dùng chung cho trang chi tiết (HT-02) và trang học (HT-05) để cùng một danh sách bài
+export function buildLessons(course) {
+  return Array.from({ length: course.lessonCount }, (_, i) => ({
+    id: course.id * 100 + i + 1,
+    order: i + 1,
+    title: `Bài ${i + 1}: Nội dung bài học ${i + 1}`,
+  }));
 }
+
+export const isMockEnrolled = (id) => enrolledIds.has(Number(id));
