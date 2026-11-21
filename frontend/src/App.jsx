@@ -48,30 +48,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* Routes Giảng viên Quản lý bài học (HT-10 - TV4) */}
         <Route
-          path="/teacher/lessons"
+          path="/teacher/courses"
           element={
-            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
-              <TeacherLessonsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/teacher/courses/:courseId/lessons"
-          element={
-            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
-              <TeacherLessonsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Routes Giảng viên Quản lý câu hỏi trắc nghiệm (HT-11 - TV5) */}
-        <Route
-          path="/teacher/questions"
-          element={
-            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+            <ProtectedRoute allowedRoles={['teacher']}>
               <TeacherQuestionsPage />
             </ProtectedRoute>
           }
@@ -79,12 +59,11 @@ function App() {
         <Route
           path="/teacher/courses/:courseId/questions"
           element={
-            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+            <ProtectedRoute allowedRoles={['teacher']}>
               <TeacherQuestionsPage />
             </ProtectedRoute>
           }
         />
-
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

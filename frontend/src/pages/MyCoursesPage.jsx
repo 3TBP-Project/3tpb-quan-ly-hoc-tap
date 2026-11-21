@@ -5,8 +5,10 @@ import Loading from '../components/common/Loading';
 import PageHeader from '../components/common/PageHeader';
 import SafeErrorBoundary from '../components/common/SafeErrorBoundary';
 import CourseCard from '../components/course/CourseCard';
+import CourseProgress from '../components/course/CourseProgress';
 import { useFetch } from '../hooks/useFetch';
 import { getMyCourses } from '../services/courseService';
+import { withCourseProgress } from '../utils/progress';
 
 function MyCoursesPage() {
   const { data: courses, loading, error } = useFetch(getMyCourses);
@@ -26,7 +28,13 @@ function MyCoursesPage() {
         <Row xs={1} sm={2} md={3} xl={4} className="g-3">
           {safeCourses.map((course) => (
             <Col key={course.id}>
-              <CourseCard course={course} />
+              <CourseCard course={course}>
+                <CourseProgress
+                  completedCount={course.completedLessonCount}
+                  totalCount={course.lessonCount}
+                  progressPercent={course.progressPercent}
+                />
+              </CourseCard>
             </Col>
           ))}
         </Row>
