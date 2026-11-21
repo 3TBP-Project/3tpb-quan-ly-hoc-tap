@@ -43,7 +43,8 @@ class CourseService {
   // ==========================================
   async getCourseById(id, userId = null) {
     const course = await courseRepository.findDetailById(id, userId);
-    if (!course) {
+    // HT-15: khóa học đã bị ẩn chỉ giảng viên sở hữu còn xem được
+    if (!course || (course.status === 'hidden' && course.teacherId !== userId)) {
       throw createCourseError('Không tìm thấy khóa học!', 404);
     }
 
@@ -77,6 +78,15 @@ class CourseService {
       thumbnail: updateData.thumbnail !== undefined ? updateData.thumbnail : course.thumbnail,
       status: updateData.status !== undefined ? updateData.status : course.status
     };
+
+    // HT-15: giảng viên chỉ đặt Nháp/Công khai; khóa học bị ẩn chỉ quản trị viên bỏ ẩn được
+    if (userRole !== 'admin') {
+      if (course.status === 'hidden') {
+        mergedData.status = 'hidden';
+      } else if (mergedData.status === 'hidden') {
+        throw createCourseError('Giảng viên chỉ được đặt khóa học ở trạng thái Nháp hoặc Công khai.', 400);
+      }
+    }
 
     await courseRepository.update(courseId, mergedData);
     return await courseRepository.findById(courseId);
