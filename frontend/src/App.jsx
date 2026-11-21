@@ -10,6 +10,7 @@ import MyCoursesPage from './pages/MyCoursesPage'
 import LearnPage from './pages/LearnPage'
 import TeacherLessonsPage from './pages/TeacherLessonsPage'
 import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
+import UserManagementPage from './pages/admin/UserManagementPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import NotFoundPage from './pages/NotFoundPage'
 
@@ -20,6 +21,14 @@ function App() {
         <Route path="/" element={<CourseListPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <UserManagementPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
         <Route
           path="/my-courses"
