@@ -47,6 +47,23 @@ const updateProfile = async (userId, { name, email }) => {
   return findProfileById(userId);
 };
 
+// HT-07: lấy chuỗi băm mật khẩu để đối chiếu khi đổi mật khẩu
+const findPasswordById = async (userId) => {
+  const [rows] = await pool.query(
+    'SELECT id, password FROM users WHERE id = ? LIMIT 1',
+    [userId]
+  );
+  return rows[0] || null;
+};
+
+const updatePassword = async (userId, passwordHash) => {
+  const [result] = await pool.query(
+    'UPDATE users SET password = ? WHERE id = ?',
+    [passwordHash, userId]
+  );
+  return result.affectedRows > 0;
+};
+
 const listEnrolledCourses = async (userId) => {
   const [rows] = await pool.query(
     `SELECT
@@ -133,6 +150,8 @@ module.exports = {
   createUser,
   findProfileById,
   updateProfile,
+  findPasswordById,
+  updatePassword,
   listEnrolledCourses,
   listQuizHistory,
   listUsers,

@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import QuizPage from './pages/QuizPage'
 import MyCoursesPage from './pages/MyCoursesPage'
+import ProfilePage from './pages/ProfilePage'
 import LearnPage from './pages/LearnPage'
 import TeacherLessonsPage from './pages/TeacherLessonsPage'
 import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
@@ -26,6 +27,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['student']}>
               <MyCoursesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

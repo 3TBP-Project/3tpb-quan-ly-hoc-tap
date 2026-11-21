@@ -24,6 +24,16 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const value = { user, role: user?.role ?? 'guest', login, logout };
+  // Cập nhật thông tin người dùng đang đăng nhập (ví dụ đổi họ tên ở trang Hồ sơ – HT-07)
+  const updateUser = (patch) => {
+    setUser((current) => {
+      if (!current) return current;
+      const next = { ...current, ...patch };
+      localStorage.setItem('user', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const value = { user, role: user?.role ?? 'guest', login, logout, updateUser };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
