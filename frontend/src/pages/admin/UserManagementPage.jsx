@@ -231,15 +231,20 @@ function UserManagementPage() {
   };
 
   const handleDelete = async (u) => {
-    if (u.courses > 0) {
+    const isTeacher = u.role === 'teacher';
+    if (isTeacher && u.courses > 0) {
       notify('Không thể xóa', `${u.name} đang có ${u.courses} khóa học giảng dạy. Hãy chặn tài khoản thay vì xóa.`, 'warn');
       return;
     }
-    if (!window.confirm(`Xóa tài khoản giảng viên ${u.name}?`)) return;
+    const question = isTeacher
+      ? `Xóa tài khoản giảng viên ${u.name}?`
+      : `Xóa tài khoản học viên ${u.name}?
+Toàn bộ ghi danh, kết quả làm bài và tiến độ học của học viên này cũng sẽ bị xóa.`;
+    if (!window.confirm(question)) return;
     setBusyId(u.id);
     try {
       await deleteUser(u.id);
-      notify('Đã xóa giảng viên', `${u.name} đã bị xóa khỏi hệ thống.`, 'warn');
+      notify(isTeacher ? 'Đã xóa giảng viên' : 'Đã xóa học viên', `${u.name} đã bị xóa khỏi hệ thống.`, 'warn');
     } catch (err) {
       notify('Không thể xóa', parseApiError(err).message, 'warn');
     } finally {
@@ -344,9 +349,7 @@ function UserManagementPage() {
                       {u.status === 'locked'
                         ? <IconButton icon="unlock" label="Bỏ chặn" disabled={busy} onClick={() => toggleLock(u)} />
                         : <IconButton icon="lock" label="Chặn" danger disabled={busy} onClick={() => toggleLock(u)} />}
-                      {u.role === 'teacher' && (
-                        <IconButton icon="trash" label="Xóa" danger disabled={busy} onClick={() => handleDelete(u)} />
-                      )}
+                      <IconButton icon="trash" label="Xóa" danger disabled={busy} onClick={() => handleDelete(u)} />
                     </div>
                   </td>
                 </tr>

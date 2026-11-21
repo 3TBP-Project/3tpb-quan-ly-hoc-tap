@@ -99,16 +99,20 @@ const setLocked = async (targetId, actorId, isLocked) => {
   return adminUserRepository.findById(userId);
 };
 
-// Chỉ xóa được giảng viên (tài khoản do quản trị viên tạo) và giảng viên chưa có khóa học
+// Xóa học viên hoặc giảng viên; giảng viên phải chưa có khóa học (tránh xóa dây chuyền khóa học)
 const deleteUser = async (targetId, actorId) => {
   const userId = requireId(targetId);
   if (userId === actorId) {
     throw createHttpError('Không thể xóa tài khoản quản trị đang sử dụng.', 400);
   }
   const user = await getManagedUser(userId);
-  if (user.role !== 'teacher') {
-    throw createHttpError('Chỉ xóa được tài khoản giảng viên. Với học viên, hãy dùng chức năng chặn.', 400);
+
+  if (user.role === 'student') {
+    const deleted = await adminUserRepository.deleteStudent(userId);
+    if (!deleted) throw createHttpError('Không tìm thấy tài khoản.', 404);
+    return user;
   }
+
   if (user.courses > 0) {
     throw createHttpError(
       `Giảng viên ${user.name} đang có ${user.courses} khóa học nên không thể xóa. Hãy chặn tài khoản thay vì xóa.`,

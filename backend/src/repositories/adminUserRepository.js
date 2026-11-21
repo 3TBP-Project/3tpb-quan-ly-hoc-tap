@@ -111,6 +111,15 @@ const deleteTeacherWithoutCourses = async (id) => {
   return result.affectedRows > 0;
 };
 
+// Xóa học viên: ghi danh, lượt làm bài, tiến độ, bình luận, thảo luận bị xóa theo (ON DELETE CASCADE)
+const deleteStudent = async (id) => {
+  const [result] = await pool.query(
+    "DELETE FROM users WHERE id = ? AND role = 'student'",
+    [id]
+  );
+  return result.affectedRows > 0;
+};
+
 module.exports = {
   MANAGED_ROLES,
   findPage,
@@ -120,5 +129,6 @@ module.exports = {
   createTeacher,
   updateName,
   setLocked,
-  deleteTeacherWithoutCourses
+  deleteTeacherWithoutCourses,
+  deleteStudent
 };

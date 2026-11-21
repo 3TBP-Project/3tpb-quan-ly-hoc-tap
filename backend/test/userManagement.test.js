@@ -51,7 +51,7 @@ test('tạo giảng viên: kiểm tra dữ liệu, chặn trùng email, băm m�
   assert.equal(teacher.status, 'active');
 });
 
-test('chỉ xóa được giảng viên chưa có khóa học', async (t) => {
+test('xóa học viên; giảng viên chỉ xóa được khi chưa có khóa học', async (t) => {
   const users = {
     5: { id: 5, name: 'Nam', role: 'student', courses: 2 },
     6: { id: 6, name: 'Tùng', role: 'teacher', courses: 0 },
@@ -61,17 +61,21 @@ test('chỉ xóa được giảng viên chưa có khóa học', async (t) => {
   const deleted = [];
   stubMethods(t, adminUserRepository, {
     findById: async (id) => users[id] ?? null,
+    deleteStudent: async (id) => {
+      deleted.push(['student', id]);
+      return true;
+    },
     deleteTeacherWithoutCourses: async (id) => {
-      deleted.push(id);
+      deleted.push(['teacher', id]);
       return true;
     }
   });
 
-  await assert.rejects(adminUserService.deleteUser('5', 1), (error) => error.statusCode === 400);
+  await adminUserService.deleteUser('5', 1); // học viên đã ghi danh vẫn xóa được
   await assert.rejects(adminUserService.deleteUser('7', 1), (error) => error.statusCode === 409);
   await assert.rejects(adminUserService.deleteUser('1', 2), (error) => error.statusCode === 404);
   await adminUserService.deleteUser('6', 1);
-  assert.deepEqual(deleted, [6]);
+  assert.deepEqual(deleted, [['student', 5], ['teacher', 6]]);
 });
 
 test('chặn / bỏ chặn chỉ áp dụng cho học viên và giảng viên', async (t) => {
