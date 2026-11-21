@@ -1,5 +1,12 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const dbPath = require.resolve('../src/config/db');
+require.cache[dbPath] = {
+  id: dbPath,
+  filename: dbPath,
+  loaded: true,
+  exports: { pool: { query: async () => [[], []] } }
+};
 const courseRepository = require('../src/repositories/courseRepository');
 const enrollmentRepository = require('../src/repositories/enrollmentRepository');
 const lessonRepository = require('../src/repositories/lessonRepository');
@@ -19,9 +26,10 @@ const stubMethods = (t, repository, stubs) => {
 test('enroll creates one enrollment and reports repeats as already enrolled', async (t) => {
   let createCount = 0;
   stubMethods(t, courseRepository, {
-    findById: async () => ({ id: 4, title: 'Course' })
+    findById: async () => ({ id: 4, title: 'Course', status: 'public' })
   });
   stubMethods(t, enrollmentRepository, {
+    findCourseById: async () => ({ id: 4, title: 'Course', status: 'public' }),
     findByStudentAndCourse: async () => null,
     create: async () => ++createCount === 1 ? 20 : 21
   });
@@ -42,6 +50,7 @@ test('enroll returns not found for a missing course', async (t) => {
     findById: async () => null
   });
   stubMethods(t, enrollmentRepository, {
+    findCourseById: async () => null,
     create: async () => {
       createCalled = true;
       return true;
