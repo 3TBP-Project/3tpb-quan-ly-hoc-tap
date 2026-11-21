@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { ListGroup, Button } from 'react-bootstrap';
 
-function LessonSidebar({ courseId, lessons, completed }) {
+function LessonSidebar({ courseId, lessons, completed, linkState }) {
 
   const [open, setOpen] = useState(false);
 
@@ -15,7 +15,7 @@ function LessonSidebar({ courseId, lessons, completed }) {
       <div className={open ? '' : 'd-none d-lg-block'}>
         <ListGroup>
           {lessons.map((l) => (
-            <ListGroup.Item key={l.id} action as={NavLink} to={`/courses/${courseId}/learn/${l.id}`}>
+            <ListGroup.Item key={l.id} action as={NavLink} to={`/courses/${courseId}/learn/${l.id}`} replace state={linkState}>
               <span className="me-2">{completed.has(l.id) ? '✓' : '○'}</span>
               {l.title}
             </ListGroup.Item>

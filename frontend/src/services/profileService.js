@@ -6,7 +6,24 @@ export const getProfile = (_params, signal) => axiosClient.get('/api/users/profi
 
 export const updateProfileName = (name) => axiosClient.put('/api/users/profile', { name });
 
-export const changePassword = ({ currentPassword, newPassword }) =>
+// Gửi multipart/form-data; trình duyệt tự thêm boundary
+export const updateAvatar = (file) => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  return axiosClient.patch('/api/users/me/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+
+// "/uploads/avatars/x.webp" -> "http://localhost:5000/uploads/avatars/x.webp"
+export const toAvatarUrl = (avatar) => {
+  if (!avatar) return '';
+  if (/^https?:\/\//i.test(avatar)) return avatar;
+  const base = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+  return `${base}${avatar}`;
+};
+
+export const changePassword =({ currentPassword, newPassword }) =>
   axiosClient.put('/api/users/password', { currentPassword, newPassword });
 
 // Trả về danh sách khóa học, mỗi khóa có các lượt làm bài và điểm cao nhất

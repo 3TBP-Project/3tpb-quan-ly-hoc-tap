@@ -47,6 +47,12 @@ const updateProfile = async (userId, { name, email }) => {
   return findProfileById(userId);
 };
 
+// HT-07: cập nhật đường dẫn ảnh đại diện
+const updateAvatar = async (userId, avatarUrl) => {
+  const [result] = await pool.query('UPDATE users SET avatar = ? WHERE id = ?', [avatarUrl, userId]);
+  return result.affectedRows > 0;
+};
+
 // HT-07: lấy chuỗi băm mật khẩu để đối chiếu khi đổi mật khẩu
 const findPasswordById = async (userId) => {
   const [rows] = await pool.query(
@@ -150,6 +156,7 @@ module.exports = {
   createUser,
   findProfileById,
   updateProfile,
+  updateAvatar,
   findPasswordById,
   updatePassword,
   listEnrolledCourses,

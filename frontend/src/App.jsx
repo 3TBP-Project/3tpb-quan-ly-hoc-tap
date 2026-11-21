@@ -82,10 +82,42 @@ function App() {
           }
         />
         <Route
+          path="/teacher/questions"
+          element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TeacherQuestionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/lessons"
+          element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TeacherLessonsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/courses/:courseId/lessons"
+          element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TeacherLessonsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/categories"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <CategoryCoursePage />
+              <CategoryCoursePage key="categories" section="categories" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/courses"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <CategoryCoursePage key="courses" section="courses" />
             </ProtectedRoute>
           }
         />

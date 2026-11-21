@@ -40,6 +40,16 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// HT-07: đổi ảnh đại diện (tệp đã được avatarUploadMiddleware kiểm tra và lưu)
+const updateAvatar = async (req, res) => {
+  try {
+    const data = await userService.updateAvatar(req.user.id, req.avatarUrl);
+    return res.status(200).json({ status: 'success', message: 'Đổi ảnh đại diện thành công.', data });
+  } catch (error) {
+    return handleError(res, error, 'Không thể đổi ảnh đại diện lúc này.', 'Lỗi khi đổi ảnh đại diện:');
+  }
+};
+
 // HT-07: đổi mật khẩu
 const changePassword = async (req, res) => {
   if (!isPlainObject(req.body)) {
@@ -72,4 +82,4 @@ const getMyQuizzes = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updateProfile, changePassword, getMyCourses, getMyQuizzes };
+module.exports = { getProfile, updateProfile, updateAvatar, changePassword, getMyCourses, getMyQuizzes };

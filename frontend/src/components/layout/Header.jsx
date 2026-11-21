@@ -17,7 +17,8 @@ const MENU_BY_ROLE = {
   ],
   admin: [
     { to: '/admin/users', label: 'Người dùng' },
-    { to: '/admin/categories', label: 'Danh mục, duyệt khóa học' },
+    { to: '/admin/categories', label: 'Danh mục' },
+    { to: '/admin/courses', label: 'Duyệt khóa học' },
   ],
 };
 

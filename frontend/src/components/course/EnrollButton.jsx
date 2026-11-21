@@ -13,7 +13,7 @@ function EnrollButton({ user, courseId, isEnrolled, enrolling, onEnroll }) {
     if (user.role !== 'student') return null;
 
     return isEnrolled ? (
-        <Button as={Link} to={`/courses/${courseId}/learn`} variant="success" className="w-100">Vào học</Button>
+        <Button as={Link} to={`/courses/${courseId}/learn`} state={{ fromCourseDetail: true }} variant="success" className="w-100">Vào học</Button>
     ) : (
         <Button variant="primary" className="w-100" disabled={enrolling} onClick={onEnroll}>
             {enrolling ? 'Đang ghi danh...' : 'Ghi danh'}

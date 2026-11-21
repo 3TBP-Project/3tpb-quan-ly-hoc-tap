@@ -2,7 +2,8 @@
 import { Link } from 'react-router-dom';
 import { Button, Row, Col } from 'react-bootstrap';
 
-function LessonNav({ courseId, prev, next, isCompleted, saving, onComplete }) {
+// Chuyển bài dùng replace để cả trang học chỉ chiếm 1 mục trong lịch sử trình duyệt
+function LessonNav({ courseId, prev, next, isCompleted, saving, onComplete, linkState }) {
   const link = (lesson) => `/courses/${courseId}/learn/${lesson.id}`;
   return (
     <Row className="g-2 mt-4 align-items-center">
@@ -12,10 +13,10 @@ function LessonNav({ courseId, prev, next, isCompleted, saving, onComplete }) {
         </Button>
       </Col>
       <Col xs={6} md className="order-md-1">
-        {prev && <Button as={Link} to={link(prev)} variant="outline-secondary" className="w-100 w-md-auto">‹ Bài trước</Button>}
+        {prev && <Button as={Link} to={link(prev)} replace state={linkState} variant="outline-secondary" className="w-100 w-md-auto">‹ Bài trước</Button>}
       </Col>
       <Col xs={6} md className="order-md-3 text-end">
-        {next && <Button as={Link} to={link(next)} variant="outline-secondary" className="w-100 w-md-auto">Bài sau ›</Button>}
+        {next && <Button as={Link} to={link(next)} replace state={linkState} variant="outline-secondary" className="w-100 w-md-auto">Bài sau ›</Button>}
       </Col>
     </Row>
   );

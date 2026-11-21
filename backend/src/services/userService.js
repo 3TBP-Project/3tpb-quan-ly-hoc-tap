@@ -1,6 +1,7 @@
 // AI-assisted [AI-06]
 const bcrypt = require('bcrypt');
 const userRepository = require('../repositories/userRepository');
+const { removeAvatarFile } = require('../middlewares/avatarUploadMiddleware');
 
 const SALT_ROUNDS = 10;
 const MIN_PASSWORD_LENGTH = 6;
@@ -30,6 +31,21 @@ const updateProfile = async (userId, updates) => {
   }
 
   return userRepository.updateProfile(userId, { name, email: current.email });
+};
+
+// HT-07: đổi ảnh đại diện. Lưu đường dẫn mới rồi mới xóa tệp cũ;
+// nếu lưu CSDL thất bại thì xóa tệp vừa tải lên để không để lại rác.
+const updateAvatar = async (userId, avatarUrl) => {
+  let current;
+  try {
+    current = await getProfile(userId);
+    await userRepository.updateAvatar(userId, avatarUrl);
+  } catch (error) {
+    removeAvatarFile(avatarUrl);
+    throw error;
+  }
+  if (current.avatar && current.avatar !== avatarUrl) removeAvatarFile(current.avatar);
+  return { ...current, avatar: avatarUrl };
 };
 
 // HT-07: đổi mật khẩu, bắt buộc nhập đúng mật khẩu hiện tại
@@ -101,4 +117,4 @@ const getMyQuizzes = async (userId) => {
     });
 };
 
-module.exports = { getProfile, updateProfile, changePassword, getMyCourses, getMyQuizzes };
+module.exports = { getProfile, updateProfile, updateAvatar, changePassword, getMyCourses, getMyQuizzes };

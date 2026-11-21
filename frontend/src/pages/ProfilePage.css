@@ -28,6 +28,14 @@
   display: grid; place-items: center;
   background: #dbeafe; color: var(--pf-primary); font-size: 34px; font-weight: 800;
 }
+.pf-avatar-wrap { margin-bottom: 14px; }
+.pf-avatar-wrap .pf-avatar { margin-bottom: 10px; }
+.pf-avatar-img { display: block; object-fit: cover; border: 1px solid var(--pf-border); }
+.pf-avatar-actions { display: flex; justify-content: center; gap: 8px; }
+.pf-btn-sm { padding: 5px 12px; font-size: 13px; }
+.pf-avatar-choose { cursor: pointer; }
+.pf-avatar-hint { color: var(--pf-muted); font-size: 12px; margin-top: 6px; }
+.pf-avatar-wrap .pf-err { margin-top: 6px; }
 .pf-name { font-size: 18px; font-weight: 700; }
 .pf-email { color: var(--pf-muted); font-size: 13px; margin-top: 2px; word-break: break-all; }
 .pf-role {

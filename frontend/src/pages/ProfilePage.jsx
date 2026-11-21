@@ -11,6 +11,8 @@ import {
   getEnrolledCourses,
   getProfile,
   getQuizHistory,
+  toAvatarUrl,
+  updateAvatar,
   updateProfileName,
 } from '../services/profileService';
 import { parseApiError } from '../utils/apiError';
@@ -31,6 +33,86 @@ const formatDateTime = (value) => {
   const pad = (n) => String(n).padStart(2, '0');
   return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
+
+const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // khớp giới hạn 2 MB ở backend
+
+// Ảnh đại diện: chọn ảnh -> xem trước -> Lưu / Hủy
+function AvatarPicker({ name, avatar, onSaved, notify }) {
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [broken, setBroken] = useState(false);
+
+  const reset = () => {
+    if (preview) URL.revokeObjectURL(preview);
+    setFile(null);
+    setPreview('');
+  };
+
+  const handleChoose = (event) => {
+    const chosen = event.target.files?.[0];
+    event.target.value = ''; // cho phép chọn lại cùng một tệp
+    if (!chosen) return;
+    if (!AVATAR_TYPES.includes(chosen.type)) {
+      setError('Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP.');
+      return;
+    }
+    if (chosen.size > MAX_AVATAR_SIZE) {
+      setError('Ảnh vượt quá dung lượng tối đa 2 MB.');
+      return;
+    }
+    setError('');
+    if (preview) URL.revokeObjectURL(preview);
+    setFile(chosen);
+    setPreview(URL.createObjectURL(chosen));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      const res = await updateAvatar(file);
+      reset();
+      setBroken(false);
+      onSaved(res.data?.avatar ?? null);
+      notify('Đã lưu', 'Ảnh đại diện đã được cập nhật.');
+    } catch (err) {
+      setError(parseApiError(err).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const src = preview || (!broken && toAvatarUrl(avatar));
+
+  return (
+    <div className="pf-avatar-wrap">
+      {src ? (
+        <img className="pf-avatar pf-avatar-img" src={src} alt={`Ảnh đại diện của ${name}`} onError={() => setBroken(true)} />
+      ) : (
+        <div className="pf-avatar">{initial(name)}</div>
+      )}
+
+      {file ? (
+        <div className="pf-avatar-actions">
+          <button type="button" className="pf-btn pf-btn-primary pf-btn-sm" onClick={handleSave} disabled={saving}>
+            {saving ? 'Đang lưu...' : 'Lưu ảnh'}
+          </button>
+          <button type="button" className="pf-btn pf-btn-sm" onClick={reset} disabled={saving}>Hủy</button>
+        </div>
+      ) : (
+        <label className="pf-btn pf-btn-sm pf-avatar-choose">
+          Đổi ảnh
+          <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleChoose} hidden />
+        </label>
+      )}
+      <div className="pf-avatar-hint">JPG, PNG hoặc WEBP, tối đa 2 MB</div>
+      {error && <div className="pf-err">{error}</div>}
+    </div>
+  );
+}
 
 function ProfileInfoForm({ profile, onSaved, notify }) {
   const [name, setName] = useState(profile.name);
@@ -218,6 +300,11 @@ function ProfilePage() {
     updateUser({ name: next.name }); // cập nhật tên trên thanh điều hướng
   };
 
+  const handleAvatarSaved = (avatar) => {
+    setSavedProfile((current) => ({ ...(current ?? profileReq.data), avatar }));
+    updateUser({ avatar });
+  };
+
   if (profileReq.loading && !profile) return <Loading />;
   if (profileReq.error && !profile) return <ErrorMessage message={profileReq.error} />;
 
@@ -230,7 +317,7 @@ function ProfilePage() {
 
       <div className="pf-layout">
         <aside className="pf-card">
-          <div className="pf-avatar">{initial(displayName)}</div>
+          <AvatarPicker name={displayName} avatar={profile?.avatar} onSaved={handleAvatarSaved} notify={notify} />
           <div className="pf-name">{displayName}</div>
           <div className="pf-email">{profile?.email}</div>
           <div className="pf-role">{ROLE_LABEL[profile?.role] ?? 'Học viên'}</div>

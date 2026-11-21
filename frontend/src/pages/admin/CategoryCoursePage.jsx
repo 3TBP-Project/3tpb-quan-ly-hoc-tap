@@ -206,11 +206,11 @@ function CoursePanel({ notify }) {
           <table className="cc-course-table">
             <thead>
               <tr>
-                <th>Khóa học</th>
-                <th style={{ width: 170 }}>Danh mục</th>
-                <th style={{ width: 170 }}>Giảng viên</th>
-                <th style={{ width: 130 }}>Trạng thái</th>
-                <th style={{ width: 100 }}>Thao tác</th>
+                <th style={{ width: '34%' }}>Khóa học</th>
+                <th style={{ width: '21%' }}>Danh mục</th>
+                <th style={{ width: '23%' }}>Giảng viên</th>
+                <th style={{ width: '13%' }}>Trạng thái</th>
+                <th style={{ width: '9%' }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -227,7 +227,7 @@ function CoursePanel({ notify }) {
                   <tr key={c.id}>
                     <td><strong>{c.title}</strong></td>
                     <td><span className="cc-chip">{c.categoryName ?? '—'}</span></td>
-                    <td>{c.teacherName ?? '—'}</td>
+                    <td className="cc-teacher" title={c.teacherName ?? ''}>{c.teacherName ?? '—'}</td>
                     <td><span className={`cc-badge ${status.cls}`}>{status.label}</span></td>
                     <td>
                       <div className="cc-actions">
@@ -251,8 +251,22 @@ function CoursePanel({ notify }) {
   );
 }
 
-function CategoryCoursePage() {
-  const [tab, setTab] = useState('cat');
+// Hai trang riêng trên menu: /admin/categories và /admin/courses
+const SECTIONS = {
+  categories: {
+    title: 'Danh mục khóa học',
+    desc: 'Thêm, sửa, xóa danh mục khóa học.',
+    Panel: CategoryPanel,
+  },
+  courses: {
+    title: 'Duyệt khóa học',
+    desc: 'Xem tất cả khóa học và ẩn các khóa học vi phạm.',
+    Panel: CoursePanel,
+  },
+};
+
+function CategoryCoursePage({ section = 'categories' }) {
+  const { title, desc, Panel } = SECTIONS[section] ?? SECTIONS.categories;
   const [toasts, setToasts] = useState([]);
 
   const notify = (title, message, type = 'success') => {
@@ -264,22 +278,11 @@ function CategoryCoursePage() {
   return (
     <div className="category-course-page">
       <div className="cc-page-head">
-        <h1>Danh mục &amp; Duyệt khóa học</h1>
-        <p>Quản lý danh mục khóa học và ẩn các khóa học vi phạm.</p>
+        <h1>{title}</h1>
+        <p>{desc}</p>
       </div>
 
-      <div className="cc-tabs" role="tablist">
-        <button type="button" role="tab" aria-selected={tab === 'cat'}
-          className={`cc-tab ${tab === 'cat' ? 'active' : ''}`} onClick={() => setTab('cat')}>
-          Danh mục khóa học
-        </button>
-        <button type="button" role="tab" aria-selected={tab === 'course'}
-          className={`cc-tab ${tab === 'course' ? 'active' : ''}`} onClick={() => setTab('course')}>
-          Duyệt khóa học
-        </button>
-      </div>
-
-      {tab === 'cat' ? <CategoryPanel notify={notify} /> : <CoursePanel notify={notify} />}
+      <Panel notify={notify} />
 
       <ToastContainer position="top-end" className="p-3 cc-toasts" containerPosition="fixed">
         {toasts.map((t) => (
