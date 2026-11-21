@@ -1,3 +1,4 @@
+// AI-assisted [AI-14]
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import CourseListPage from './pages/CourseListPage'
@@ -5,8 +6,10 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import QuizPage from './pages/QuizPage'
-import CourseDetailPage from './pages/CourseDetailPage'
 import MyCoursesPage from './pages/MyCoursesPage'
+import LearnPage from './pages/LearnPage'
+import TeacherLessonsPage from './pages/TeacherLessonsPage'
+import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import LearnPage from './pages/LearnPage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -20,7 +23,6 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
-        <Route path="*" element={<NotFoundPage />} /> 
         <Route
           path="/my-courses"
           element={
@@ -46,10 +48,30 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Routes Giảng viên Quản lý bài học (HT-10 - TV4) */}
         <Route
-          path="/teacher/courses"
+          path="/teacher/lessons"
           element={
-            <ProtectedRoute allowedRoles={['teacher']}>
+            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+              <TeacherLessonsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/courses/:courseId/lessons"
+          element={
+            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+              <TeacherLessonsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Routes Giảng viên Quản lý câu hỏi trắc nghiệm (HT-11 - TV5) */}
+        <Route
+          path="/teacher/questions"
+          element={
+            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
               <TeacherQuestionsPage />
             </ProtectedRoute>
           }
@@ -57,11 +79,12 @@ function App() {
         <Route
           path="/teacher/courses/:courseId/questions"
           element={
-            <ProtectedRoute allowedRoles={['teacher']}>
+            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
               <TeacherQuestionsPage />
             </ProtectedRoute>
           }
         />
+
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

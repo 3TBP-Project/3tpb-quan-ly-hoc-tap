@@ -1,7 +1,6 @@
 // AI-assisted [AI-09]
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Row, Col, Badge, Button, Alert } from 'react-bootstrap';
 import { useFetch } from '../hooks/useFetch';
 import { useAuth } from '../context/useAuth';
@@ -54,7 +53,14 @@ function CourseDetailPage() {
           <p className="text-muted">Giảng viên: {course.teacherName}</p>
           <h2 className="h5 mt-4">Mô tả</h2>
           <p>{course.description}</p>
-          <h2 className="h5 mt-4">Danh sách bài học ({course.lessons.length})</h2>
+          <div className="d-flex justify-content-between align-items-center mt-4 mb-2">
+            <h2 className="h5 mb-0">Danh sách bài học ({course.lessons.length})</h2>
+            {(user?.role === 'teacher' || user?.role === 'admin') && (
+              <Link to={`/teacher/courses/${course.id}/lessons`} className="btn btn-outline-primary btn-sm">
+                Quản lý bài học
+              </Link>
+            )}
+          </div>
           <LessonList lessons={course.lessons} unlocked={isEnrolled} />
         </Col>
         <Col className="order-first order-lg-last">

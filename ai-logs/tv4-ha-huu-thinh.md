@@ -211,3 +211,60 @@ Kết quả AI trả về (tóm tắt): Router định nghĩa các API endpoint 
 - Cách kiểm chứng: Đã kiểm tra lại
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+### [AI-012] Hướng dẫn tạo CRUD
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 19/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Hướng dẫn viết CRUD cho Lesson
+Prompt chính:"Hôm nay tôi muốn bạn CRUD theo đúng yêu cầu của ngay07_thu03_tuan2 của tv4 nên mong bạn hướng dẫn tôi viết"+ Đính kèm NotebookLM + đính kèm ERD-final
+Kết quả AI trả về (tóm tắt): Hướng dẫn tạo file và viết CRUD đúng theo thứ tự
+ Đánh giá: Cần được kiểm tra thêm nhưng trước mắt là chưa xảy ra xung đột
+- Cách kiểm chứng: Đã kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context nhưng trong trường hợp này thì đã cung cấp những thông tin cần thiết từ một sổ ghi chú tích hợp ở Gemini nên đầu ra sẽ minh bạch và chính xác hơn
+### [AI-013] Xử lý link Youtube
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 19/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Hướng dẫn cách kiểm tra và xác minh url có đúng là từ Youtube hay không
+Prompt chính:"Cách lấy mã video YouTube từ link để nhúng an toàn; kiểm
+tra chặn link không phải YouTube. Với yêu cầu là một middleware hoặc là tồn tại sẵn trong module truy xuất"
+Kết quả AI trả về (tóm tắt): 2 Phương án đó là đặt trong module tiện ích / truy xuất dùng chung và Express Middleware
+ Đánh giá: Cần được kiểm tra thêm
+- Cách kiểm chứng: Đã kiểm tra lại
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+### [AI-014] Xử lý link Youtube
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Gemini - Model Free
+- Giai đoạn - Thời Gian: 
+Thiết kế cơ sở dữ liệu
+Ngày 19/Tháng 11/Năm 2026
+- Task: 
+- Mục đích: Hướng dẫn cách kiểm tra và xác minh url có đúng là từ Youtube hay không
+Prompt chính:"Tiếp theo đó hãy tổng hợp và sinh code cho tôi từng file với các quy tắc sau:
+Chỉ viết trong phạm vi cho phép
+Ngoài ra nếu như sinh code mỗi file 20 dòng trở lên thì phải có "//AI-assisted: <Gemini> [AI-XX]" ở cuối mã code
+XX bắt đầu từ 01
+Sử dụng phương án Express Middleware" + Kèm NotebookLM
+Kết quả AI trả về (tóm tắt): Sinh code của mỗi file
+- Cách kiểm chứng: Chưa được kiểm trứng vì cần được xác thực thêm khi vận hành
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Cần chú ý hướng dẫn khi có thể thông tin đã lỗi thời hoặc tự bịa ra, hoặc dữ liệu mẫu không đúng yêu cầu và lỗi tràn context
+
+### [AI-015] Kết nối CRUD Lesson vào giao diện
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Antigravity (Gemini)
+- Giai đoạn - Thời Gian: 
+Ngày 20/Tháng 11/Năm 2026
+- Task:
+- Mục đích: Kết nối toàn bộ các hàm API CRUD Lesson đã xây dựng ở backend vào giao diện React để đồng bộ với CSDL.
+Prompt chính: "Tôi muốn bạn kết nối các CRUD lesson của tôi vào các trang lesson. Nhớ là làm theo những nguồn có sẵn cấm lấy bên ngoài. Tôi là thành viên 4 nên là chỉ cần kết nối sao cho CRUD chạy được đồng bộ giao diện với backend và database. Cấm can thiệp hay chỉnh sửa lại các file cốt lỗi và chỉ cần thực hiện yêu cầu là kết nối mà thôi"
+Kết quả AI trả về (tóm tắt): Kết nối CRUD với giao diện và tự tạo một giao diện mới là TeacherLessonsPage.jsx
+- Điều học được: Đồng bộ hóa chặt chẽ giữa tên trường dữ liệu backend và state form frontend giúp kết nối API hoạt động trơn tru.

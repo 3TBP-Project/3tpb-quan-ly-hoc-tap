@@ -18,7 +18,7 @@ const findById = async (lessonId) => {
 
 const findSummariesByCourseId = async (courseId) => {
   const [rows] = await pool.query(
-    `SELECT id, course_id AS courseId, position AS \`order\`, title
+    `SELECT id, course_id AS courseId, position AS \`order\`, position, title, content, video_path, file_path
      FROM lessons
      WHERE course_id = ?
      ORDER BY position ASC, id ASC`,
@@ -28,7 +28,8 @@ const findSummariesByCourseId = async (courseId) => {
     ...lesson,
     id: Number(lesson.id),
     courseId: Number(lesson.courseId),
-    order: Number(lesson.order)
+    order: Number(lesson.order),
+    position: Number(lesson.position)
   }));
 };
 
