@@ -35,7 +35,6 @@ function MyCoursesPage() {
                   progressPercent={course.progressPercent}
                 />
               </CourseCard>
-              <CourseCard course={course} />
             </Col>
           ))}
         </Row>
@@ -47,4 +46,3 @@ function MyCoursesPage() {
 }
 
 export default MyCoursesPage;
-
