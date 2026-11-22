@@ -10,7 +10,8 @@ const findCourseById = async (courseId) => {
 
 const findById = async (lessonId) => {
   const [rows] = await pool.query(
-    'SELECT id, course_id, title, content, video_path, file_path, position FROM lessons WHERE id = ? LIMIT 1',
+    `SELECT id, course_id, title, content, video_path, file_path, position
+     FROM lessons WHERE id = ? LIMIT 1`,
     [lessonId]
   );
   return rows[0] || null;
@@ -18,7 +19,8 @@ const findById = async (lessonId) => {
 
 const findSummariesByCourseId = async (courseId) => {
   const [rows] = await pool.query(
-    `SELECT id, course_id AS courseId, position AS \`order\`, position, title, content, video_path, file_path
+    `SELECT id, course_id AS courseId, position AS \`order\`, position, title, content,
+            video_path, file_path
      FROM lessons
      WHERE course_id = ?
      ORDER BY position ASC, id ASC`,
@@ -35,7 +37,8 @@ const findSummariesByCourseId = async (courseId) => {
 
 const create = async ({ courseId, title, content, videoPath, filePath, position }) => {
   const [result] = await pool.query(
-    `INSERT INTO lessons (course_id, title, content, video_path, file_path, position)
+    `INSERT INTO lessons
+       (course_id, title, content, video_path, file_path, position)
      VALUES (?, ?, ?, ?, ?, ?)`,
     [courseId, title, content, videoPath, filePath, position]
   );

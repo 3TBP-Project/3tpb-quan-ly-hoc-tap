@@ -94,10 +94,16 @@ const normalizeLessonInput = (data) => {
       data.filePath !== data.file_path) {
     throw createHttpError('Chỉ gửi một trong hai trường filePath hoặc file_path.', 400);
   }
+  const videoPath = data.videoPath !== undefined ? data.videoPath : data.video_path;
+  const filePath = data.filePath !== undefined ? data.filePath : data.file_path;
   return {
     ...data,
-    videoPath: data.videoPath !== undefined ? data.videoPath : data.video_path,
-    filePath: data.filePath !== undefined ? data.filePath : data.file_path
+    content: data.content === '' ? null : data.content,
+    videoPath: videoPath === '' ? null : videoPath,
+    filePath: filePath === '' ? null : filePath,
+    position: typeof data.position === 'string' && data.position.trim() !== ''
+      ? Number(data.position)
+      : data.position
   };
 };
 

@@ -5,13 +5,13 @@
  * - 19 người dùng (1 admin, 3 giảng viên, 15 học viên)
  * - 8 khóa học, mỗi khóa 5 bài học và 10 câu hỏi trắc nghiệm
  * - Ghi danh, một số lượt làm bài, tiến độ bài học, bình luận và thảo luận mẫu
- * - Mật khẩu demo: 12345678 (được băm bằng bcrypt nếu có)
+ * - Mật khẩu demo: 12345678 (được băm bằng bcrypt)
  *
  * Chạy: cd Database && npx knex seed:run
  */
 
-const crypto = require('crypto');
 const PASSWORD = '12345678';
+const SALT_ROUNDS = 10;
 
 const CATEGORIES = [
   { id: 1, name: 'Lập trình Web' },
@@ -43,7 +43,7 @@ const STUDENT_NAMES = [
 // Định nghĩa các khóa học (cũng bao gồm lesson và câu hỏi)
 // ---------------------------------------------------------------------------
 const COURSES = [
-  // 1️⃣ Node.js & ExpressJS Cơ bản
+  // 1️ Node.js & ExpressJS Cơ bản
   {
     id: 1,
     title: 'Node.js & ExpressJS Cơ bản',
@@ -71,7 +71,7 @@ const COURSES = [
       { q: 'Biến môi trường trong Node.js được đọc qua đối tượng nào?', correct: 'process.env', wrong: ['global.env', 'app.config', 'env.process'] }
     ]
   },
-  // 2️⃣ ReactJS Nâng cao
+  // 2️ ReactJS Nâng cao
   {
     id: 2,
     title: 'ReactJS Nâng cao',
@@ -99,7 +99,7 @@ const COURSES = [
       { q: 'Cách đúng để bảo vệ route theo vai trò người dùng?', correct: 'Kiểm tra quyền trong component bọc route', wrong: ['Ẩn nút bằng CSS', 'Xóa route khỏi trình duyệt', 'Chỉ cần lưu token vào localStorage'] }
     ]
   },
-  // 3️⃣ Flutter Cross‑platform
+  // 3️ Flutter Cross‑platform
   {
     id: 3,
     title: 'Lập trình Flutter Cross-platform',
@@ -127,7 +127,7 @@ const COURSES = [
       { q: 'Thư viện quản lý state phổ biến trong Flutter là gì?', correct: 'Provider', wrong: ['Redux', 'Vuex', 'MobX-React'] }
     ]
   },
-  // 4️⃣ Android Kotlin
+  // 4️ Android Kotlin
   {
     id: 4,
     title: 'Lập trình Android với Kotlin',
@@ -155,7 +155,7 @@ const COURSES = [
       { q: 'Gradle trong dự án Android dùng để làm gì?', correct: 'Quản lý build và dependency', wrong: ['Quản lý cơ sở dữ liệu', 'Thiết kế giao diện', 'Kiểm thử API'] }
     ]
   },
-  // 5️⃣ MySQL từ A‑Z
+  // 5️ MySQL từ A‑Z
   {
     id: 5,
     title: 'Cơ sở dữ liệu MySQL từ A‑Z',
@@ -183,7 +183,7 @@ const COURSES = [
       { q: 'Lệnh EXPLAIN dùng để làm gì?', correct: 'Xem kế hoạch thực thi của truy vấn', wrong: ['Sao lưu cơ sở dữ liệu', 'Tạo bảng mới từ bảng cũ', 'Xóa các dòng trùng lặp'] }
     ]
   },
-  // 6️⃣ Python Data Science
+  // 6️ Python Data Science
   {
     id: 6,
     title: 'Phân tích Dữ liệu với Python',
@@ -211,7 +211,7 @@ const COURSES = [
       { q: 'Kiểu dữ liệu của một cột trong Pandas được gọi là gì?', correct: 'dtype', wrong: ['schema', 'vartype', 'fieldtype'] }
     ]
   },
-  // 7️⃣ Figma UI/UX
+  // 7️ Figma UI/UX
   {
     id: 7,
     title: 'Figma Thiết kế UI/UX Chuyên nghiệp',
@@ -239,7 +239,7 @@ const COURSES = [
       { q: 'Constraint trong Figma dùng để làm gì?', correct: 'Giữ vị trí phần tử khi đổi kích thước frame', wrong: ['Đặt mật khẩu cho tệp thiết kế', 'Giới hạn số trang', 'Khóa tài khoản thành viên'] }
     ]
   },
-  // 8️⃣ Machine Learning Cơ bản
+  // 8️ Machine Learning Cơ bản
   {
     id: 8,
     title: 'Machine Learning Cơ bản',
@@ -268,6 +268,65 @@ const COURSES = [
     ]
   }
 ];
+
+const LESSON_VIDEO_URLS = {
+  1: [
+    'https://www.youtube.com/watch?v=P-fDVxjSXEw',
+    'https://www.youtube.com/watch?v=oGO_-DWTmKA',
+    'https://www.youtube.com/watch?v=f85CSwnvOEs',
+    'https://www.youtube.com/watch?v=CG-FJMU8rrk',
+    'https://www.youtube.com/watch?v=LsYhxjOlZsY'
+  ],
+  2: [
+    'https://www.youtube.com/watch?v=HKX__TQ9ff0',
+    'https://www.youtube.com/watch?v=43H_PNDPHtg',
+    'https://www.youtube.com/watch?v=inYljYBahJg',
+    'https://www.youtube.com/watch?v=16yMmAJSGek',
+    'https://www.youtube.com/watch?v=oUZjO00NkhY'
+  ],
+  3: [
+    'https://www.youtube.com/watch?v=tiOCrXG3Fq4',
+    'https://www.youtube.com/watch?v=6qcnHNKoSSE',
+    'https://www.youtube.com/watch?v=n5n7y1jTDOA',
+    'https://www.youtube.com/watch?v=1mQ38v08E80',
+    'https://www.youtube.com/watch?v=uQuxrZE2dqA'
+  ],
+  4: [
+    'https://www.youtube.com/watch?v=nqK3oJ682mQ',
+    'https://www.youtube.com/watch?v=TLGbB0iMCjs',
+    'https://www.youtube.com/watch?v=OSfwuzx9TK8',
+    'https://www.youtube.com/watch?v=bOd3wO0uFr8',
+    'https://www.youtube.com/watch?v=F5sj_PFzzx0'
+  ],
+  5: [
+    'https://www.youtube.com/watch?v=OqjJjpjDRLc',
+    'https://www.youtube.com/watch?v=5kiMg7GXAsY',
+    'https://www.youtube.com/watch?v=uNj8jm_LDN4',
+    'https://www.youtube.com/watch?v=t0grczCICMk',
+    'https://www.youtube.com/watch?v=GOQVlrQohtM'
+  ],
+  6: [
+    'https://www.youtube.com/watch?v=1eSmR2EJjYM',
+    'https://www.youtube.com/watch?v=j00KgxRSeng',
+    'https://www.youtube.com/watch?v=AWv_em8_bSk',
+    'https://www.youtube.com/watch?v=7Lc2AxiM17o',
+    'https://www.youtube.com/watch?v=VRmXto2YA2I'
+  ],
+  7: [
+    'https://www.youtube.com/watch?v=SbjAGKmjwn4',
+    'https://www.youtube.com/watch?v=WxSYc5afjDY',
+    'https://www.youtube.com/watch?v=m7kUGmNkPoc',
+    'https://www.youtube.com/watch?v=k1iwiHJrAWI',
+    'https://www.youtube.com/watch?v=ALkqhXv0GPk'
+  ],
+  8: [
+    'https://www.youtube.com/watch?v=rUU4aO7g968',
+    'https://www.youtube.com/watch?v=VsXKtjddXWY',
+    'https://www.youtube.com/watch?v=TrzUlo4BImM',
+    'https://www.youtube.com/watch?v=v6VJ2RO66Ag',
+    'https://www.youtube.com/watch?v=glLNo1ZnmPA'
+  ]
+};
 
 const ENROLLMENTS = [
   { user_id: 5, course_id: 1 },
@@ -340,17 +399,19 @@ const DISCUSSIONS = [
 ];
 
 // ---------------------------------------------------------------------------
-// Hàm trợ giúp tải bcrypt (nếu có)
+// Hàm trợ giúp tải bcrypt từ Database hoặc backend
 // ---------------------------------------------------------------------------
 const loadBcrypt = () => {
   const candidates = ['bcrypt', '../../backend/node_modules/bcrypt'];
-  for (const c of candidates) {
+  for (const candidate of candidates) {
     try {
-      const mod = require(c);
-      if (mod && typeof mod.hash === 'function') return mod;
-    } catch (_) {}
+      const bcrypt = require(candidate);
+      if (bcrypt && typeof bcrypt.hash === 'function') return bcrypt;
+    } catch (error) {
+      if (error.code !== 'MODULE_NOT_FOUND') throw error;
+    }
   }
-  return null;
+  throw new Error('Không tìm thấy bcrypt. Hãy cài dependencies backend trước khi chạy seed.');
 };
 
 // ---------------------------------------------------------------------------
@@ -397,7 +458,7 @@ const buildLessons = () => {
         course_id: course.id,
         title,
         content: `Nội dung bài học "${title}" của khóa "${course.title}".`,
-        video_path: `https://www.youtube.com/results?search_query=${encodeURIComponent(title)}`,
+        video_path: LESSON_VIDEO_URLS[course.id][i],
         position: i + 1
       });
     });
@@ -427,9 +488,9 @@ const buildQuestions = () => {
  * @param { import('knex').Knex } knex
  */
 exports.seed = async function (knex) {
-  // Store password as SHA2 hash directly in MySQL (256‑bit)
-  const hashed = knex.raw('SHA2(?, 256)', [PASSWORD]);
-  console.info('[seed] passwords will be stored as SHA2(256) hash in MySQL');
+  const bcrypt = loadBcrypt();
+  const hashedPassword = await bcrypt.hash(PASSWORD, SALT_ROUNDS);
+  console.info('[seed] passwords will be stored as bcrypt hashes');
 
   await knex.transaction(async (trx) => {
     const tables = [
@@ -448,7 +509,7 @@ exports.seed = async function (knex) {
   });
 
   await knex('categories').insert(CATEGORIES);
-  await knex('users').insert(buildUsers(hashed));
+  await knex('users').insert(buildUsers(hashedPassword));
   await knex('courses').insert(buildCourses());
   await knex('lessons').insert(buildLessons());
   await knex('questions').insert(buildQuestions());
@@ -469,3 +530,4 @@ exports.seed = async function (knex) {
   await knex('discussions').insert(DISCUSSIONS.filter((d) => d.parent_id !== null));
 };
 // End of seed file
+//AI-assisted: <Gemini> [AI-01]
