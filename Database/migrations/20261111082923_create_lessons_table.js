@@ -11,6 +11,8 @@ exports.up = function(knex) {
     table.string('title', 255).notNullable();
     table.text('content');
     
+
+    table.enu('status', ['draft', 'public', 'hidden']).defaultTo('draft').notNullable();
     // Đã sửa từ longtext thành varchar để lưu link nhúng video và đường dẫn tệp
     table.string('video_path', 255).nullable();
     table.string('file_path', 255).nullable();

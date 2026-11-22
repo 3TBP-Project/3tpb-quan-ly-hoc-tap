@@ -13,7 +13,7 @@ exports.up = function(knex) {
     table.tinyint('is_locked').defaultTo(0).notNullable();
     
     // Cột status kiểu ENUM theo yêu cầu xét duyệt giảng viên
-    table.enu('status', ['pending', 'active']).defaultTo('pending').notNullable();
+    table.enu('status', ['pending', 'active']).defaultTo('active').notNullable();
   });
 };
 

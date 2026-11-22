@@ -7,6 +7,7 @@ require.cache[dbPath] = {
   loaded: true,
   exports: { pool: { query: async () => [[], []] } }
 };
+const { pool } = require('../src/config/db');
 const courseRepository = require('../src/repositories/courseRepository');
 const enrollmentRepository = require('../src/repositories/enrollmentRepository');
 const lessonRepository = require('../src/repositories/lessonRepository');
@@ -22,6 +23,30 @@ const stubMethods = (t, repository, stubs) => {
   }
   t.after(() => Object.assign(repository, originals));
 };
+
+test('lesson repository stores a document path without PDF blob columns', async (t) => {
+  let query;
+  stubMethods(t, pool, {
+    query: async (sql, params) => {
+      query = { sql, params };
+      return [{ insertId: 10 }, []];
+    }
+  });
+
+  const id = await lessonRepository.create({
+    courseId: 4,
+    title: 'Intro',
+    content: null,
+    videoPath: null,
+    filePath: '/files/lesson.pdf',
+    position: 1
+  });
+
+  assert.equal(id, 10);
+  assert.match(query.sql, /file_path/);
+  assert.doesNotMatch(query.sql, /file_data|file_name/);
+  assert.equal(query.params[4], '/files/lesson.pdf');
+});
 
 test('enroll creates one enrollment and reports repeats as already enrolled', async (t) => {
   let createCount = 0;
@@ -102,6 +127,30 @@ test('learning data returns only the current student progress', async (t) => {
   assert.deepEqual(received, { courseId: 4, userId: 12 });
   assert.deepEqual(result.completedLessonIds, [3]);
   assert.deepEqual(result.course, { id: 4, title: 'Course' });
+});
+
+test('lesson creation stores a document path and normalizes position', async (t) => {
+  let savedLesson;
+  stubMethods(t, courseRepository, {
+    findById: async () => ({ id: 4, user_id: 12 })
+  });
+  stubMethods(t, lessonRepository, {
+    create: async (data) => {
+      savedLesson = data;
+      return 10;
+    },
+    findById: async () => ({ id: 10 })
+  });
+
+  await lessonService.createLesson(
+    4,
+    12,
+    'teacher',
+    { title: 'Intro', position: '2', filePath: '/files/lesson.pdf' }
+  );
+
+  assert.equal(savedLesson.filePath, '/files/lesson.pdf');
+  assert.equal(savedLesson.position, 2);
 });
 
 test('lesson completion requires enrollment and marks progress idempotently', async (t) => {
