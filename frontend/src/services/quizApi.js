@@ -1,4 +1,5 @@
 // AI-assisted [AI-06]
+import { forceLogoutLocked, isAccountLockedPayload } from '../utils/forceLogout';
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
 
 const getAuthToken = () => {
@@ -11,6 +12,10 @@ const handleApiResponse = async (response) => {
     payload = await response.json();
   } catch {
     throw new Error('Phản hồi từ máy chủ không hợp lệ.');
+  }
+
+  if (response.status === 403 && isAccountLockedPayload(payload)) {
+    forceLogoutLocked(payload.message);
   }
 
   if (!response.ok || payload?.status === 'error') {

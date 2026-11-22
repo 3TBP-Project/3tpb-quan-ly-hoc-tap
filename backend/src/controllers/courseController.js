@@ -142,7 +142,8 @@ class CourseController {
 
     try {
       const userId = req.user ? req.user.id : null;
-      const course = await courseService.getCourseById(courseId, userId);
+      const userRole = req.user ? req.user.role : null;
+      const course = await courseService.getCourseById(courseId, userId, userRole);
 
       return res.status(200).json({
         success: true,

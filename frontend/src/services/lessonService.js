@@ -21,6 +21,12 @@ export const getTeacherCourses = async () => {
   }
 };
 
+// 3b. Giảng viên tạo khóa học mới (HT-09)
+export const createCourse = (payload) => axiosClient.post('/api/courses', payload);
+
+// Danh mục cho form tạo khóa học (luôn gọi API thật, không qua mock)
+export const getCourseCategories = (signal) => axiosClient.get('/api/categories', { signal });
+
 // 4. Lấy danh sách bài học của một khóa học (HT-10)
 export const getCourseLessons = (courseId, signal) =>
   axiosClient.get(`/api/courses/${courseId}/lessons`, { signal });
@@ -36,6 +42,40 @@ export const createLesson = (courseId, payload) =>
 // 7. Cập nhật bài học (HT-10)
 export const updateLesson = (lessonId, payload) =>
   axiosClient.put(`/api/lessons/${lessonId}`, payload);
+
+// 7b. Tải tệp PDF cho bài học (multipart, tối đa 5 MB)
+export const uploadLessonFile = (lessonId, file) => {
+  const formData = new FormData();
+  formData.append('pdf_file', file);
+  return axiosClient.post(`/api/lessons/${lessonId}/file`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 60000,
+  });
+};
+
+// 7c. Tải tài liệu PDF về (có kèm token nên phải gọi qua axios rồi mở blob)
+export const downloadLessonFile = async (lessonId, fileName = 'tai-lieu.pdf') => {
+  const blob = await axiosClient.get(`/api/lessons/${lessonId}/file`, {
+    responseType: 'blob',
+    timeout: 60000,
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+// 7d. Đổi chỗ hai bài học (nút lên / xuống)
+export const swapLessons = (lessonId, targetLessonId) =>
+  axiosClient.post(`/api/lessons/${lessonId}/swap`, { targetLessonId });
+
+// 7e. Đổi trạng thái khóa học: 'draft' (nháp) hoặc 'public' (công khai)
+export const updateCourseStatus = (courseId, status) =>
+  axiosClient.put(`/api/courses/${courseId}`, { status });
 
 // 8. Xóa bài học (HT-10)
 export const deleteLesson = (lessonId) =>

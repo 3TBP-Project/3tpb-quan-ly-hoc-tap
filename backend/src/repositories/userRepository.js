@@ -9,6 +9,15 @@ const findByEmail = async (email) => {
   return rows[0] || null;
 };
 
+// Trạng thái đăng nhập mới nhất (dùng ở authMiddleware cho mọi request có token)
+const findAuthStateById = async (id) => {
+  const [rows] = await pool.query(
+    'SELECT id, email, role, is_locked FROM users WHERE id = ? LIMIT 1',
+    [id]
+  );
+  return rows[0] || null;
+};
+
 const createUser = async ({ name, email, password_hash, role }) => {
   const [result] = await pool.query(
     'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
@@ -153,6 +162,7 @@ const deleteUser = async (userId) => {
 
 module.exports = {
   findByEmail,
+  findAuthStateById,
   createUser,
   findProfileById,
   updateProfile,

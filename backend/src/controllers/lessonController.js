@@ -55,7 +55,7 @@ const getCourseLessons = async (req, res) => {
     return res.status(400).json({ status: 'error', message: 'ID khóa học không hợp lệ.' });
   }
   try {
-    const data = await lessonService.getCourseLessons(courseId);
+    const data = await lessonService.getCourseLessons(courseId, req.user.id, req.user.role);
     return res.status(200).json({ status: 'success', data });
   } catch (error) {
     const { statusCode, message } = toPublicError(
@@ -149,6 +149,55 @@ const deleteLesson = async (req, res) => {
   }
 };
 
+const sendError = (res, error, fallback, context) => {
+  const { statusCode, message } = toPublicError(error, fallback, context);
+  return res.status(statusCode).json({ status: 'error', message });
+};
+
+// HT-10: POST /api/lessons/:lessonId/file (multipart, trường "pdf_file")
+const uploadLessonFile = async (req, res) => {
+  const lessonId = parsePositiveId(req.params.lessonId);
+  if (!lessonId) {
+    return res.status(400).json({ status: 'error', message: 'ID bài học không hợp lệ.' });
+  }
+  try {
+    const data = await lessonService.uploadLessonFile(lessonId, req.user.id, req.user.role, req.file);
+    return res.status(200).json({ status: 'success', data });
+  } catch (error) {
+    return sendError(res, error, 'Không thể tải tệp PDF lên.', 'Lỗi khi tải tệp PDF:');
+  }
+};
+
+// GET /api/lessons/:lessonId/file
+const downloadLessonFile = async (req, res) => {
+  const lessonId = parsePositiveId(req.params.lessonId);
+  if (!lessonId) {
+    return res.status(400).json({ status: 'error', message: 'ID bài học không hợp lệ.' });
+  }
+  try {
+    const { fullPath, downloadName } = await lessonService.getLessonFile(lessonId, req.user.id, req.user.role);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    return res.download(fullPath, downloadName);
+  } catch (error) {
+    return sendError(res, error, 'Không thể tải tài liệu.', 'Lỗi khi tải tài liệu:');
+  }
+};
+
+// POST /api/lessons/:lessonId/swap  { targetLessonId }
+const swapLessons = async (req, res) => {
+  const lessonId = parsePositiveId(req.params.lessonId);
+  const targetLessonId = parsePositiveId(String(req.body?.targetLessonId ?? ''));
+  if (!lessonId || !targetLessonId) {
+    return res.status(400).json({ status: 'error', message: 'ID bài học không hợp lệ.' });
+  }
+  try {
+    await lessonService.swapLessons(lessonId, targetLessonId, req.user.id, req.user.role);
+    return res.status(200).json({ status: 'success', message: 'Đã cập nhật thứ tự bài học.' });
+  } catch (error) {
+    return sendError(res, error, 'Không thể đổi thứ tự bài học.', 'Lỗi khi đổi thứ tự bài học:');
+  }
+};
+
 module.exports = {
   getLearnData,
   completeLesson,
@@ -156,5 +205,8 @@ module.exports = {
   getLesson,
   createLesson,
   updateLesson,
-  deleteLesson
+  deleteLesson,
+  uploadLessonFile,
+  downloadLessonFile,
+  swapLessons
 };

@@ -133,6 +133,7 @@ test('course detail includes lesson summaries and enrollment status', async (t) 
   stubMethods(t, courseRepository, {
     findDetailById: async (courseId, userId) => ({
       id: courseId,
+      status: 'public',
       isEnrolled: userId === 12
     }),
     findLessonSummariesByCourseId: async () => [{ id: 5, title: 'Intro' }]
@@ -142,6 +143,7 @@ test('course detail includes lesson summaries and enrollment status', async (t) 
 
   assert.deepEqual(result, {
     id: 4,
+    status: 'public',
     isEnrolled: true,
     lessons: [{ id: 5, title: 'Intro' }]
   });

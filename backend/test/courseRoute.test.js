@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const express = require('express');
 const jwt = require('jsonwebtoken');
+require('./helpers/authStub')({ 5: 'student', 8: 'teacher' });
 
 const jwtSecret = 'course-route-test-secret';
 process.env.JWT_SECRET = jwtSecret;
@@ -123,6 +124,7 @@ test('new user, management, and engagement routes enforce authentication and rol
     { method: 'GET', path: '/api/users/my-courses', wrongRoleToken: teacherToken },
     { method: 'GET', path: '/api/users/my-quizzes', wrongRoleToken: teacherToken },
     { method: 'GET', path: '/api/lessons/1', wrongRoleToken: teacherToken },
+    { method: 'GET', path: '/api/courses/1/lessons', wrongRoleToken: studentToken },
     { method: 'POST', path: '/api/courses/1/lessons', body: {}, wrongRoleToken: studentToken },
     { method: 'PUT', path: '/api/lessons/1', body: {}, wrongRoleToken: studentToken },
     { method: 'DELETE', path: '/api/lessons/1', wrongRoleToken: studentToken },

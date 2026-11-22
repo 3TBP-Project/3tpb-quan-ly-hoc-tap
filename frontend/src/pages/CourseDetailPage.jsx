@@ -55,7 +55,8 @@ function CourseDetailPage() {
           <p>{course.description}</p>
           <div className="d-flex justify-content-between align-items-center mt-4 mb-2">
             <h2 className="h5 mb-0">Danh sách bài học ({course.lessons.length})</h2>
-            {(user?.role === 'teacher' || user?.role === 'admin') && (
+            {/* Chỉ giảng viên sở hữu khóa học mới thấy (route quản lý bài học dành cho giảng viên) */}
+            {user?.role === 'teacher' && Number(user.id) === Number(course.teacherId) && (
               <Link to={`/teacher/courses/${course.id}/lessons`} className="btn btn-outline-primary btn-sm">
                 Quản lý bài học
               </Link>

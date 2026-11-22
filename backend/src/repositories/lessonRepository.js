@@ -52,6 +52,49 @@ const update = async (lessonId, { title, content, videoPath, filePath, position 
   return result.affectedRows > 0;
 };
 
+// Bài học khác trong cùng khóa đang giữ vị trí này (bỏ qua chính bài đang sửa)
+const findByPosition = async (courseId, position, excludeLessonId = null) => {
+  const [rows] = await pool.query(
+    `SELECT id, title, position FROM lessons
+     WHERE course_id = ? AND position = ? AND (? IS NULL OR id <> ?)
+     LIMIT 1`,
+    [courseId, position, excludeLessonId, excludeLessonId]
+  );
+  return rows[0] || null;
+};
+
+const findMaxPosition = async (courseId) => {
+  const [rows] = await pool.query(
+    'SELECT COALESCE(MAX(position), 0) AS maxPosition FROM lessons WHERE course_id = ?',
+    [courseId]
+  );
+  return Number(rows[0]?.maxPosition) || 0;
+};
+
+const updateFilePath = async (lessonId, filePath) => {
+  const [result] = await pool.query(
+    'UPDATE lessons SET file_path = ? WHERE id = ?',
+    [filePath, lessonId]
+  );
+  return result.affectedRows > 0;
+};
+
+// Hoán đổi vị trí hai bài học trong một giao dịch
+const swapPositions = async (lessonA, lessonB) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    await connection.query('UPDATE lessons SET position = ? WHERE id = ?', [lessonB.position, lessonA.id]);
+    await connection.query('UPDATE lessons SET position = ? WHERE id = ?', [lessonA.position, lessonB.id]);
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
 const remove = async (lessonId) => {
   const [result] = await pool.query('DELETE FROM lessons WHERE id = ?', [lessonId]);
   return result.affectedRows > 0;
@@ -98,6 +141,10 @@ module.exports = {
   findSummariesByCourseId,
   create,
   update,
+  findByPosition,
+  findMaxPosition,
+  updateFilePath,
+  swapPositions,
   remove,
   findByCourseIdWithProgress,
   markCompleted

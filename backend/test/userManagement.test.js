@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const express = require('express');
 const jwt = require('jsonwebtoken');
+require('./helpers/authStub')({ 1: 'admin', 3: 'teacher' });
 const bcrypt = require('bcrypt');
 
 const jwtSecret = 'user-management-test-secret';

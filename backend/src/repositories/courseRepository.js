@@ -19,8 +19,9 @@ class CourseRepository {
       conditions.push('c.user_id = ?');
       filterParams.push(teacherId);
     }
-    // HT-15: khóa học bị quản trị viên ẩn không hiện trong danh sách công khai
-    conditions.push("c.status <> 'hidden'");
+    // Danh sách công khai chỉ hiện khóa học "public":
+    // bản nháp (draft) và khóa học bị quản trị viên ẩn (hidden, HT-15) đều không hiện
+    conditions.push("c.status = 'public'");
 
     const whereClause = conditions.length > 0
       ? `WHERE ${conditions.join(' AND ')}`

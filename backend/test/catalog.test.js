@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const express = require('express');
 const jwt = require('jsonwebtoken');
+require('./helpers/authStub')({ 3: 'teacher' });
 
 const jwtSecret = 'catalog-test-secret';
 process.env.JWT_SECRET = jwtSecret;
@@ -159,7 +160,7 @@ test('API danh mục / duyệt khóa học chỉ dành cho quản trị viên', 
   }
 });
 
-test('danh sách khóa học công khai loại bỏ khóa học bị ẩn', async (t) => {
+test('danh sách khóa học công khai chỉ hiện khóa học public (ẩn nháp và bị ẩn)', async (t) => {
   const { pool } = require('../src/config/db');
   const queries = [];
   stubMethods(t, pool, {
@@ -170,6 +171,6 @@ test('danh sách khóa học công khai loại bỏ khóa học bị ẩn', asyn
   });
 
   await courseRepository.findPage({ page: 1, limit: 9 });
-  assert.match(queries[0], /WHERE c\.status <> 'hidden'/);
-  assert.match(queries[1], /WHERE c\.status <> 'hidden'/);
+  assert.match(queries[0], /WHERE c\.status = 'public'/);
+  assert.match(queries[1], /WHERE c\.status = 'public'/);
 });

@@ -1,5 +1,6 @@
 // AI-assisted [AI-07]
 import axios from 'axios';
+import { forceLogoutLocked, isAccountLockedPayload } from '../utils/forceLogout';
 
 const axiosClient = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -28,6 +29,11 @@ axiosClient.interceptors.response.use(
         return response.data;
     },
     (error) => {
+        // Tài khoản bị khóa khi đang đăng nhập: đá về trang chủ (khách vãng lai)
+        if (error.response?.status === 403 && isAccountLockedPayload(error.response.data)) {
+            forceLogoutLocked(error.response.data.message);
+            return Promise.reject(error);
+        }
         const isLoginRequest = error.config?.url?.includes('/auth/login');
         if (error.response?.status === 401 && !isLoginRequest) {
             localStorage.removeItem('access_token');
