@@ -43,7 +43,7 @@ function CourseListPage() {
     setLoginPrompt({ path, message });
   };
   const guestOnly = (path, message) => (user ? undefined : (e) => askLogin(e, path, message));
-  const DETAIL_MSG = 'Vui lòng đăng nhập để xem khóa học.';
+  // Khách vãng lai xem chi tiết tự do; chỉ làm bài kiểm tra (và ghi danh ở trang chi tiết) mới cần đăng nhập
   const QUIZ_MSG = 'Vui lòng đăng nhập để làm bài kiểm tra.';
   // Chỉ học viên mới làm bài; khách vẫn thấy nút để được nhắc đăng nhập
   const canTakeQuiz = !user || user.role === 'student';
@@ -63,12 +63,11 @@ function CourseListPage() {
         {items.map((course) => (
           <Col key={course.id}>
             {/* Bấm vào thẻ thì vào chi tiết; hai nút riêng cho chi tiết và làm bài kiểm tra */}
-            <CourseCard course={course} onClick={guestOnly(`/courses/${course.id}`, DETAIL_MSG)}>
+            <CourseCard course={course}>
               <div className="d-flex gap-2">
                 <Button
                   as={Link}
                   to={`/courses/${course.id}`}
-                  onClick={guestOnly(`/courses/${course.id}`, DETAIL_MSG)}
                   variant="outline-primary"
                   size="sm"
                   className="flex-fill"

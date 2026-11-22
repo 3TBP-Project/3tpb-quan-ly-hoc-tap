@@ -21,13 +21,17 @@ function LearnPage() {
   const [saveError, setSaveError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  // Giữ cờ "vào từ trang chi tiết" khi chuyển giữa các bài học
-  const learnState = location.state?.fromCourseDetail ? { fromCourseDetail: true } : null;
+  // Mỗi lần chuyển bài là 1 mục lịch sử mới, nên nút Back của trình duyệt lùi về bài vừa xem.
+  // learnDepth = số mục lịch sử của trang học tính từ trang chi tiết (để nút "Thoát" lùi đúng về đó).
+  const fromCourseDetail = Boolean(location.state?.fromCourseDetail);
+  const learnDepth = Number(location.state?.learnDepth) || 1;
+  const learnState = fromCourseDetail ? { fromCourseDetail: true, learnDepth } : null;
+  const nextLessonState = fromCourseDetail ? { fromCourseDetail: true, learnDepth: learnDepth + 1 } : null;
 
   // Thoát: nếu vào từ trang chi tiết thì lùi lịch sử về đúng trang đó,
   // tránh thêm trang chi tiết mới (khiến nút "Quay lại" đưa ngược vào trang học).
   const handleExit = () => {
-    if (learnState) navigate(-1);
+    if (fromCourseDetail) navigate(-learnDepth);
     else navigate(`/courses/${id}`, { replace: true });
   };
 
@@ -77,7 +81,7 @@ function LearnPage() {
 
       <Row className="g-4">
         <Col lg={3} className="order-last order-lg-first">
-          <LessonSidebar courseId={id} lessons={lessons} completed={completed} linkState={learnState} />
+          <LessonSidebar courseId={id} lessons={lessons} completed={completed} linkState={nextLessonState} />
         </Col>
         <Col lg={9}>
           {saveError && <Alert variant="danger">{saveError}</Alert>}
@@ -89,7 +93,7 @@ function LearnPage() {
             isCompleted={completed.has(lesson.id)}
             saving={saving}
             onComplete={handleComplete}
-            linkState={learnState}
+            linkState={nextLessonState}
           />
         </Col>
       </Row>
