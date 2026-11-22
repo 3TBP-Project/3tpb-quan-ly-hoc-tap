@@ -1,5 +1,5 @@
 // AI-assisted [AI-14]
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import CourseListPage from './pages/CourseListPage'
 import LoginPage from './pages/LoginPage'
@@ -76,7 +76,7 @@ function App() {
           path="/teacher/courses"
           element={
             <ProtectedRoute allowedRoles={['teacher']}>
-              <TeacherQuestionsPage />
+              <Navigate to="/" replace />
             </ProtectedRoute>
           }
         />

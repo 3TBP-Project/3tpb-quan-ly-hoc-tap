@@ -1,5 +1,5 @@
 export const HOME_BY_ROLE = {
   student: '/',
-  teacher: '/teacher/courses',
+  teacher: '/',
   admin: '/admin/users',
 };
