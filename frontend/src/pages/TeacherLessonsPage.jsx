@@ -376,7 +376,7 @@ function TeacherLessonsPage() {
   return (
     <>
       <PageHeader
-        title="Quản lý bài học (HT-10)"
+        title="Quản lý bài học"
         subtitle="Thêm, sửa, xóa bài học, nhúng video YouTube, đính kèm PDF và sắp xếp thứ tự."
         actions={(
           <Button variant="primary" onClick={openCourseModal}>
@@ -611,10 +611,16 @@ function TeacherLessonsPage() {
                       className={`p-3 ${editingId === lesson.id ? 'bg-light border-primary border-2' : ''}`}
                     >
                       <div className="d-flex justify-content-between align-items-start gap-2">
-                        <div className="flex-grow-1">
-                          <div className="d-flex align-items-center gap-2 mb-1">
-                            <Badge bg="secondary">Bài {index + 1}</Badge>
-                            <span className="fw-semibold">{lesson.title}</span>
+                        <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                          <div className="d-flex align-items-center gap-2 mb-1" style={{ minWidth: 0 }}>
+                            <Badge bg="secondary" className="flex-shrink-0">Bài {index + 1}</Badge>
+                            <span
+                              className="fw-semibold text-truncate"
+                              style={{ minWidth: 0 }}
+                              title={lesson.title}
+                            >
+                              {lesson.title}
+                            </span>
                           </div>
                           <div className="d-flex flex-wrap gap-1 align-items-center small text-muted">
                             <span>Vị trí: {lesson.position || lesson.order || (index + 1)}</span>
