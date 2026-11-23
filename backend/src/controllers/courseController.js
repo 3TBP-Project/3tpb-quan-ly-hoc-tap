@@ -73,12 +73,22 @@ const listCourses = async (req, res) => {
  * Controller tiếp nhận request/response cho quản lý khóa học (HT-09)
  */
 
+const isPlainObject = (value) =>
+  Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
 class CourseController {
 
   // ==========================================
   // 1. CREATE - Thêm khóa học mới
   // ==========================================
   async createCourse(req, res) {
+    if (!isPlainObject(req.body)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dữ liệu khóa học không hợp lệ. Vui lòng gửi định dạng JSON object.'
+      });
+    }
+
     try {
       // Lấy userId từ middleware xác thực (ví dụ: req.user.id hoặc req.userId)
       const userId = req.user ? req.user.id : req.userId;
@@ -165,10 +175,24 @@ class CourseController {
   // 4. UPDATE - Cập nhật thông tin khóa học
   // ==========================================
   async updateCourse(req, res) {
+    const courseId = parsePositiveInteger(req.params.id, null);
+    if (!courseId) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID khóa học không hợp lệ.'
+      });
+    }
+
+    if (!isPlainObject(req.body)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dữ liệu cập nhật khóa học không hợp lệ. Vui lòng gửi định dạng JSON object.'
+      });
+    }
+
     try {
       const userId = req.user ? req.user.id : req.userId;
       const userRole = req.user ? req.user.role : 'teacher';
-      const courseId = req.params.id;
       const updateData = req.body;
 
       const updatedCourse = await courseService.updateCourse(userId, courseId, updateData, userRole);
@@ -194,10 +218,17 @@ class CourseController {
   // 5. DELETE - Xóa khóa học
   // ==========================================
   async deleteCourse(req, res) {
+    const courseId = parsePositiveInteger(req.params.id, null);
+    if (!courseId) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID khóa học không hợp lệ.'
+      });
+    }
+
     try {
       const userId = req.user ? req.user.id : req.userId;
       const userRole = req.user ? req.user.role : 'teacher'; // Lấy role để Service kiểm tra quyền Admin
-      const courseId = req.params.id;
 
       await courseService.deleteCourse(userId, courseId, userRole);
       return res.status(200).json({
