@@ -176,7 +176,7 @@ module.exports = {
   getCourseQuestions,
   listByCourse,
   getCourseQuestionsOrList,
-  updateQuizDuration, 
+  updateQuizDuration,
   createQuestion,
   updateQuestion,
   deleteQuestion,

@@ -1,5 +1,5 @@
 // AI-assisted [AI-14]
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import CourseListPage from './pages/CourseListPage'
 import LoginPage from './pages/LoginPage'
@@ -7,13 +7,14 @@ import RegisterPage from './pages/RegisterPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import QuizPage from './pages/QuizPage'
 import MyCoursesPage from './pages/MyCoursesPage'
+import ProfilePage from './pages/ProfilePage'
 import LearnPage from './pages/LearnPage'
 import TeacherLessonsPage from './pages/TeacherLessonsPage'
 import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
+import UserManagementPage from './pages/admin/UserManagementPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
-import LearnPage from './pages/LearnPage'
 import NotFoundPage from './pages/NotFoundPage'
-import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
+import CategoryCoursePage from './pages/admin/CategoryCoursePage'
 
 function App() {
   return (
@@ -22,6 +23,14 @@ function App() {
         <Route path="/" element={<CourseListPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <UserManagementPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
         <Route
           path="/my-courses"
@@ -31,7 +40,22 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/courses/:courseId/quiz" element={<QuizPage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses/:courseId/quiz"
+          element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <QuizPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/courses/:id/learn"
           element={
@@ -48,12 +72,34 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* Routes Giảng viên Quản lý bài học (HT-10 - TV4) */}
+        <Route
+          path="/teacher/courses"
+          element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <Navigate to="/" replace />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/courses/:courseId/questions"
+          element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TeacherQuestionsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teacher/questions"
+          element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TeacherQuestionsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/teacher/lessons"
           element={
-            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+            <ProtectedRoute allowedRoles={['teacher']}>
               <TeacherLessonsPage />
             </ProtectedRoute>
           }
@@ -61,30 +107,27 @@ function App() {
         <Route
           path="/teacher/courses/:courseId/lessons"
           element={
-            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+            <ProtectedRoute allowedRoles={['teacher']}>
               <TeacherLessonsPage />
             </ProtectedRoute>
           }
         />
-
-        {/* Routes Giảng viên Quản lý câu hỏi trắc nghiệm (HT-11 - TV5) */}
         <Route
-          path="/teacher/questions"
+          path="/admin/categories"
           element={
-            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
-              <TeacherQuestionsPage />
+            <ProtectedRoute allowedRoles={['admin']}>
+              <CategoryCoursePage key="categories" section="categories" />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/teacher/courses/:courseId/questions"
+          path="/admin/courses"
           element={
-            <ProtectedRoute allowedRoles={['teacher', 'admin']}>
-              <TeacherQuestionsPage />
+            <ProtectedRoute allowedRoles={['admin']}>
+              <CategoryCoursePage key="courses" section="courses" />
             </ProtectedRoute>
           }
         />
-
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

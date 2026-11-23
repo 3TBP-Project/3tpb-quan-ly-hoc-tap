@@ -14,6 +14,8 @@ const userRoutes = require('./routes/userRoute');
 const adminUserRoutes = require('./routes/adminUserRoute');
 const enrollmentRoutes = require('./routes/enrollmentRoute');
 const catalogRoutes = require('./routes/catalogRoute');
+const adminCatalogRoutes = require('./routes/adminCatalogRoute');
+const { UPLOAD_ROOT } = require('./middlewares/avatarUploadMiddleware');
 
 dotenv.config();
 
@@ -22,6 +24,12 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+// HT-07: ảnh đại diện công khai, ví dụ /uploads/avatars/12-1732266000000-a3f9c1.webp
+app.use('/uploads', express.static(UPLOAD_ROOT, {
+  index: false,
+  dotfiles: 'deny',
+  setHeaders: (res) => res.setHeader('X-Content-Type-Options', 'nosniff')
+}));
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/users', userRoutes);
@@ -32,6 +40,7 @@ app.use('/api/teacher', questionRoutes);
 app.use('/api', engagementRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api', catalogRoutes);
+app.use('/api/admin', adminCatalogRoutes); // HT-15
 
 // Route xác thực công khai (Đăng ký & Đăng nhập)
 app.use('/api/auth', authRoutes);

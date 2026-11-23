@@ -1,6 +1,7 @@
 // AI-assisted [AI-13]
 import { useState } from 'react';
-import { Navigate, Link, useParams } from 'react-router-dom';
+import { Navigate, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
 import { Row, Col, ProgressBar, Alert } from 'react-bootstrap';
 import { useFetch } from '../hooks/useFetch';
 import { getLearnData, completeLesson } from '../services/lessonService';
@@ -18,6 +19,21 @@ function LearnPage() {
   const [doneIds, setDoneIds] = useState([]); // bài vừa đánh dấu trong phiên
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Mỗi lần chuyển bài là 1 mục lịch sử mới, nên nút Back của trình duyệt lùi về bài vừa xem.
+  // learnDepth = số mục lịch sử của trang học tính từ trang chi tiết (để nút "Thoát" lùi đúng về đó).
+  const fromCourseDetail = Boolean(location.state?.fromCourseDetail);
+  const learnDepth = Number(location.state?.learnDepth) || 1;
+  const learnState = fromCourseDetail ? { fromCourseDetail: true, learnDepth } : null;
+  const nextLessonState = fromCourseDetail ? { fromCourseDetail: true, learnDepth: learnDepth + 1 } : null;
+
+  // Thoát: nếu vào từ trang chi tiết thì lùi lịch sử về đúng trang đó,
+  // tránh thêm trang chi tiết mới (khiến nút "Quay lại" đưa ngược vào trang học).
+  const handleExit = () => {
+    if (fromCourseDetail) navigate(-learnDepth);
+    else navigate(`/courses/${id}`, { replace: true });
+  };
 
   if (loading) return <Loading />;
   if (status === 403) {
@@ -28,7 +44,7 @@ function LearnPage() {
 
   const { course, lessons } = data;
   if (!lessons.length) return <ErrorMessage message="Khóa học chưa có bài học." />;
-  if (!lessonId) return <Navigate to={`/courses/${id}/learn/${lessons[0].id}`} replace />;
+  if (!lessonId) return <Navigate to={`/courses/${id}/learn/${lessons[0].id}`} replace state={learnState} />;
 
   const index = lessons.findIndex((l) => l.id === Number(lessonId));
   if (index === -1) return <NotFoundPage />;
@@ -53,11 +69,11 @@ function LearnPage() {
   return (
     <>
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <div>
-          <Link to={`/courses/${id}`} className="small">‹ Thoát</Link>
+        <div className="text-break">
+          <Button variant="link" size="sm" className="p-0 small" onClick={handleExit}>‹ Thoát</Button>
           <h1 className="h5 mb-0">{course.title}</h1>
         </div>
-        <div style={{ minWidth: 220 }}>
+        <div className="flex-grow-1 flex-md-grow-0" style={{ minWidth: 220 }}>
           <small className="text-muted">Tiến độ: {completed.size}/{lessons.length} bài ({percent}%)</small>
           <ProgressBar now={percent} />
         </div>
@@ -65,7 +81,7 @@ function LearnPage() {
 
       <Row className="g-4">
         <Col lg={3} className="order-last order-lg-first">
-          <LessonSidebar courseId={id} lessons={lessons} completed={completed} />
+          <LessonSidebar courseId={id} lessons={lessons} completed={completed} linkState={nextLessonState} />
         </Col>
         <Col lg={9}>
           {saveError && <Alert variant="danger">{saveError}</Alert>}
@@ -77,6 +93,7 @@ function LearnPage() {
             isCompleted={completed.has(lesson.id)}
             saving={saving}
             onComplete={handleComplete}
+            linkState={nextLessonState}
           />
         </Col>
       </Row>

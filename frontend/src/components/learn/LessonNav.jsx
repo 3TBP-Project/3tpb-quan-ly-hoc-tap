@@ -1,16 +1,24 @@
+// AI-assisted [AI-15]
 import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Button, Row, Col } from 'react-bootstrap';
 
-function LessonNav({ courseId, prev, next, isCompleted, saving, onComplete }) {
+// Chuyển bài thêm 1 mục lịch sử để nút Back của trình duyệt lùi về bài trước đó
+function LessonNav({ courseId, prev, next, isCompleted, saving, onComplete, linkState }) {
   const link = (lesson) => `/courses/${courseId}/learn/${lesson.id}`;
   return (
-    <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-4">
-      {prev ? <Button as={Link} to={link(prev)} variant="outline-secondary">‹ Bài trước</Button> : <span />}
-      <Button variant={isCompleted ? 'success' : 'primary'} disabled={isCompleted || saving} onClick={onComplete}>
-        {isCompleted ? 'Đã hoàn thành ✓' : saving ? 'Đang lưu...' : 'Đánh dấu hoàn thành'}
-      </Button>
-      {next ? <Button as={Link} to={link(next)} variant="outline-secondary">Bài sau ›</Button> : <span />}
-    </div>
+    <Row className="g-2 mt-4 align-items-center">
+      <Col xs={12} md="auto" className="order-md-2">
+        <Button className="w-100" variant={isCompleted ? 'success' : 'primary'} disabled={isCompleted || saving} onClick={onComplete}>
+          {isCompleted ? 'Đã hoàn thành ✓' : saving ? 'Đang lưu...' : 'Đánh dấu hoàn thành'}
+        </Button>
+      </Col>
+      <Col xs={6} md className="order-md-1">
+        {prev && <Button as={Link} to={link(prev)} state={linkState} variant="outline-secondary" className="w-100 w-md-auto">‹ Bài trước</Button>}
+      </Col>
+      <Col xs={6} md className="order-md-3 text-end">
+        {next && <Button as={Link} to={link(next)} state={linkState} variant="outline-secondary" className="w-100 w-md-auto">Bài sau ›</Button>}
+      </Col>
+    </Row>
   );
 }
 

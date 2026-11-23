@@ -7,6 +7,8 @@ import {
   isCourseEnrolledSaved,
   saveEnrolledCourse,
 } from '../utils/enrollmentStorage';
+import { withCourseProgress } from '../utils/progress';
+import { getCompletedCountMap } from '../utils/progressStorage';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
 const courseMemoryCache = new Map(mockCourses.map((c) => [Number(c.id), c]));
@@ -55,19 +57,33 @@ export const enrollCourse = async (id) => {
 
 export const getMyCourses = async (_params, signal) => {
   const savedLocal = getSavedEnrolledCourses();
+  const completedMap = getCompletedCountMap();
+
+  const applyLocalProgress = (course) => {
+    const localDone = completedMap.get(Number(course.id)) ?? 0;
+    const serverDone = Number(course.completedLessonCount) || 0;
+    const mergedDone = Math.max(serverDone, localDone);
+    return withCourseProgress(course, mergedDone);
+  };
 
   if (USE_MOCK) {
-    return { status: 'success', data: savedLocal };
+    const data = savedLocal.map(applyLocalProgress);
+    return { status: 'success', data };
   }
 
   try {
     const res = await axiosClient.get('/api/enrollments/my-courses', { signal });
     const apiList = Array.isArray(res?.data) ? res.data : [];
 
-    // Gộp dữ liệu từ API và localStorage theo id để F5 không bao giờ bị trống
+    // Ưu tiên dữ liệu mới nhất từ API ghi đè lên bản lưu cũ trong localStorage
     const mergedMap = new Map();
-    [...apiList, ...savedLocal].forEach((c) => {
-      if (c && c.id != null) mergedMap.set(Number(c.id), c);
+    [...savedLocal, ...apiList].forEach((c) => {
+      if (c && c.id != null) {
+        const cid = Number(c.id);
+        const prev = mergedMap.get(cid);
+        const merged = prev ? { ...prev, ...c } : c;
+        mergedMap.set(cid, applyLocalProgress(merged));
+      }
     });
 
     return { status: 'success', data: Array.from(mergedMap.values()) };
@@ -75,6 +91,6 @@ export const getMyCourses = async (_params, signal) => {
     // Nếu request bị hủy khi unmount thì ném lại cho useFetch xử lý
     if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') throw err;
     // Nếu backend lỗi/mất kết nối khi F5, vẫn hiển thị danh sách đã lưu ở client
-    return { status: 'success', data: savedLocal };
+    return { status: 'success', data: savedLocal.map(applyLocalProgress) };
   }
 };

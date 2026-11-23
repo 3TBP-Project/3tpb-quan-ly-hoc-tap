@@ -20,7 +20,8 @@ const EMPTY_FILTERS = { search: '', categoryId: '', teacherId: '' };
 function CourseListPage() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [page, setPage] = useState(1);
-  const [loginCourseId, setLoginCourseId] = useState(null);
+  // Khách bấm vào khóa học: { path: trang muốn đến sau khi đăng nhập, message }
+  const [loginPrompt, setLoginPrompt] = useState(null);
   const { user } = useAuth();
 
   const courses = useFetch(getCourses, { ...filters, page, limit: PAGE_SIZE });
@@ -36,11 +37,16 @@ function CourseListPage() {
     setPage(1); // đổi bộ lọc thì về trang đầu
   };
 
-  // Khách chưa đăng nhập bấm vào thẻ: không chuyển trang, hiện thông báo đăng nhập
-  const askLogin = (e, courseId) => {
+  // Khách chưa đăng nhập bấm vào thẻ / nút: không chuyển trang, hiện thông báo đăng nhập
+  const askLogin = (e, path, message) => {
     e.preventDefault();
-    setLoginCourseId(courseId);
+    setLoginPrompt({ path, message });
   };
+  const guestOnly = (path, message) => (user ? undefined : (e) => askLogin(e, path, message));
+  // Khách vãng lai xem chi tiết tự do; chỉ làm bài kiểm tra (và ghi danh ở trang chi tiết) mới cần đăng nhập
+  const QUIZ_MSG = 'Vui lòng đăng nhập để làm bài kiểm tra.';
+  // Chỉ học viên mới làm bài; khách vẫn thấy nút để được nhắc đăng nhập
+  const canTakeQuiz = !user || user.role === 'student';
 
   const handlePageChange = (nextPage) => {
     setPage(nextPage);
@@ -57,14 +63,29 @@ function CourseListPage() {
         {items.map((course) => (
           <Col key={course.id}>
             {/* Bấm vào thẻ thì vào chi tiết; hai nút riêng cho chi tiết và làm bài kiểm tra */}
-            <CourseCard course={course} onClick={user ? undefined : (e) => askLogin(e, course.id)}>
+            <CourseCard course={course}>
               <div className="d-flex gap-2">
-                <Button as={Link} to={`/courses/${course.id}`} variant="outline-primary" size="sm" className="flex-fill">
+                <Button
+                  as={Link}
+                  to={`/courses/${course.id}`}
+                  variant="outline-primary"
+                  size="sm"
+                  className="flex-fill"
+                >
                   Xem chi tiết
                 </Button>
-                <Button as={Link} to={`/courses/${course.id}/quiz`} variant="primary" size="sm" className="flex-fill">
-                  Làm bài kiểm tra
-                </Button>
+                {canTakeQuiz && (
+                  <Button
+                    as={Link}
+                    to={`/courses/${course.id}/quiz`}
+                    onClick={guestOnly(`/courses/${course.id}/quiz`, QUIZ_MSG)}
+                    variant="primary"
+                    size="sm"
+                    className="flex-fill"
+                  >
+                    Làm bài kiểm tra
+                  </Button>
+                )}
               </div>
             </CourseCard>
           </Col>
@@ -93,14 +114,14 @@ function CourseListPage() {
         <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
       </div>
 
-      <Modal show={loginCourseId !== null} onHide={() => setLoginCourseId(null)} centered size="sm">
+      <Modal show={loginPrompt !== null} onHide={() => setLoginPrompt(null)} centered size="sm">
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title as="h2" className="h5">Cần đăng nhập</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="text-muted">Vui lòng đăng nhập để xem khóa học.</Modal.Body>
+        <Modal.Body className="text-muted">{loginPrompt?.message}</Modal.Body>
         <Modal.Footer className="border-0 pt-0">
-          <Button variant="outline-secondary" onClick={() => setLoginCourseId(null)}>Để sau</Button>
-          <Button as={Link} to="/login" state={{ from: { pathname: `/courses/${loginCourseId}` } }} variant="primary">
+          <Button variant="outline-secondary" onClick={() => setLoginPrompt(null)}>Để sau</Button>
+          <Button as={Link} to="/login" state={{ from: { pathname: loginPrompt?.path ?? '/' } }} variant="primary">
             Đăng nhập
           </Button>
         </Modal.Footer>

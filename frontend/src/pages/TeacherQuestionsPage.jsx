@@ -22,6 +22,59 @@ const EMPTY_FORM = {
   correctIndex: 0,
 };
 
+const OPTION_ORDER_PREFIX = 'teacher_question_order_v1_';
+
+const saveQuestionOptionOrder = (questionId, options, correctIndex) => {
+  try {
+    if (!questionId || !Array.isArray(options) || options.length !== 4) return;
+    localStorage.setItem(
+      `${OPTION_ORDER_PREFIX}${questionId}`,
+      JSON.stringify({
+        options: options.map((opt) => String(opt ?? '').trim()),
+        correctIndex: Number(correctIndex),
+      })
+    );
+  } catch {
+    // Bỏ qua nếu trình duyệt chặn localStorage
+  }
+};
+
+const applySavedOptionOrder = (q) => {
+  try {
+    const raw = localStorage.getItem(`${OPTION_ORDER_PREFIX}${q.id}`);
+    if (!raw) return q;
+    const saved = JSON.parse(raw);
+    if (
+      !Array.isArray(saved?.options) ||
+      saved.options.length !== 4 ||
+      !Number.isInteger(saved?.correctIndex) ||
+      saved.correctIndex < 0 ||
+      saved.correctIndex > 3
+    ) {
+      return q;
+    }
+
+    const expectedCorrect = String(q.correctAnswer ?? '').trim();
+    if (saved.options[saved.correctIndex]?.trim() !== expectedCorrect) {
+      return q;
+    }
+
+    const currentSorted = [...(q.options || [])].map((s) => String(s ?? '').trim()).sort();
+    const savedSorted = [...saved.options].map((s) => String(s ?? '').trim()).sort();
+    if (JSON.stringify(currentSorted) !== JSON.stringify(savedSorted)) {
+      return q;
+    }
+
+    return {
+      ...q,
+      options: saved.options,
+      correctIndex: saved.correctIndex,
+    };
+  } catch {
+    return q;
+  }
+};
+
 function TeacherQuestionsPage() {
   const { courseId: routeCourseId } = useParams();
 
@@ -72,7 +125,8 @@ function TeacherQuestionsPage() {
     setError('');
     try {
       const res = await getCourseQuestions(cid);
-      setQuestions(res?.data?.questions || []);
+      const list = res?.data?.questions || [];
+      setQuestions(list.map(applySavedOptionOrder));
       const dur = res?.data?.course?.quizDuration;
       setQuizDuration(dur != null ? String(dur) : '');
     } catch (err) {
@@ -118,9 +172,13 @@ function TeacherQuestionsPage() {
     try {
       if (editingId) {
         await updateCourseQuestion(selectedCourseId, editingId, formData);
+        saveQuestionOptionOrder(editingId, formData.options, formData.correctIndex);
         setNotice('Cập nhật câu hỏi thành công!');
       } else {
-        await createCourseQuestion(selectedCourseId, formData);
+        const res = await createCourseQuestion(selectedCourseId, formData);
+        if (res?.data?.id) {
+          saveQuestionOptionOrder(res.data.id, formData.options, formData.correctIndex);
+        }
         setNotice('Thêm câu hỏi mới thành công!');
       }
       setEditingId(null);
@@ -150,6 +208,11 @@ function TeacherQuestionsPage() {
     setNotice('');
     try {
       await deleteCourseQuestion(selectedCourseId, questionId);
+      try {
+        localStorage.removeItem(`${OPTION_ORDER_PREFIX}${questionId}`);
+      } catch {
+        // Bỏ qua lỗi bộ nhớ
+      }
       if (editingId === questionId) {
         setEditingId(null);
         setFormData(EMPTY_FORM);

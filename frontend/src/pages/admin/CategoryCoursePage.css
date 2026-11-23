@@ -1,0 +1,109 @@
+/* AI-assisted [AI-07] – HT-15: Danh mục và duyệt khóa học */
+.category-course-page,
+.cc-modal {
+  --cc-surface: #f4f5f7;
+  --cc-border: #d0d4da;
+  --cc-text: #1f2328;
+  --cc-muted: #6b7280;
+  --cc-primary: #2563eb;
+  --cc-primary-hover: #1d4ed8;
+  --cc-danger: #dc2626;
+  --cc-success: #16a34a;
+}
+.category-course-page { font-size: 14px; color: var(--cc-text); }
+
+.cc-page-head { margin-bottom: 20px; }
+.cc-page-head h1 { font-size: 24px; font-weight: 700; margin: 0; }
+.cc-page-head p { color: var(--cc-muted); margin: 4px 0 0; }
+
+/* Tab */
+.cc-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--cc-border); }
+.cc-tab {
+  padding: 10px 18px; margin-bottom: -1px; border: none; border-bottom: 2px solid transparent;
+  background: none; color: var(--cc-muted); font: inherit; font-weight: 600; cursor: pointer;
+}
+.cc-tab.active { color: var(--cc-primary); border-bottom-color: var(--cc-primary); }
+
+.cc-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.cc-panel-head h2 { font-size: 17px; font-weight: 700; margin: 0; }
+
+/* Nút */
+.cc-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; white-space: nowrap;
+  border: 1px solid var(--cc-border); border-radius: 6px; background: #fff; color: var(--cc-text);
+  font: inherit; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s;
+}
+.cc-btn:hover { background: var(--cc-surface); }
+.cc-btn-primary { background: var(--cc-primary); border-color: var(--cc-primary); color: #fff; }
+.cc-btn-primary:hover { background: var(--cc-primary-hover); }
+.cc-btn:disabled { opacity: .7; cursor: not-allowed; }
+
+/* Bảng */
+.cc-card { background: #fff; border: 1px solid var(--cc-border); border-radius: 8px; overflow: hidden; }
+.cc-card table { width: 100%; border-collapse: collapse; }
+.cc-card thead th {
+  text-align: left; padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--cc-muted);
+  background: var(--cc-surface); border-bottom: 1px solid var(--cc-border);
+}
+.cc-card tbody td { padding: 12px 16px; border-bottom: 1px solid #eceef1; vertical-align: middle; }
+.cc-card tbody tr:last-child td { border-bottom: none; }
+/* Bảng duyệt khóa học: chia cột theo tỉ lệ để các cột không bị dồn sang phải */
+.cc-course-table { table-layout: fixed; }
+.cc-course-table td { overflow-wrap: anywhere; }
+.cc-course-table .cc-teacher { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-card tbody tr:hover { background: #fafbfc; }
+.cc-num { color: var(--cc-muted); font-variant-numeric: tabular-nums; }
+.cc-empty { padding: 36px !important; text-align: center; color: var(--cc-muted); }
+
+.cc-chip {
+  display: inline-block; padding: 3px 12px; border-radius: 6px;
+  background: #eef2ff; color: var(--cc-primary); font-size: 13px; font-weight: 600;
+}
+.cc-badge {
+  display: inline-block; white-space: nowrap; padding: 3px 12px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; border: 1px solid transparent;
+}
+.cc-badge.public { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.cc-badge.draft { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+.cc-badge.hidden { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+
+.cc-actions { display: flex; gap: 6px; }
+.cc-icon-btn {
+  display: grid; place-items: center; width: 34px; height: 34px;
+  border: 1px solid var(--cc-border); border-radius: 6px; background: #fff; color: var(--cc-text);
+  cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+}
+.cc-icon-btn svg { width: 17px; height: 17px; }
+.cc-icon-btn:hover { background: var(--cc-surface); }
+.cc-icon-btn.danger { color: var(--cc-danger); border-color: #fecaca; }
+.cc-icon-btn.danger:hover { background: #fef2f2; }
+.cc-icon-btn:disabled { opacity: .5; cursor: wait; }
+
+/* Tìm kiếm */
+.cc-search { position: relative; width: 100%; max-width: 320px; margin: 0; }
+.cc-search svg {
+  position: absolute; left: 12px; top: 50%; width: 16px; height: 16px;
+  transform: translateY(-50%); color: var(--cc-muted); pointer-events: none;
+}
+.cc-search input { width: 100%; padding: 9px 12px 9px 36px; border: 1px solid var(--cc-border); border-radius: 6px; font: inherit; }
+.cc-search input:focus,
+.cc-input:focus { outline: none; border-color: var(--cc-primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, .15); }
+
+/* Hộp thoại */
+.cc-modal-title { font-size: 16px; font-weight: 700; margin: 0; }
+.cc-label { display: block; font-weight: 600; margin-bottom: 6px; }
+.cc-input { width: 100%; padding: 10px 12px; border: 1px solid var(--cc-border); border-radius: 6px; font: inherit; }
+.cc-err { color: var(--cc-danger); font-size: 13px; margin-top: 6px; }
+
+/* Thông báo */
+.cc-toasts { z-index: 1080; }
+.cc-toast { border-left: 4px solid var(--cc-success); }
+.cc-toast.warn { border-left-color: var(--cc-danger); }
+.cc-toast.info { border-left-color: var(--cc-primary); }
+
+@media (max-width: 760px) {
+  .cc-panel-head { flex-direction: column; align-items: stretch; gap: 10px; }
+  .cc-search { max-width: none; }
+  .cc-card { overflow-x: auto; }
+  .cc-course-table { min-width: 640px; }
+}

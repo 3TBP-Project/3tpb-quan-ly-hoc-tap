@@ -123,7 +123,7 @@ test('getCourseDetail forwards the authenticated user for enrollment status', as
     user: { id: 12, role: 'student' }
   }, response);
 
-  assert.deepEqual(received, [7, 12]);
+  assert.deepEqual(received, [7, 12, 'student']);
   assert.equal(response.statusCode, 200);
   assert.equal(response.body.data.isEnrolled, true);
 });

@@ -191,6 +191,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 18px;
+  scroll-margin-top: 150px;
 }
 
 .quiz-question-card__header {
@@ -523,11 +524,29 @@
 }
 
 @media (max-width: 420px) {
+  .quiz-topbar__title {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .quiz-result__metrics {
     grid-template-columns: 1fr;
   }
 
   .quiz-intro-card {
     padding: 16px;
+  }
+
+  .quiz-option input[type='radio'] {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .quiz-nav-grid {
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
   }
 }

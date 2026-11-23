@@ -1,4 +1,4 @@
-// AI-assisted [AI-05]
+// AI-assisted [AI-05, AI-10]
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const quizRepository = require('../src/repositories/quizRepository');
@@ -109,4 +109,117 @@ test('submit rejects an attempt past the deadline and does not save it', async (
     (error) => error.statusCode === 400 && /quá thời gian/i.test(error.message)
   );
   assert.equal(saveCalled, false);
+});
+
+// =========================================================================
+// BỔ SUNG NGÀY 10 (BẮT BUỘC): Chặn khi đã dùng hết tối đa 3 lượt làm bài
+// =========================================================================
+test('start rejects when the student has already used all 3 attempts', async (t) => {
+  stubRepository(t, {
+    findCourseById: async () => ({ id: 12, title: 'Test course', quiz_duration: 30 }),
+    getQuestionsByCourseId: async () => [{
+      id: 1,
+      content: 'Question',
+      correct_answer: 'correct',
+      false_answer: 'wrong 1',
+      false_answer_2: 'wrong 2',
+      false_answer_3: 'wrong 3'
+    }],
+    createAttemptWithLock: async ({ maxAttempts }) => {
+      assert.equal(maxAttempts, 3);
+      const error = new Error('Bạn đã sử dụng hết tối đa 3 lượt làm bài cho khóa học này.');
+      error.statusCode = 403;
+      throw error;
+    }
+  });
+
+  await assert.rejects(
+    quizService.start(7, 12),
+    (error) => error.statusCode === 403 && /hết tối đa 3 lượt/i.test(error.message)
+  );
+});
+
+// =========================================================================
+// BỔ SUNG NGÀY 10 (BẮT BUỘC): Lấy điểm cao nhất qua nhiều lượt làm bài
+// =========================================================================
+test('submit returns the highest score across multiple attempts', async (t) => {
+  const questions = Array.from({ length: 10 }, (_, index) => ({
+    id: index + 1,
+    content: `Question ${index + 1}`,
+    correct_answer: `answer-${index + 1}`
+  }));
+  const answers = {};
+  for (const question of questions.slice(0, 6)) {
+    answers[question.id] = question.correct_answer;
+  }
+  for (const question of questions.slice(6)) {
+    answers[question.id] = 'wrong-answer';
+  }
+
+  stubRepository(t, {
+    findAttemptById: async () => ({
+      id: 102,
+      user_id: 7,
+      course_id: 12,
+      started_at: new Date(),
+      submitted_at: null
+    }),
+    findCourseById: async () => ({ id: 12, quiz_duration: 30 }),
+    getQuestionsByCourseId: async () => questions,
+    updateAttemptResultIfNotSubmitted: async () => true,
+    getBestScore: async () => 9
+  });
+
+  const result = await quizService.submit(102, 7, answers);
+
+  assert.equal(result.score, 6);
+  assert.equal(result.bestScore, 9);
+});
+
+// =========================================================================
+// BỔ SUNG ĐIỀU KIỆN BIÊN: Chặn học viên chưa ghi danh khóa học
+// =========================================================================
+test('start rejects when the student has not enrolled in the course', async (t) => {
+  stubRepository(t, {
+    findCourseById: async () => ({ id: 12, title: 'Test course', quiz_duration: 30 }),
+    getQuestionsByCourseId: async () => [{
+      id: 1,
+      content: 'Question',
+      correct_answer: 'correct',
+      false_answer: 'wrong 1',
+      false_answer_2: 'wrong 2',
+      false_answer_3: 'wrong 3'
+    }],
+    createAttemptWithLock: async () => {
+      const error = new Error('Bạn cần ghi danh khóa học trước khi làm bài trắc nghiệm.');
+      error.statusCode = 403;
+      throw error;
+    }
+  });
+
+  await assert.rejects(
+    quizService.start(99, 12),
+    (error) => error.statusCode === 403 && /ghi danh/i.test(error.message)
+  );
+});
+
+// =========================================================================
+// BỔ SUNG ĐIỀU KIỆN BIÊN: Chặn nộp trùng lượt bài đã chấm điểm
+// =========================================================================
+test('submit rejects an attempt that has already been submitted', async (t) => {
+  stubRepository(t, {
+    findAttemptById: async () => ({
+      id: 109,
+      user_id: 7,
+      course_id: 12,
+      score: 8,
+      started_at: new Date(Date.now() - 5 * 60 * 1000),
+      submitted_at: new Date(Date.now() - 1 * 60 * 1000)
+    })
+  });
+
+  await assert.rejects(
+    quizService.submit(109, 7, { 1: 'answer-1' }),
+    (error) => error.statusCode === 400 && /đã được nộp/i.test(error.message)
+  );
 });
