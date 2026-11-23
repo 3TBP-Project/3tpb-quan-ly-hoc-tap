@@ -1,6 +1,6 @@
 /**
  * Service xử lý logic nghiệp vụ cho Quản lý khóa học (HT-09)
- * Đảm bảo kiểm tra quyền sở hữu của giảng viên (HT-NFR3) và xử lý dữ liệu an toàn
+ * Đảm bảo kiểm tra quyền sở hữu của giảng viên (HT-NFR3) và validate dữ liệu an toàn
  */
 const courseRepository = require('../repositories/courseRepository');
 
@@ -10,64 +10,105 @@ const createCourseError = (message, statusCode) => {
   return error;
 };
 
+const isPlainObject = (value) =>
+  Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+const validateCoursePayload = (data, { allowHidden = false } = {}) => {
+  const title = typeof data.title === 'string' ? data.title.trim() : '';
+  if (title.length === 0 || title.length > 255) {
+    throw createCourseError('Tên khóa học phải từ 1 đến 255 ký tự.', 400);
+  }
+
+  if (data.description !== undefined && data.description !== null && typeof data.description !== 'string') {
+    throw createCourseError('Mô tả khóa học phải là chuỗi ký tự.', 400);
+  }
+  const description = typeof data.description === 'string' && data.description.trim()
+    ? data.description.trim()
+    : null;
+
+  const categoryId = Number(data.category_id);
+  if (!Number.isSafeInteger(categoryId) || categoryId < 1) {
+    throw createCourseError('Vui lòng chọn danh mục hợp lệ.', 400);
+  }
+
+  const rawPrice = data.price_course === undefined || data.price_course === null ? 0 : data.price_course;
+  if (typeof rawPrice === 'boolean' || (typeof rawPrice === 'string' && rawPrice.trim() === '')) {
+    throw createCourseError('Học phí phải là số không âm.', 400);
+  }
+  const price = Number(rawPrice);
+  if (!Number.isFinite(price) || price < 0) {
+    throw createCourseError('Học phí phải là số không âm.', 400);
+  }
+
+  const rawQuizMinutes = data.quiz_minutes !== undefined ? data.quiz_minutes : data.quiz_duration;
+  let quizMinutes = null;
+  if (rawQuizMinutes !== undefined && rawQuizMinutes !== null && rawQuizMinutes !== '') {
+    const parsedQuizMinutes = Number(rawQuizMinutes);
+    if (!Number.isSafeInteger(parsedQuizMinutes) || parsedQuizMinutes < 1) {
+      throw createCourseError('Thời gian làm bài phải là số phút nguyên dương.', 400);
+    }
+    quizMinutes = parsedQuizMinutes;
+  }
+
+  let thumbnail = null;
+  if (data.thumbnail !== undefined && data.thumbnail !== null) {
+    if (typeof data.thumbnail !== 'string') {
+      throw createCourseError('Đường dẫn ảnh bìa phải là chuỗi ký tự.', 400);
+    }
+    const trimmedThumbnail = data.thumbnail.trim();
+    if (trimmedThumbnail.length > 255) {
+      throw createCourseError('Đường dẫn ảnh bìa không được vượt quá 255 ký tự.', 400);
+    }
+    thumbnail = trimmedThumbnail || null;
+  }
+
+  const status = data.status ?? 'draft';
+  const validStatuses = allowHidden ? ['draft', 'public', 'hidden'] : ['draft', 'public'];
+  if (!validStatuses.includes(status)) {
+    throw createCourseError(
+      allowHidden
+        ? 'Trạng thái khóa học không hợp lệ.'
+        : 'Giảng viên chỉ được đặt khóa học ở trạng thái Nháp hoặc Công khai.',
+      400
+    );
+  }
+
+  return {
+    title,
+    description,
+    category_id: categoryId,
+    price_course: price,
+    quiz_minutes: quizMinutes,
+    thumbnail,
+    status
+  };
+};
+
 class CourseService {
 
   // ==========================================
   // 1. CREATE - Tạo khóa học mới cho giảng viên
   // ==========================================
   async createCourse(userId, courseData) {
-    if (!courseData || typeof courseData !== 'object' || Array.isArray(courseData)) {
+    if (!isPlainObject(courseData)) {
       throw createCourseError('Dữ liệu khóa học không hợp lệ.', 400);
     }
 
-    const title = typeof courseData.title === 'string' ? courseData.title.trim() : '';
-    if (title.length === 0 || title.length > 255) {
-      throw createCourseError('Tên khóa học phải từ 1 đến 255 ký tự.', 400);
-    }
-
-    const categoryId = Number(courseData.category_id);
-    if (!Number.isSafeInteger(categoryId) || categoryId < 1) {
-      throw createCourseError('Vui lòng chọn danh mục hợp lệ.', 400);
-    }
-
-    const status = courseData.status ?? 'draft';
-    if (!['draft', 'public'].includes(status)) {
-      throw createCourseError('Giảng viên chỉ được đặt khóa học ở trạng thái Nháp hoặc Công khai.', 400);
-    }
-
-    const price = courseData.price_course ?? 0;
-    if (typeof price !== 'number' || !Number.isFinite(price) || price < 0) {
-      throw createCourseError('Học phí phải là số không âm.', 400);
-    }
-
-    const quizMinutes = courseData.quiz_minutes ?? courseData.quiz_duration ?? null;
-    if (quizMinutes !== null && (!Number.isSafeInteger(quizMinutes) || quizMinutes < 1)) {
-      throw createCourseError('Thời gian làm bài phải là số phút nguyên dương.', 400);
-    }
-
+    const validated = validateCoursePayload(courseData, { allowHidden: false });
     const payload = {
-      title,
-      description: typeof courseData.description === 'string' && courseData.description.trim()
-        ? courseData.description.trim()
-        : null,
-      category_id: categoryId,
-      user_id: userId,
-      price_course: price,
-      quiz_minutes: quizMinutes,
-      thumbnail: courseData.thumbnail || null,
-      status
+      ...validated,
+      user_id: userId
     };
 
-    let courseId;
     try {
-      courseId = await courseRepository.create(payload);
+      const courseId = await courseRepository.create(payload);
+      return { id: courseId, ...payload };
     } catch (error) {
       if (error?.code === 'ER_NO_REFERENCED_ROW_2') {
         throw createCourseError('Danh mục không tồn tại.', 400);
       }
       throw error;
     }
-    return { id: courseId, ...payload };
   }
 
   // ==========================================
@@ -86,9 +127,6 @@ class CourseService {
       throw createCourseError('Không tìm thấy khóa học!', 404);
     }
 
-    // Khóa học chưa công khai chỉ người quản lý xem được:
-    // - draft: giảng viên sở hữu, quản trị viên, học viên đã ghi danh trước đó
-    // - hidden (HT-15): giảng viên sở hữu, quản trị viên
     const isManager = (userId != null && Number(course.teacherId) === Number(userId)) || userRole === 'admin';
     const canView =
       course.status === 'public' ||
@@ -103,9 +141,13 @@ class CourseService {
   }
 
   // ==========================================
-  // 4. UPDATE - Cập nhật khóa học (Kiểm tra quyền sở hữu & Merge dữ liệu)
+  // 4. UPDATE - Cập nhật khóa học (Kiểm tra quyền sở hữu, validate & Merge dữ liệu)
   // ==========================================
   async updateCourse(userId, courseId, updateData, userRole = 'teacher') {
+    if (!isPlainObject(updateData) || Object.keys(updateData).length === 0) {
+      throw createCourseError('Cần gửi ít nhất một trường hợp lệ để cập nhật khóa học.', 400);
+    }
+
     const course = await courseRepository.findById(courseId);
     if (!course) {
       throw createCourseError('Không tìm thấy khóa học!', 404);
@@ -115,7 +157,7 @@ class CourseService {
       throw createCourseError('Bạn không có quyền chỉnh sửa khóa học này!', 403);
     }
 
-    const mergedData = {
+    const mergedInput = {
       title: updateData.title !== undefined ? updateData.title : course.title,
       description: updateData.description !== undefined ? updateData.description : course.description,
       category_id: updateData.category_id !== undefined ? updateData.category_id : course.category_id,
@@ -129,20 +171,25 @@ class CourseService {
       status: updateData.status !== undefined ? updateData.status : course.status
     };
 
-    if (!['draft', 'public', 'hidden'].includes(mergedData.status)) {
-      throw createCourseError('Trạng thái khóa học không hợp lệ.', 400);
-    }
+    const validated = validateCoursePayload(mergedInput, { allowHidden: true });
 
-    // HT-15: giảng viên chỉ đặt Nháp/Công khai; khóa học bị ẩn chỉ quản trị viên bỏ ẩn được
     if (userRole !== 'admin') {
       if (course.status === 'hidden') {
-        mergedData.status = 'hidden';
-      } else if (mergedData.status === 'hidden') {
+        validated.status = 'hidden';
+      } else if (validated.status === 'hidden') {
         throw createCourseError('Giảng viên chỉ được đặt khóa học ở trạng thái Nháp hoặc Công khai.', 400);
       }
     }
 
-    await courseRepository.update(courseId, mergedData);
+    try {
+      await courseRepository.update(courseId, validated);
+    } catch (error) {
+      if (error?.code === 'ER_NO_REFERENCED_ROW_2') {
+        throw createCourseError('Danh mục không tồn tại.', 400);
+      }
+      throw error;
+    }
+
     return await courseRepository.findById(courseId);
   }
 
