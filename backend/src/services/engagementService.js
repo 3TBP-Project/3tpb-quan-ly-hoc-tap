@@ -23,7 +23,8 @@ const listCourseComments = async (courseId) => {
 };
 
 const createCourseComment = async (userId, courseId, { rating, content }) => {
-  if (!await courseRepository.findById(courseId)) {
+  const course = await courseRepository.findById(courseId);
+  if (!course || course.status !== 'public') {
     throw createHttpError('Không tìm thấy khóa học.', 404);
   }
   await requireEnrollment(userId, courseId);
@@ -44,8 +45,15 @@ const createCourseComment = async (userId, courseId, { rating, content }) => {
 
 const getEnrolledLessonId = async (userId, lessonId) => {
   const lesson = await lessonRepository.findById(lessonId);
-  if (!lesson) throw createHttpError('Không tìm thấy bài học.', 404);
+  // Bài nháp, hoặc bài thuộc khóa học nháp / bị ẩn: học viên không được thảo luận
+  if (!lesson || lesson.status !== 'public' || lesson.course_status !== 'public') {
+    throw createHttpError('Không tìm thấy bài học.', 404);
+  }
   await requireEnrollment(userId, lesson.course_id);
+  // Học tuần tự: bài còn khóa thì chưa được xem / gửi thảo luận
+  if (await lessonRepository.countIncompletePrevious(userId, lesson) > 0) {
+    throw createHttpError('Bạn cần hoàn thành các bài học trước để mở khóa bài này.', 403);
+  }
   return lesson;
 };
 

@@ -55,6 +55,10 @@ const start = async (userId, courseId) => {
   if (!course) {
     throw createHttpError('Không tìm thấy khóa học.', 404);
   }
+  // Khóa học nháp / bị ẩn thì học viên không làm bài được nữa
+  if (course.status !== 'public') {
+    throw createHttpError('Khóa học hiện không còn công khai nên bạn không thể làm bài.', 404);
+  }
   if (!course.quiz_duration || course.quiz_duration <= 0) {
     throw createHttpError('Khóa học này chưa cấu hình thời gian làm bài trắc nghiệm.', 400);
   }
@@ -121,6 +125,9 @@ const submit = async (attemptId, userId, answers = {}) => {
   const course = await quizRepository.findCourseById(attempt.course_id);
   if (!course) {
     throw createHttpError('Khóa học không tồn tại.', 404);
+  }
+  if (course.status !== 'public') {
+    throw createHttpError('Khóa học hiện không còn công khai nên bạn không thể nộp bài.', 404);
   }
 
   const now = new Date();

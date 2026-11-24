@@ -2,6 +2,30 @@
 const { pool } = require('../config/db');
 
 class CourseRepository {
+  async countPublicLessons(courseId) {
+    const [rows] = await pool.query(
+      `SELECT COUNT(*) AS total
+       FROM lessons
+       WHERE course_id = ? AND status = 'public'`,
+      [courseId]
+    );
+    return Number(rows[0].total);
+  }
+
+  async setDraftIfNoPublicLessons(courseId) {
+    const [result] = await pool.query(
+      `UPDATE courses
+       SET status = 'draft'
+       WHERE id = ? AND status = 'public'
+         AND NOT EXISTS (
+           SELECT 1 FROM lessons
+           WHERE course_id = ? AND status = 'public'
+         )`,
+      [courseId, courseId]
+    );
+    return result.affectedRows > 0;
+  }
+
   async findPage({ page, limit, search, categoryId, teacherId }) {
     const offset = (page - 1) * limit;
     const conditions = [];
@@ -22,6 +46,11 @@ class CourseRepository {
     // Danh sách công khai chỉ hiện khóa học "public":
     // bản nháp (draft) và khóa học bị quản trị viên ẩn (hidden, HT-15) đều không hiện
     conditions.push("c.status = 'public'");
+    conditions.push(`EXISTS (
+      SELECT 1 FROM lessons AS public_lesson
+      WHERE public_lesson.course_id = c.id
+        AND public_lesson.status = 'public'
+    )`);
 
     const whereClause = conditions.length > 0
       ? `WHERE ${conditions.join(' AND ')}`
@@ -40,7 +69,7 @@ class CourseRepository {
        FROM courses AS c
        LEFT JOIN users AS u ON u.id = c.user_id
        LEFT JOIN categories AS category ON category.id = c.category_id
-       LEFT JOIN lessons AS lesson ON lesson.course_id = c.id
+       LEFT JOIN lessons AS lesson ON lesson.course_id = c.id AND lesson.status = 'public'
        ${whereClause}
        GROUP BY
          c.id,
@@ -103,11 +132,21 @@ class CourseRepository {
 
   async findByTeacherId(userId) {
     const [rows] = await pool.query(
-      `SELECT id, thumbnail, title, description, category_id, user_id,
-              price_course, quiz_minutes, status
-       FROM courses
-       WHERE user_id = ?
-       ORDER BY id DESC`,
+      `SELECT
+         c.id,
+         c.thumbnail,
+         c.title,
+         c.description,
+         c.category_id AS categoryId,
+         category.name AS categoryName,
+         c.user_id AS userId,
+         c.price_course,
+         c.quiz_minutes,
+         c.status
+       FROM courses AS c
+       LEFT JOIN categories AS category ON category.id = c.category_id
+       WHERE c.user_id = ?
+       ORDER BY c.id DESC`,
       [userId]
     );
     return rows;
@@ -136,7 +175,8 @@ class CourseRepository {
          c.category_id AS categoryId,
          category.name AS categoryName,
          c.status,
-         (SELECT COUNT(*) FROM lessons AS l WHERE l.course_id = c.id) AS lessonCount,
+         (SELECT COUNT(*) FROM lessons AS l
+          WHERE l.course_id = c.id AND l.status = 'public') AS lessonCount,
          (SELECT COUNT(*) FROM enrollments AS e WHERE e.course_id = c.id) AS studentCount,
          EXISTS(
            SELECT 1
@@ -167,16 +207,19 @@ class CourseRepository {
   }
 
   async findLessonSummariesByCourseId(courseId) {
+    // Cùng thứ tự học với trang học: theo chương rồi tới bài; bài chưa có chương xếp cuối
     const [rows] = await pool.query(
-      `SELECT id, position AS \`order\`, title
-       FROM lessons
-       WHERE course_id = ?
-       ORDER BY position ASC, id ASC`,
+      `SELECT l.id, l.chapter_id AS chapterId, l.position AS \`order\`, l.title
+       FROM lessons AS l
+       LEFT JOIN chapters AS ch ON ch.id = l.chapter_id
+       WHERE l.course_id = ? AND l.status = 'public'
+       ORDER BY COALESCE(ch.position, 2147483647), COALESCE(ch.id, 2147483647), l.position, l.id`,
       [courseId]
     );
     return rows.map((lesson) => ({
       ...lesson,
       id: Number(lesson.id),
+      chapterId: lesson.chapterId == null ? null : Number(lesson.chapterId),
       order: Number(lesson.order)
     }));
   }
