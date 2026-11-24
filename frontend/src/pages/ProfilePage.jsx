@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import ErrorMessage from '../components/common/ErrorMessage';
 import Loading from '../components/common/Loading';
+import Pagination from '../components/common/Pagination';
 import { useAuth } from '../context/useAuth';
 import { useFetch } from '../hooks/useFetch';
 import {
@@ -11,12 +12,15 @@ import {
   getEnrolledCourses,
   getProfile,
   getQuizHistory,
+  getTeacherCourses,
   toAvatarUrl,
   updateAvatar,
   updateProfileName,
 } from '../services/profileService';
 import { parseApiError } from '../utils/apiError';
 import './ProfilePage.css';
+
+const COURSES_PER_PAGE = 5;
 
 const MAX_ATTEMPTS = 3;
 const MIN_PASSWORD_LENGTH = 6;
@@ -164,7 +168,7 @@ function ProfileInfoForm({ profile, onSaved, notify }) {
 
 const EMPTY_PASSWORDS = { current: '', next: '', confirm: '' };
 
-function ChangePasswordForm({ notify }) {
+function ChangePasswordForm({ notify, onPasswordChanged }) {
   const [values, setValues] = useState(EMPTY_PASSWORDS);
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
@@ -187,6 +191,7 @@ function ChangePasswordForm({ notify }) {
     try {
       await changePassword({ currentPassword: values.current, newPassword: values.next });
       setValues(EMPTY_PASSWORDS);
+      onPasswordChanged?.();
       notify('Đổi mật khẩu thành công', 'Lần đăng nhập sau hãy dùng mật khẩu mới.');
     } catch (err) {
       const message = parseApiError(err).message;
@@ -274,20 +279,62 @@ function QuizHistory({ history, loading, error }) {
   ));
 }
 
+const COURSE_STATUS_LABEL = {
+  public: 'Công khai',
+  draft: 'Nháp',
+  hidden: 'Đã ẩn',
+};
+
+function TeacherCourses({ courses, loading, error }) {
+  const [coursePage, setCoursePage] = useState(1);
+  if (loading && !courses) return <Loading />;
+  if (error) return <ErrorMessage message={error} />;
+  if (!courses?.length) {
+    return <div className="pf-box pf-empty">Bạn chưa tạo khóa học nào.</div>;
+  }
+
+  const totalPages = Math.ceil(courses.length / COURSES_PER_PAGE);
+  const safePage = Math.min(coursePage, totalPages);
+  const pagedCourses = courses.slice(
+    (safePage - 1) * COURSES_PER_PAGE,
+    safePage * COURSES_PER_PAGE
+  );
+
+  return (
+    <div className="pf-teacher-courses">
+      {pagedCourses.map((course) => (
+        <div className="pf-course-group" key={course.id}>
+          <div className="pf-course-head">
+            <span>{course.title}</span>
+            <span className={`pf-course-status ${course.status ?? 'draft'}`}>
+              {COURSE_STATUS_LABEL[course.status] ?? 'Nháp'}
+            </span>
+          </div>
+          <div className="pf-teacher-course-detail">
+            <span>Danh mục: <b>{course.categoryName ?? course.category_name ?? 'Chưa phân loại'}</b></span>
+          </div>
+        </div>
+      ))}
+      <Pagination page={safePage} totalPages={totalPages} onPageChange={setCoursePage} />
+    </div>
+  );
+}
+
 function ProfilePage() {
-  const { user, updateUser } = useAuth();
+  const { user, role, updateUser } = useAuth();
   const [tab, setTab] = useState('info');
   const [toasts, setToasts] = useState([]);
   const [savedProfile, setSavedProfile] = useState(null);
 
   const profileReq = useFetch(getProfile);
-  const historyReq = useFetch(getQuizHistory);
-  const coursesReq = useFetch(getEnrolledCourses);
+  const historyReq = useFetch(role === 'student' ? getQuizHistory : null);
+  const coursesReq = useFetch(role === 'student' ? getEnrolledCourses : getTeacherCourses);
 
   const profile = savedProfile ?? profileReq.data;
   const history = Array.isArray(historyReq.data) ? historyReq.data : null;
   const attemptCount = history ? history.reduce((sum, c) => sum + c.attempts.length, 0) : 0;
   const courseCount = Array.isArray(coursesReq.data) ? coursesReq.data.length : 0;
+  const isTeacher = role === 'teacher';
 
   const notify = (title, message) => {
     const id = Date.now() + Math.random();
@@ -305,6 +352,13 @@ function ProfilePage() {
     updateUser({ avatar });
   };
 
+  const handlePasswordChanged = () => {
+    setSavedProfile((current) => ({
+      ...(current ?? profileReq.data),
+      mustChangePassword: false,
+    }));
+  };
+
   if (profileReq.loading && !profile) return <Loading />;
   if (profileReq.error && !profile) return <ErrorMessage message={profileReq.error} />;
 
@@ -312,8 +366,19 @@ function ProfilePage() {
 
   return (
     <div className="profile-page">
-      <h1 className="pf-title">Hồ sơ &amp; Kết quả học tập</h1>
-      <p className="pf-sub">Cập nhật thông tin cá nhân và xem lại kết quả các bài trắc nghiệm.</p>
+      <h1 className="pf-title">{isTeacher ? 'Hồ sơ giảng viên' : 'Hồ sơ & Kết quả học tập'}</h1>
+      <p className="pf-sub">
+        {isTeacher
+          ? 'Cập nhật thông tin cá nhân và xem các khóa học do bạn phụ trách.'
+          : 'Cập nhật thông tin cá nhân và xem lại kết quả các bài trắc nghiệm.'}
+      </p>
+
+      {isTeacher && profile?.mustChangePassword && (
+        <div className="alert alert-warning" role="alert">
+          Tài khoản của bạn đang dùng mật khẩu tạm do quản trị viên cấp.
+          Hãy đổi mật khẩu trước khi tạo khóa học.
+        </div>
+      )}
 
       <div className="pf-layout">
         <aside className="pf-card">
@@ -323,7 +388,10 @@ function ProfilePage() {
           <div className="pf-role">{ROLE_LABEL[profile?.role] ?? 'Học viên'}</div>
           <div className="pf-stats">
             <div className="pf-stat"><b>{courseCount}</b><span>Khóa học</span></div>
-            <div className="pf-stat"><b>{attemptCount}</b><span>Lượt làm bài</span></div>
+            <div className="pf-stat">
+              <b>{isTeacher ? (profile?.createdAt ? 'GV' : '—') : attemptCount}</b>
+              <span>{isTeacher ? 'Vai trò' : 'Lượt làm bài'}</span>
+            </div>
           </div>
         </aside>
 
@@ -335,18 +403,26 @@ function ProfilePage() {
             </button>
             <button type="button" role="tab" aria-selected={tab === 'history'}
               className={`pf-tab ${tab === 'history' ? 'active' : ''}`} onClick={() => setTab('history')}>
-              Lịch sử làm bài
+              {isTeacher ? 'Khóa học phụ trách' : 'Lịch sử làm bài'}
             </button>
           </div>
 
           {tab === 'info' ? (
             <section>
               {profile && <ProfileInfoForm key={profile.id} profile={profile} onSaved={handleSaved} notify={notify} />}
-              <ChangePasswordForm notify={notify} />
+              <ChangePasswordForm notify={notify} onPasswordChanged={handlePasswordChanged} />
             </section>
           ) : (
             <section>
-              <QuizHistory history={history} loading={historyReq.loading} error={historyReq.error} />
+              {isTeacher ? (
+                <TeacherCourses
+                  courses={Array.isArray(coursesReq.data) ? coursesReq.data : null}
+                  loading={coursesReq.loading}
+                  error={coursesReq.error}
+                />
+              ) : (
+                <QuizHistory history={history} loading={historyReq.loading} error={historyReq.error} />
+              )}
             </section>
           )}
         </div>
