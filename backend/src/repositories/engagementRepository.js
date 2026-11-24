@@ -2,7 +2,7 @@ const { pool } = require('../config/db');
 
 const listCourseComments = async (courseId) => {
   const [rows] = await pool.query(
-    `SELECT cmt.id, cmt.user_id AS userId, u.name AS userName,
+    `SELECT cmt.id, cmt.user_id AS userId, u.name AS userName, u.avatar AS userAvatar,
             cmt.rating, cmt.content, cmt.created_at AS createdAt
      FROM comments AS cmt
      JOIN users AS u ON u.id = cmt.user_id
@@ -31,7 +31,7 @@ const createCourseComment = async ({ userId, courseId, rating, content }) => {
 const listDiscussions = async (lessonId) => {
   const [rows] = await pool.query(
     `SELECT d.id, d.lesson_id AS lessonId,
-            d.user_id AS userId, u.name AS userName,
+            d.user_id AS userId, u.name AS userName, u.avatar AS userAvatar,
             d.parent_id AS parentId, d.content,
             d.created_at AS createdAt
      FROM discussions AS d
