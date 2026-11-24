@@ -31,7 +31,7 @@ test('tạo giảng viên: kiểm tra dữ liệu, chặn trùng email, băm m�
       created = data;
       return 30;
     },
-    findById: async (id) => ({ id, name: created.name, email: created.email, role: 'teacher', status: 'active', courses: 0 })
+    findById: async (id) => ({ id, name: created.name, email: created.email, role: 'teacher', status: 'pending', courses: 0 })
   });
 
   await assert.rejects(adminUserService.createTeacher({ name: '', email: 'a@b.co', password: '123456' }),
@@ -49,7 +49,7 @@ test('tạo giảng viên: kiểm tra dữ liệu, chặn trùng email, băm m�
   assert.notEqual(created.passwordHash, 'tam123');
   assert.equal(await bcrypt.compare('tam123', created.passwordHash), true);
   assert.equal(teacher.role, 'teacher');
-  assert.equal(teacher.status, 'active');
+  assert.equal(teacher.status, 'pending');
 });
 
 test('xóa học viên; giảng viên chỉ xóa được khi chưa có khóa học', async (t) => {
