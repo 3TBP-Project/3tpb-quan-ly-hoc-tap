@@ -3,7 +3,7 @@ const { pool } = require('../config/db');
 
 const findByEmail = async (email) => {
   const [rows] = await pool.query(
-    'SELECT id, name, email, password, role, is_locked FROM users WHERE email = ? LIMIT 1',
+    'SELECT id, name, email, password, role, avatar, is_locked FROM users WHERE email = ? LIMIT 1',
     [email]
   );
   return rows[0] || null;
@@ -95,6 +95,7 @@ const listEnrolledCourses = async (userId) => {
        c.category_id AS categoryId,
        category.name AS categoryName,
        teacher.name AS teacherName,
+       teacher.avatar AS teacherAvatar,
        (SELECT COUNT(*) FROM lessons AS l
         WHERE l.course_id = c.id AND l.status = 'public') AS lessonCount
      FROM enrollments AS e

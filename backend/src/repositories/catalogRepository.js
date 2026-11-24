@@ -94,7 +94,8 @@ const findAllCoursesForAdmin = async () => {
        c.category_id AS categoryId,
        category.name AS categoryName,
        c.user_id AS teacherId,
-       teacher.name AS teacherName
+       teacher.name AS teacherName,
+       teacher.avatar AS teacherAvatar
      FROM courses AS c
      LEFT JOIN categories AS category ON category.id = c.category_id
      LEFT JOIN users AS teacher ON teacher.id = c.user_id
