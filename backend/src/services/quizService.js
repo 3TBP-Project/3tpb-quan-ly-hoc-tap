@@ -180,7 +180,11 @@ const submit = async (attemptId, userId, answers = {}) => {
     throw createHttpError('Lượt làm bài này đã được nộp trước đó.', 400);
   }
 
-  const bestScore = await quizRepository.getBestScore(userId, attempt.course_id);
+  const [bestScore, attemptsUsed] = await Promise.all([
+    quizRepository.getBestScore(userId, attempt.course_id),
+    quizRepository.countStartedAttempts(userId, attempt.course_id)
+  ]);
+  const answersRevealed = attemptsUsed >= MAX_ATTEMPTS;
 
   return {
     attemptId,
@@ -189,11 +193,29 @@ const submit = async (attemptId, userId, answers = {}) => {
     correctCount,
     totalQuestions,
     submittedAt: now,
-    details: details.map(({ options, ...item }) => item)
+    attemptsUsed,
+    maxAttempts: MAX_ATTEMPTS,
+    answersRevealed,
+    // CSDL vẫn lưu đáp án đúng đầy đủ; chỉ che ở dữ liệu trả về khi còn lượt
+    details: details.map(({ options, ...item }) => ({
+      ...item,
+      correctAnswer: revealCorrectAnswer(item, answersRevealed)
+    }))
   };
 };
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+
+/**
+ * Chống lộ đáp án: khi học viên còn lượt làm bài, KHÔNG trả đáp án đúng về trình duyệt
+ * (nếu không, chỉ cần nộp bài trắng ở lượt 1 là biết hết đáp án cho lượt sau).
+ * Câu đã chọn đúng thì đáp án đúng chính là đáp án học viên chọn, nên vẫn trả về được.
+ * Dùng hết số lượt thì mới mở toàn bộ đáp án.
+ */
+const revealCorrectAnswer = ({ isCorrect, selectedAnswer, correctAnswer }, answersRevealed) => {
+  if (answersRevealed) return correctAnswer;
+  return isCorrect ? selectedAnswer : null;
+};
 
 const parseOptions = (raw) => {
   try {
@@ -223,16 +245,24 @@ const review = async (attemptId, userId) => {
     throw createHttpError('Lượt làm bài này chưa được nộp nên chưa thể xem lại.', 400);
   }
 
-  const rows = await quizRepository.getAttemptAnswers(attemptId);
+  const [rows, attemptsUsed] = await Promise.all([
+    quizRepository.getAttemptAnswers(attemptId),
+    quizRepository.countStartedAttempts(userId, attempt.course_id)
+  ]);
+  const answersRevealed = attemptsUsed >= MAX_ATTEMPTS;
   const questions = rows
     // Bản ghi tạo lúc bắt đầu nhưng chưa được chấm (không có đáp án đúng) thì bỏ qua
     .filter((row) => row.correct_answer !== null)
     .map((row, index) => {
       const options = parseOptions(row.options);
       const selectedAnswer = row.selected_answer ?? null;
-      const correctAnswer = row.correct_answer;
+      const isCorrect = Boolean(Number(row.is_correct));
+      const correctAnswer = revealCorrectAnswer(
+        { isCorrect, selectedAnswer, correctAnswer: row.correct_answer },
+        answersRevealed
+      );
       const selectedIndex = selectedAnswer === null ? -1 : options.indexOf(selectedAnswer);
-      const correctIndex = options.indexOf(correctAnswer);
+      const correctIndex = correctAnswer === null ? -1 : options.indexOf(correctAnswer);
       return {
         number: index + 1,
         questionId: row.question_id === null ? null : Number(row.question_id),
@@ -242,7 +272,7 @@ const review = async (attemptId, userId) => {
         selectedLabel: selectedIndex >= 0 ? OPTION_LABELS[selectedIndex] : null,
         correctAnswer,
         correctLabel: correctIndex >= 0 ? OPTION_LABELS[correctIndex] : null,
-        isCorrect: Boolean(Number(row.is_correct)),
+        isCorrect,
         isAnswered: selectedAnswer !== null
       };
     });
@@ -258,6 +288,8 @@ const review = async (attemptId, userId) => {
     courseTitle: attempt.course_title,
     attemptNumber: Number(attempt.attempt_number),
     maxAttempts: MAX_ATTEMPTS,
+    attemptsUsed,
+    answersRevealed,
     score: Number(attempt.score),
     startedAt: attempt.started_at,
     submittedAt: attempt.submitted_at,
