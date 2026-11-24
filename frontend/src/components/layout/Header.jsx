@@ -2,6 +2,7 @@
 import { Container, Nav, Navbar, Button } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
+import UserAvatar from '../common/UserAvatar';
 
 const MENU_BY_ROLE = {
   guest: [{ to: '/', label: 'Khóa học' }],
@@ -56,7 +57,16 @@ function Header() {
           <Nav className="align-items-md-center">
             {user ? (
               <>
-                <Navbar.Text className="me-md-3">Xin chào, {user.name}</Navbar.Text>
+                <Navbar.Text className="me-md-3 d-flex align-items-center gap-2">
+                  {role === 'admin' ? (
+                    <UserAvatar name={user.name} avatar={user.avatar} role={role} size={30} />
+                  ) : (
+                    <Link to="/profile" className="d-inline-flex" title="Hồ sơ của tôi">
+                      <UserAvatar name={user.name} avatar={user.avatar} role={role} size={30} />
+                    </Link>
+                  )}
+                  <span>Xin chào, {user.name}</span>
+                </Navbar.Text>
                 <Button variant="outline-light" size="sm" onClick={handleLogout}>
                   Đăng xuất
                 </Button>

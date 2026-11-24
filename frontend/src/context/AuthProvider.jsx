@@ -24,7 +24,19 @@ export function AuthProvider({ children }) {
     if (!isLoggedIn) return undefined;
     const checkSession = () => {
       if (document.visibilityState === 'hidden') return;
-      axiosClient.get('/api/users/profile').catch(() => {
+      axiosClient.get('/api/users/profile').then((res) => {
+        // Đồng bộ họ tên / ảnh đại diện mới nhất (ví dụ phiên đăng nhập cũ chưa có avatar)
+        const profile = res?.data;
+        if (!profile) return;
+        setUser((current) => {
+          if (!current) return current;
+          const avatar = profile.avatar ?? null;
+          if (current.name === profile.name && (current.avatar ?? null) === avatar) return current;
+          const next = { ...current, name: profile.name, avatar };
+          localStorage.setItem('user', JSON.stringify(next));
+          return next;
+        });
+      }).catch(() => {
         // Lỗi mạng tạm thời thì bỏ qua; khóa tài khoản / hết phiên đã được interceptor xử lý
       });
     };
