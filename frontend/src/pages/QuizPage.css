@@ -550,3 +550,91 @@
     gap: 4px;
   }
 }
+/* Hộp thoại xác nhận nộp bài (giữa màn hình) */
+.quiz-confirm-modal .modal-content {
+  border: 0;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+}
+
+.quiz-confirm-modal .modal-body {
+  padding: 28px 28px 24px;
+  text-align: center;
+}
+
+.quiz-confirm__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.quiz-confirm__title {
+  margin: 0 0 8px;
+  font-size: 19px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.quiz-confirm__text {
+  margin: 0 0 16px;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.quiz-confirm__list {
+  margin-bottom: 20px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.quiz-confirm__list-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.quiz-confirm__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.quiz-confirm__chip {
+  min-width: 34px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quiz-confirm__chip:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.quiz-confirm__actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.quiz-confirm__actions .quiz-btn {
+  flex: 1;
+  max-width: 180px;
+}
