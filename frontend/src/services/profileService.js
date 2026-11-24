@@ -15,13 +15,8 @@ export const updateAvatar = (file) => {
   });
 };
 
-// "/uploads/avatars/x.webp" -> "http://localhost:5000/uploads/avatars/x.webp"
-export const toAvatarUrl = (avatar) => {
-  if (!avatar) return '';
-  if (/^https?:\/\//i.test(avatar)) return avatar;
-  const base = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-  return `${base}${avatar}`;
-};
+// Giữ export cũ để các màn hình đang import từ đây không bị ảnh hưởng
+export { toAvatarUrl } from '../utils/avatar';
 
 export const changePassword =({ currentPassword, newPassword }) =>
   axiosClient.put('/api/users/password', { currentPassword, newPassword });
