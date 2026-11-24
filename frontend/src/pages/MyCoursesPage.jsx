@@ -1,4 +1,5 @@
-import { Col, Row } from 'react-bootstrap';
+import { Alert, Col, Row } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 import EmptyState from '../components/common/EmptyState';
 import ErrorMessage from '../components/common/ErrorMessage';
 import Loading from '../components/common/Loading';
@@ -12,6 +13,8 @@ import { withCourseProgress } from '../utils/progress';
 
 function MyCoursesPage() {
   const { data: courses, loading, error } = useFetch(getMyCourses);
+  // Thông báo khi bị đẩy ra khỏi trang học (vd. khóa học vừa chuyển về bản nháp)
+  const { state } = useLocation();
   const safeCourses = Array.isArray(courses) ? courses.filter((c) => c && c.id != null) : [];
 
   if (loading && safeCourses.length === 0) return <Loading />;
@@ -22,6 +25,7 @@ function MyCoursesPage() {
         title="Khóa học của tôi"
         subtitle="Danh sách các khóa học bạn đã ghi danh thành công."
       />
+      {state?.notice && <Alert variant="warning">{state.notice}</Alert>}
       {error && safeCourses.length === 0 ? (
         <ErrorMessage message={error} />
       ) : safeCourses.length > 0 ? (
