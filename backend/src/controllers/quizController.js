@@ -90,4 +90,27 @@ const submitQuiz = async (req, res) => {
     }
 };
 
-module.exports = { startQuiz, submitQuiz };
+// HT-07: học viên xem lại bài làm cũ của mình
+const reviewAttempt = async (req, res) => {
+    try {
+        const attemptId = parsePositiveIntId(req.params.attemptId);
+        if (!attemptId) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'ID lượt làm bài (attemptId) không hợp lệ.'
+            });
+        }
+
+        const data = await quizService.review(attemptId, req.user.id);
+        return res.status(200).json({ status: 'success', data });
+    } catch (error) {
+        const { statusCode, message } = toPublicError(
+            error,
+            'Không thể tải bài làm lúc này.',
+            'Lỗi khi tải bài làm để xem lại:'
+        );
+        return res.status(statusCode).json({ status: 'error', message });
+    }
+};
+
+module.exports = { startQuiz, submitQuiz, reviewAttempt };

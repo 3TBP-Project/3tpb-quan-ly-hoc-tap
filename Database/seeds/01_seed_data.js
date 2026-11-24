@@ -564,6 +564,43 @@ const buildQuestions = () => {
   return qs;
 };
 
+// Chi tiết bài làm của các lượt mẫu (để học viên xem lại bài cũ – HT-07).
+// Điểm thang 10 với 10 câu => số câu đúng = điểm. Câu sai / bỏ trống được rải
+// theo công thức cố định để mỗi lần chạy seed đều cho cùng kết quả.
+const buildQuizAttemptAnswers = () => {
+  const rows = [];
+  QUIZ_ATTEMPTS.forEach((attempt, attemptIndex) => {
+    const course = COURSES.find((c) => c.id === attempt.course_id);
+    const total = course.questions.length;
+    const wrongCount = total - Math.round((attempt.score / 10) * total);
+    const wrongIndexes = new Set();
+    for (let k = 0; wrongIndexes.size < wrongCount; k++) {
+      wrongIndexes.add((attemptIndex * 3 + k * 7) % total);
+    }
+
+    course.questions.forEach((q, i) => {
+      // Xoay vòng thứ tự lựa chọn để đáp án đúng không luôn nằm ở A
+      const base = [q.correct, ...q.wrong];
+      const shift = (i + attemptIndex) % base.length;
+      const options = [...base.slice(shift), ...base.slice(0, shift)];
+      const isWrong = wrongIndexes.has(i);
+      // Câu sai đầu tiên của lượt có số lượt lẻ để trống, còn lại chọn sai
+      const leftBlank = isWrong && attemptIndex % 2 === 1 && i === Math.min(...wrongIndexes);
+      rows.push({
+        attempt_id: attemptIndex + 1,
+        question_id: (course.id - 1) * 10 + i + 1,
+        position: i + 1,
+        question_content: q.q,
+        options: JSON.stringify(options),
+        selected_answer: isWrong ? (leftBlank ? null : q.wrong[i % q.wrong.length]) : q.correct,
+        correct_answer: q.correct,
+        is_correct: !isWrong
+      });
+    });
+  });
+  return rows;
+};
+
 /**
  * @param { import('knex').Knex } knex
  */
@@ -575,6 +612,7 @@ exports.seed = async function (knex) {
   await knex.transaction(async (trx) => {
     const tables = [
       'lesson_progress',
+      'quiz_attempt_answers',
       'quiz_attempts',
       'discussions',
       'comments',
@@ -600,6 +638,7 @@ exports.seed = async function (knex) {
   await knex('quiz_attempts').insert(
     QUIZ_ATTEMPTS.map((a, i) => ({ id: i + 1, ...a, status: 'submitted' }))
   );
+  await knex('quiz_attempt_answers').insert(buildQuizAttemptAnswers());
   await knex('lesson_progress').insert(
     LESSON_PROGRESS.map((p, i) => ({ id: i + 1, ...p }))
   );

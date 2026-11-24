@@ -90,7 +90,8 @@ const start = async (userId, courseId) => {
     userId,
     courseId,
     startedAt,
-    maxAttempts: MAX_ATTEMPTS
+    maxAttempts: MAX_ATTEMPTS,
+    questions: sanitizedQuestions
   });
 
   return {
@@ -159,7 +160,9 @@ const submit = async (attemptId, userId, answers = {}) => {
       content: q.content,
       selectedAnswer,
       correctAnswer: q.correct_answer,
-      isCorrect
+      isCorrect,
+      // Dự phòng khi lượt làm bài chưa lưu thứ tự lựa chọn (câu hỏi được thêm sau khi bắt đầu)
+      options: [q.correct_answer, ...getFalseOptions(q)]
     };
   });
 
@@ -171,7 +174,7 @@ const submit = async (attemptId, userId, answers = {}) => {
   const updated = await quizRepository.updateAttemptResultIfNotSubmitted(attemptId, userId, {
     score,
     submitted_at: now
-  });
+  }, details);
 
   if (!updated) {
     throw createHttpError('Lượt làm bài này đã được nộp trước đó.', 400);
@@ -186,11 +189,92 @@ const submit = async (attemptId, userId, answers = {}) => {
     correctCount,
     totalQuestions,
     submittedAt: now,
-    details
+    details: details.map(({ options, ...item }) => item)
+  };
+};
+
+const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+
+const parseOptions = (raw) => {
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map((option) => String(option)) : [];
+  } catch {
+    return [];
+  }
+};
+
+const toTime = (value) => {
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? null : time;
+};
+
+/**
+ * HT-07: Xem lại bài làm cũ – từng câu, đáp án đã chọn và đáp án đúng.
+ * Chỉ chủ lượt làm bài mới xem được, và chỉ khi lượt đó đã nộp.
+ */
+const review = async (attemptId, userId) => {
+  const attempt = await quizRepository.findAttemptForReview(attemptId);
+  // Không tiết lộ lượt làm bài của người khác có tồn tại hay không
+  if (!attempt || Number(attempt.user_id) !== Number(userId)) {
+    throw createHttpError('Không tìm thấy lượt làm bài.', 404);
+  }
+  if (attempt.submitted_at === null || attempt.score === null) {
+    throw createHttpError('Lượt làm bài này chưa được nộp nên chưa thể xem lại.', 400);
+  }
+
+  const rows = await quizRepository.getAttemptAnswers(attemptId);
+  const questions = rows
+    // Bản ghi tạo lúc bắt đầu nhưng chưa được chấm (không có đáp án đúng) thì bỏ qua
+    .filter((row) => row.correct_answer !== null)
+    .map((row, index) => {
+      const options = parseOptions(row.options);
+      const selectedAnswer = row.selected_answer ?? null;
+      const correctAnswer = row.correct_answer;
+      const selectedIndex = selectedAnswer === null ? -1 : options.indexOf(selectedAnswer);
+      const correctIndex = options.indexOf(correctAnswer);
+      return {
+        number: index + 1,
+        questionId: row.question_id === null ? null : Number(row.question_id),
+        content: row.question_content,
+        options: options.map((text, i) => ({ label: OPTION_LABELS[i] ?? String(i + 1), text })),
+        selectedAnswer,
+        selectedLabel: selectedIndex >= 0 ? OPTION_LABELS[selectedIndex] : null,
+        correctAnswer,
+        correctLabel: correctIndex >= 0 ? OPTION_LABELS[correctIndex] : null,
+        isCorrect: Boolean(Number(row.is_correct)),
+        isAnswered: selectedAnswer !== null
+      };
+    });
+
+  const correctCount = questions.filter((q) => q.isCorrect).length;
+  const unansweredCount = questions.filter((q) => !q.isAnswered).length;
+  const started = toTime(attempt.started_at);
+  const finished = toTime(attempt.submitted_at);
+
+  return {
+    attemptId: Number(attempt.id),
+    courseId: Number(attempt.course_id),
+    courseTitle: attempt.course_title,
+    attemptNumber: Number(attempt.attempt_number),
+    maxAttempts: MAX_ATTEMPTS,
+    score: Number(attempt.score),
+    startedAt: attempt.started_at,
+    submittedAt: attempt.submitted_at,
+    durationMinutes: started !== null && finished !== null
+      ? Math.max(1, Math.round((finished - started) / 60000))
+      : null,
+    hasDetails: questions.length > 0,
+    totalQuestions: questions.length,
+    correctCount,
+    wrongCount: questions.length - correctCount - unansweredCount,
+    unansweredCount,
+    questions
   };
 };
 
 module.exports = {
   start,
-  submit
+  submit,
+  review
 };

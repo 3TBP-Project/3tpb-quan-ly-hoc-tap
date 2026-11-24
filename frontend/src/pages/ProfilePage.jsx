@@ -1,6 +1,7 @@
 // AI-assisted [AI-06]
 // HT-07: Hồ sơ và kết quả học tập của học viên
 import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Toast, ToastContainer } from 'react-bootstrap';
 import ErrorMessage from '../components/common/ErrorMessage';
 import Loading from '../components/common/Loading';
@@ -258,6 +259,7 @@ function QuizHistory({ history, loading, error }) {
               <th style={{ width: 90 }}>Điểm</th>
               <th style={{ width: 120 }}>Thời gian làm</th>
               <th style={{ width: 170 }}>Thời điểm nộp</th>
+              <th style={{ width: 110 }} aria-label="Chi tiết" />
             </tr>
           </thead>
           <tbody>
@@ -270,6 +272,11 @@ function QuizHistory({ history, loading, error }) {
                 <td className={`pf-score ${scoreClass(attempt.score)}`}>{formatScore(attempt.score)}</td>
                 <td className="pf-num">{attempt.durationMinutes ? `${attempt.durationMinutes} phút` : '—'}</td>
                 <td className="pf-num">{formatDateTime(attempt.submittedAt)}</td>
+                <td className="pf-review-cell">
+                  <Link className="pf-review-link" to={`/profile/quiz-attempts/${attempt.attemptId}`}>
+                    Xem bài làm
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -322,7 +329,9 @@ function TeacherCourses({ courses, loading, error }) {
 
 function ProfilePage() {
   const { user, role, updateUser } = useAuth();
-  const [tab, setTab] = useState('info');
+  const location = useLocation();
+  // Quay lại từ trang xem bài làm thì mở sẵn tab lịch sử
+  const [tab, setTab] = useState(location.state?.tab === 'history' ? 'history' : 'info');
   const [toasts, setToasts] = useState([]);
   const [savedProfile, setSavedProfile] = useState(null);
 
