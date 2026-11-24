@@ -62,6 +62,7 @@ class CourseRepository {
          c.title,
          c.user_id AS teacherId,
          u.name AS teacherName,
+         u.avatar AS teacherAvatar,
          c.category_id AS categoryId,
          category.name AS categoryName,
          COUNT(lesson.id) AS lessonCount,
@@ -76,6 +77,7 @@ class CourseRepository {
          c.title,
          c.user_id,
          u.name,
+         u.avatar,
          c.category_id,
          category.name,
          c.thumbnail
@@ -172,6 +174,7 @@ class CourseRepository {
          COALESCE(c.thumbnail, '/images/course-default.jpg') AS coverImage,
          c.user_id AS teacherId,
          u.name AS teacherName,
+         u.avatar AS teacherAvatar,
          c.category_id AS categoryId,
          category.name AS categoryName,
          c.status,

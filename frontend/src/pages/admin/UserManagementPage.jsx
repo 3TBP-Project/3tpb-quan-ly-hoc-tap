@@ -13,6 +13,7 @@ import {
 } from '../../services/adminUserService';
 import { parseApiError } from '../../utils/apiError';
 import { getPageItems } from '../../utils/pagination';
+import UserAvatar from '../../components/common/UserAvatar';
 import './UserManagementPage.css';
 
 const ROLE_LABEL = { all: 'Tất cả người dùng', student: 'Học viên', teacher: 'Giảng viên' };
@@ -25,7 +26,6 @@ const PAGE_SIZES = [5, 10, 20, 50];
 const EMAIL_REGEX = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 const fmt = (n) => Number(n ?? 0).toLocaleString('vi-VN');
-const initial = (name = '') => name.trim().split(/\s+/).at(-1)?.charAt(0).toUpperCase() || '?';
 
 // Ngày giờ -> { date: "14/11/2026", time: "21:03" }
 const fmtDateTime = (value) => {
@@ -59,7 +59,7 @@ function IconButton({ icon, label, danger, onClick, disabled }) {
 }
 
 const Avatar = ({ user }) => (
-  <div className={`um-avatar ${user.role}`} aria-hidden="true">{initial(user.name)}</div>
+  <UserAvatar name={user.name} avatar={user.avatar} role={user.role} size={null} className="um-avatar" />
 );
 
 const RoleBadge = ({ role }) => (

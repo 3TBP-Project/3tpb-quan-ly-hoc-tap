@@ -50,6 +50,7 @@ class EnrollmentRepository {
          c.title,
          c.thumbnail AS coverImage,
          u.name AS teacherName,
+         u.avatar AS teacherAvatar,
          c.category_id AS categoryId,
          category.name AS categoryName,
          COUNT(DISTINCT lesson.id) AS lessonCount,
@@ -65,7 +66,7 @@ class EnrollmentRepository {
          AND lp.user_id = enrollment.user_id
          AND lp.is_completed = 1
        WHERE enrollment.user_id = ? AND c.status = 'public'
-       GROUP BY c.id, c.title, c.thumbnail, u.name, c.category_id,
+       GROUP BY c.id, c.title, c.thumbnail, u.name, u.avatar, c.category_id,
                 category.name, enrollment.id
        ORDER BY enrollment.id DESC`,
       [studentId]

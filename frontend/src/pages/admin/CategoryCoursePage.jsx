@@ -16,6 +16,7 @@ import {
 } from '../../services/adminCatalogService';
 import { parseApiError } from '../../utils/apiError';
 import './CategoryCoursePage.css';
+import UserAvatar from '../../components/common/UserAvatar';
 
 const STATUS = {
   public: { label: 'Công khai', cls: 'public' },
@@ -256,7 +257,14 @@ function CoursePanel({ notify }) {
                   <tr key={c.id}>
                     <td><strong>{c.title}</strong></td>
                     <td><span className="cc-chip">{c.categoryName ?? '—'}</span></td>
-                    <td className="cc-teacher" title={c.teacherName ?? ''}>{c.teacherName ?? '—'}</td>
+                    <td className="cc-teacher" title={c.teacherName ?? ''}>
+                      {c.teacherName ? (
+                        <span className="cc-teacher-cell">
+                          <UserAvatar name={c.teacherName} avatar={c.teacherAvatar} role="teacher" size={26} />
+                          <span className="cc-teacher-name">{c.teacherName}</span>
+                        </span>
+                      ) : '—'}
+                    </td>
                     <td><span className={`cc-badge ${status.cls}`}>{status.label}</span></td>
                     <td>
                       <div className="cc-actions">
