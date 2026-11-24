@@ -9,7 +9,6 @@ import CourseCard from '../components/course/CourseCard';
 import CourseProgress from '../components/course/CourseProgress';
 import { useFetch } from '../hooks/useFetch';
 import { getMyCourses } from '../services/courseService';
-import { withCourseProgress } from '../utils/progress';
 
 function MyCoursesPage() {
   const { data: courses, loading, error } = useFetch(getMyCourses);
