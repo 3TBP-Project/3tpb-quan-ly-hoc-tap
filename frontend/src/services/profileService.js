@@ -29,6 +29,10 @@ export const changePassword =({ currentPassword, newPassword }) =>
 // Trả về danh sách khóa học, mỗi khóa có các lượt làm bài và điểm cao nhất
 export const getQuizHistory = (_params, signal) => axiosClient.get('/api/users/my-quizzes', { signal });
 
+// HT-07: xem lại chi tiết một lượt làm bài đã nộp
+export const getAttemptReview = ({ attemptId }, signal) =>
+  axiosClient.get(`/api/quizzes/attempts/${attemptId}`, { signal });
+
 export const getEnrolledCourses = (_params, signal) => axiosClient.get('/api/users/my-courses', { signal });
 
 export const getTeacherCourses = async (_params, signal) => {
