@@ -47,7 +47,7 @@ function OptionRow({ option, question }) {
   );
 }
 
-function QuestionCard({ question }) {
+function QuestionCard({ question, maxAttempts }) {
   const state = questionState(question);
   return (
     <article id={`qr-question-${question.number}`} className={`qr-question ${state}`}>
@@ -69,7 +69,11 @@ function QuestionCard({ question }) {
 
       <footer className="qr-answer-bar">
         <span className="qr-answer-key">
-          Đáp án đúng: <b>{question.correctLabel ?? question.correctAnswer}</b>
+          {question.correctAnswer != null ? (
+            <>Đáp án đúng: <b>{question.correctLabel ?? question.correctAnswer}</b></>
+          ) : (
+            <span className="qr-answer-hidden">Đáp án đúng: ẩn đến khi dùng hết {maxAttempts} lượt</span>
+          )}
           {!question.isAnswered && <span className="qr-answer-skip"></span>}
         </span>
         {question.options.length > 0 && (
@@ -194,6 +198,12 @@ function QuizReviewPage() {
             </div>
           ) : (
             <>
+              {!data.answersRevealed && (
+                <div className="qr-notice" role="note">
+                  Bạn mới dùng {data.attemptsUsed}/{data.maxAttempts} lượt nên đáp án đúng của các câu sai
+                  hoặc bỏ trống đang được ẩn. Dùng hết {data.maxAttempts} lượt thì sẽ xem được toàn bộ đáp án.
+                </div>
+              )}
               <div className="qr-filters" role="tablist">
                 {FILTERS.map((f) => (
                   <button
@@ -211,7 +221,7 @@ function QuizReviewPage() {
               {visible.length === 0 ? (
                 <div className="qr-card qr-empty">Không có câu nào trong mục này.</div>
               ) : (
-                visible.map((q) => <QuestionCard key={q.number} question={q} />)
+                visible.map((q) => <QuestionCard key={q.number} question={q} maxAttempts={data.maxAttempts} />)
               )}
             </>
           )}
