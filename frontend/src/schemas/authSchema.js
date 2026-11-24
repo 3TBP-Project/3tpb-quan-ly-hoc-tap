@@ -20,7 +20,8 @@ export const registerSchema = yup.object({
     password: yup
         .string()
         .required('Vui lòng nhập mật khẩu')
-        .min(8, 'Mật khẩu phải có ít nhất 8 ký tự'),
+        .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+        .max(72, 'Mật khẩu không được vượt quá 72 ký tự'),
     confirmPassword: yup
         .string()
         .required('Vui lòng xác nhận lại mật khẩu')
