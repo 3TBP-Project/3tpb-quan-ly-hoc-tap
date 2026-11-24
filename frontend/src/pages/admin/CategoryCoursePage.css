@@ -53,6 +53,8 @@
 .cc-course-table { table-layout: fixed; }
 .cc-course-table td { overflow-wrap: anywhere; }
 .cc-course-table .cc-teacher { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-teacher-cell { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; vertical-align: middle; }
+.cc-teacher-name { overflow: hidden; text-overflow: ellipsis; }
 .cc-card tbody tr:hover { background: #fafbfc; }
 .cc-num { color: var(--cc-muted); font-variant-numeric: tabular-nums; }
 .cc-empty { padding: 36px !important; text-align: center; color: var(--cc-muted); }
