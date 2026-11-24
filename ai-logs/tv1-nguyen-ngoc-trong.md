@@ -264,3 +264,131 @@ Ngoài ra mình sửa tên “Làm Bài Tập Trắc Nghiệm” thành “Làm 
 - Đã chỉnh sửa gì: Chỉnh lại thành nét liền và
 - Cách kiểm chứng: Tài liệu trên mạng
 - Điều học được: Xây dựng và chỉnh sửa những điều thiếu sót ở usecase cũ
+
+# [AI-06] Xem lại bài làm cũ (vì sao được bấy nhiêu điểm) – HT-07
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian:
+    - Lập trình, Kiểm thử
+    - 24/11/2026
+- Task / Commit / PR: HT-07 / c5a55cd, 6e22406, 0c65a58, e139c37, 88a37d1, 7f42cd1 / nhánh feature/HT-07-xem-lai-bai-lam
+- Mục đích: Học viên mở lại bài trắc nghiệm đã nộp, xem từng câu mình chọn gì và đáp án đúng (giống Azota)
+- Prompt chính: "tạo thêm chức năng hồ sơ trong học viên (lịch sử làm bài) thêm cái trang là xem bài cũ của mình tại sao được nhiêu đó điểm (theo ảnh 2_ Web azota). Nếu liên quan đến cơ sở dữ liệu thì tạo thêm nửa nha"
+- Kết quả AI trả về (tóm tắt): Thêm bảng quiz_attempt_answers (lưu nội dung câu, thứ tự 4 lựa chọn, đáp án chọn, đáp án đúng); lưu thứ tự lựa chọn lúc bắt đầu và chi tiết khi nộp trong một transaction; API GET /api/quizzes/attempts/:attemptId chỉ chủ lượt xem được; trang QuizReviewPage (bảng câu hỏi, lọc Đúng/Sai/Bỏ trống, phiếu A-B-C-D); nút "Xem bài làm" trong lịch sử; seed chi tiết cho các lượt mẫu
+- Đánh giá: Đúng - lượt làm trước khi có tính năng chỉ xem được điểm tổng (có thông báo rõ)
+- Đã chỉnh sửa gì: Kiểm tra lại giao diện trên trình duyệt, yêu cầu đổi màu khung đáp án (AI-13)
+- Cách kiểm chứng: Unit test quizService (lưu chi tiết, xem lại bài, chặn xem bài người khác), mở thử trang xem bài của tài khoản student5
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 95%
+- Điều học được: Nên lưu "ảnh chụp" câu hỏi lúc làm bài để giảng viên sửa câu hỏi sau này cũng không làm sai bài cũ
+
+# [AI-07] Hiển thị ảnh đại diện ở mọi nơi – HT-07
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian:
+    - Lập trình
+    - 24/11/2026
+- Task / Commit / PR: HT-07 / 22070d5, a4e4aaa, c85ddd9, ea26a77, 57754cd / nhánh feature/HT-07-anh-dai-dien
+- Mục đích: Avatar chỉ hiện ở trang hồ sơ, các chỗ khác (thẻ khóa học, header, trang quản trị) đang để vòng tròn trắng
+- Prompt chính: "Hiển thị toàn bộ avatar (hiện tại chỉ có hồ sơ học viên với giảng viên mới hiện được). Còn những chỗ khác đang để là nền trắng mặc dù có avatar rồi"
+- Kết quả AI trả về (tóm tắt): Component UserAvatar dùng chung (ảnh hoặc chữ cái đầu, tự xử lý ảnh lỗi); API trả thêm teacherAvatar/avatar; gắn avatar vào header, thẻ khóa học, chi tiết khóa học, quản lý người dùng, duyệt khóa học
+- Đánh giá: Đúng
+- Đã chỉnh sửa gì: Không
+- Cách kiểm chứng: Kiểm tra API /api/courses trả teacherAvatar, xem trên trình duyệt ở trang khóa học và trang quản trị
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Gom phần hiển thị dùng chung thành một component để không phải sửa nhiều nơi
+
+# [AI-08] Hộp thoại xác nhận nộp bài ở giữa màn hình – HT-06
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian:
+    - Lập trình
+    - 24/11/2026
+- Task / Commit / PR: HT-06 / 8b60668, 4dc1dc5 / nhánh feature/HT-06-hop-thoai-nop-bai
+- Mục đích: Thay alert của trình duyệt bằng thông báo ở giữa màn hình khi còn câu chưa làm
+- Prompt chính: "sửa cho mình cái giao diện hay vì xuất hiện alert thì xuất hiện cái thông báo ở giữa nha"
+- Kết quả AI trả về (tóm tắt): Modal react-bootstrap căn giữa, liệt kê số câu chưa làm (bấm để quay lại câu đó), nút "Tiếp tục làm bài" được focus sẵn, hết giờ thì tự đóng hộp thoại và nộp
+- Đánh giá: Đúng
+- Đã chỉnh sửa gì: Không
+- Cách kiểm chứng: Thử trên trình duyệt (giả lập API bắt đầu làm bài để không tốn lượt thật)
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: window.confirm chặn cả trang và không đổi được giao diện, nên dùng modal
+
+# [AI-09] Chống lộ đáp án khi học viên còn lượt làm bài – HT-06
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian:
+    - Kiểm thử, Lập trình
+    - 24/11/2026
+- Task / Commit / PR: HT-06 / 200e2e8, 5e91ba6, 412ce38 / nhánh fix/HT-06-an-dap-an-khi-con-luot
+- Mục đích: Kiểm tra network khi làm bài có lộ đáp án không, và sửa lỗ hổng tìm được
+- Prompt chính: "Kiểm tra giúp mình xem là có lộ đáp án ở network khi làm bài kiểm tra không", sau đó chọn "Ẩn đến hết 3 lượt"
+- Kết quả AI trả về (tóm tắt): Lúc làm bài không lộ (API start chỉ trả id, nội dung, 4 lựa chọn đã xáo đều; học viên gọi API câu hỏi bị chặn). Nhưng sau khi nộp, API trả đáp án đúng mọi câu nên có thể nộp bài trắng lượt 1 để lấy đáp án. Sửa ở backend: còn lượt thì không trả đáp án đúng của câu sai/bỏ trống, dùng hết 3 lượt mới mở
+- Đánh giá: Đúng - vẫn còn giới hạn: học viên biết câu nào đúng/sai nên có thể loại trừ dần
+- Đã chỉnh sửa gì: Không
+- Cách kiểm chứng: Unit test (ẩn khi còn lượt, mở khi hết lượt), gọi API thật với tài khoản mới dùng 1/3 lượt thấy correctAnswer = null
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Che dữ liệu phải làm ở server, giấu trên giao diện thì vẫn xem được ở tab Network
+
+# [AI-10] Lượt làm bài bỏ dở không bị mất – HT-06
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian:
+    - Kiểm thử, Lập trình
+    - 24/11/2026
+- Task / Commit / PR: HT-06 / 9877b5e, 2fd7fdc, 0fb5128, 01ace7a / nhánh fix/HT-06-luot-lam-bai-bo-do
+- Mục đích: Đóng tab / F5 giữa chừng bị mất 1 lượt mà lịch sử không hiện (lỗi tìm được khi rà soát dự án)
+- Prompt chính: "Bạn ơi kiểm tra giúp mình xem dự án này còn lỗi gì không", sau đó "Bạn sửa lỗi 2, 3 và 4 ở bên lỗi nghiêm trọng"
+- Kết quả AI trả về (tóm tắt): Còn giờ thì bấm bắt đầu sẽ làm tiếp đúng lượt cũ (giữ giờ bắt đầu và thứ tự đáp án); quá giờ thì tự đóng 0 điểm, hiện "Bỏ dở" trong lịch sử; lưu tạm đáp án đang chọn trên trình duyệt để F5 không mất
+- Đánh giá: Đúng
+- Đã chỉnh sửa gì: Không
+- Cách kiểm chứng: Unit test repository/service/lịch sử; gọi API lịch sử của student4 thấy 3/3 lượt có lượt "expired"
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Giới hạn số lượt phải đếm cùng một cách ở mọi nơi (bắt đầu làm bài, lịch sử)
+
+# [AI-11] Kiểm tra dữ liệu đăng ký / đăng nhập – HT-03
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian:
+    - Kiểm thử, Lập trình
+    - 24/11/2026
+- Task / Commit / PR: HT-03 / 2416afd, 556bd4e, af0e605, 1ce8090 / nhánh fix/HT-03-kiem-tra-dang-ky-dang-nhap
+- Mục đích: Gửi name/email là số làm server lỗi 500
+- Prompt chính: "Bạn sửa lỗi 2, 3 và 4 ở bên lỗi nghiêm trọng"
+- Kết quả AI trả về (tóm tắt): Kiểm tra kiểu chuỗi, độ dài tên/email tối đa 255, mật khẩu tối đa 72 byte (giới hạn bcrypt), đăng ký trùng email đồng thời trả 409
+- Đánh giá: Đúng - lúc viết test AI để lọt một trường hợp hợp lệ nên đã ghi nhầm 1 tài khoản vào CSDL local; AI tự phát hiện, xóa đúng bản ghi đó và sửa test để chặn mọi lệnh ghi CSDL
+- Đã chỉnh sửa gì: Không
+- Cách kiểm chứng: 4 unit test mới, gọi API thật thấy trả 400 kèm thông báo rõ
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Unit test phải stub cả hàm ghi CSDL, không chỉ hàm đọc
+
+# [AI-12] Ưu tiên dữ liệu server thay cho localStorage – HT-04
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian:
+    - Lập trình
+    - 24/11/2026
+- Task / Commit / PR: HT-04 / e0cd9d6, e756ace / nhánh fix/HT-04-uu-tien-du-lieu-server
+- Mục đích: localStorage cũ làm hiện "đã ghi danh" sai, khóa học bị ẩn vẫn nằm trong "Khóa học của tôi"
+- Prompt chính: "Bạn sửa lỗi 2, 3 và 4 ở bên lỗi nghiêm trọng"
+- Kết quả AI trả về (tóm tắt): Khi gọi API thật thì chỉ dùng dữ liệu server, lỗi API thì hiện thông báo lỗi; localStorage chỉ dùng cho chế độ dữ liệu giả
+- Đánh giá: Đúng
+- Đã chỉnh sửa gì: Không
+- Cách kiểm chứng: Build frontend, lint
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Server là nguồn sự thật, dữ liệu lưu ở trình duyệt dễ bị cũ
+
+# [AI-13] Màu khung đáp án trang xem lại bài – HT-07
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian:
+    - Lập trình
+    - 24/11/2026
+- Task / Commit / PR: HT-07 / 8d2b594, 64b9eed / nhánh feature/HT-07-mau-khung-dap-an
+- Mục đích: Khung A-B-C-D đang màu đỏ, đổi sang xanh dương đậm; nhãn "Đáp án đúng:" rút gọn thành "Đáp án:"
+- Prompt chính: "Chỗ Đáp án đúng:A đó bạn thì chỉ cần để đáp án và màu xanh dương đậm là đc rồi sửa cái khung là màu xanh dương đậm đi"
+- Kết quả AI trả về (tóm tắt): Đổi màu chữ và viền khung sang #1e3a8a, áp dụng cho mọi câu
+- Đánh giá: Đúng
+- Đã chỉnh sửa gì: Lần đầu AI để xanh nhạt, mình yêu cầu đổi sang xanh đậm
+- Cách kiểm chứng: Xem trên trình duyệt
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Màu đỏ nên để báo sai, khung trung tính dùng màu chủ đạo
