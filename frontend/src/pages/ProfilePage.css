@@ -112,6 +112,10 @@
   color: var(--pf-primary); font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap;
 }
 .pf-review-link:hover { background: #eff6ff; border-color: #bfdbfe; }
+.pf-expired-tag {
+  display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 6px;
+  background: #f3f4f6; color: var(--pf-muted); font-size: 12px; font-weight: 600;
+}
 .pf-best-mark { color: var(--pf-success); font-size: 12px; font-weight: 700; margin-left: 6px; }
 
 .pf-course-status {

@@ -1,6 +1,7 @@
 // AI-assisted [AI-06]
 const bcrypt = require('bcrypt');
 const userRepository = require('../repositories/userRepository');
+const quizService = require('./quizService');
 const { removeAvatarFile } = require('../middlewares/avatarUploadMiddleware');
 
 const SALT_ROUNDS = 10;
@@ -80,6 +81,8 @@ const toTime = (value) => {
 
 // HT-07: gom lịch sử làm bài theo khóa học, đánh số lượt và tính điểm cao nhất
 const getMyQuizzes = async (userId) => {
+  // Lượt bỏ dở đã quá giờ được đóng (0 điểm) để hiện trong lịch sử, khớp với số lượt đã dùng
+  await quizService.closeExpiredAttempts(userId);
   const rows = await userRepository.listQuizHistory(userId);
   const submitted = rows
     .filter((row) => row.submittedAt && row.score !== null)
@@ -97,6 +100,7 @@ const getMyQuizzes = async (userId) => {
       attemptId: row.attemptId,
       attemptNumber: group.attempts.length + 1,
       score: row.score,
+      status: row.status === 'expired' ? 'expired' : 'submitted',
       startedAt: row.startedAt,
       submittedAt: row.submittedAt,
       durationMinutes: started !== null && finished !== null
