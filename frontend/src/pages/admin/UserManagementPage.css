@@ -75,6 +75,7 @@
   background: #dbeafe; color: #1d4ed8;
 }
 .um-avatar.teacher { background: #ede9fe; color: #6d28d9; }
+.um-avatar.user-avatar--image { object-fit: cover; background: #e5e7eb; }
 .um-date { white-space: nowrap; }
 
 .um-badge {
