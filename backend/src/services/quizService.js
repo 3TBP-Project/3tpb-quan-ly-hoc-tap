@@ -84,27 +84,48 @@ const start = async (userId, courseId) => {
     };
   });
 
-  // 3. Khóa kiểm tra ghi danh, đếm lượt (< 3) và tạo bản ghi quiz_attempt trong Transaction
-  const startedAt = new Date();
-  const { attempt, attemptNumber } = await quizRepository.createAttemptWithLock({
+  // 3. Khóa kiểm tra ghi danh, đếm lượt (< 3) và tạo bản ghi quiz_attempt trong Transaction.
+  //    Nếu đang có lượt làm dở chưa hết giờ thì trả lại lượt đó (F5 / đóng tab không mất lượt).
+  const now = new Date();
+  const { attempt, attemptNumber, resumed = false } = await quizRepository.createAttemptWithLock({
     userId,
     courseId,
-    startedAt,
+    startedAt: now,
     maxAttempts: MAX_ATTEMPTS,
-    questions: sanitizedQuestions
+    questions: sanitizedQuestions,
+    graceMinutes: GRACE_PERIOD_MINUTES
   });
 
+  let questions = sanitizedQuestions;
+  if (resumed) {
+    // Giữ nguyên thứ tự lựa chọn đã hiển thị lúc bắt đầu lượt này
+    const saved = (await quizRepository.getAttemptAnswers(attempt.id))
+      .filter((row) => row.question_id !== null)
+      .map((row) => ({
+        id: Number(row.question_id),
+        content: row.question_content,
+        options: parseOptions(row.options)
+      }))
+      .filter((q) => q.options.length === 4);
+    if (saved.length > 0) questions = saved;
+  }
+
   return {
-    attemptId: attempt.id,
+    attemptId: Number(attempt.id),
     courseId: course.id,
     courseTitle: course.title,
     quizDuration: course.quiz_duration,
-    startedAt,
+    startedAt: resumed ? attempt.started_at : now,
     attemptNumber,
-    remainingAttempts: MAX_ATTEMPTS - attemptNumber,
-    questions: sanitizedQuestions
+    remainingAttempts: Math.max(0, MAX_ATTEMPTS - attemptNumber),
+    resumed,
+    questions
   };
 };
+
+// HT-07: đóng các lượt bỏ dở đã quá giờ để lịch sử làm bài phản ánh đúng số lượt đã dùng
+const closeExpiredAttempts = (userId) =>
+  quizRepository.closeExpiredAttempts({ userId, graceMinutes: GRACE_PERIOD_MINUTES });
 
 /**
  * Nộp bài và chấm điểm tự động ở phía Server (HT-06 & HT-NFR1)
@@ -119,6 +140,9 @@ const submit = async (attemptId, userId, answers = {}) => {
     throw createHttpError('Bạn không có quyền nộp lượt làm bài này.', 403);
   }
   if (attempt.submitted_at !== null) {
+    if (attempt.status === 'expired') {
+      throw createHttpError('Lượt làm bài này đã hết giờ và được hệ thống tự đóng.', 400);
+    }
     throw createHttpError('Lượt làm bài này đã được nộp trước đó.', 400);
   }
 
@@ -308,5 +332,6 @@ const review = async (attemptId, userId) => {
 module.exports = {
   start,
   submit,
-  review
+  review,
+  closeExpiredAttempts
 };
