@@ -130,7 +130,7 @@ test('question updates accept snake_case fields and preserve omitted answers', a
 test('course ratings require enrollment before creating a comment', async (t) => {
   let createCalled = false;
   stubMethods(t, courseRepository, {
-    findById: async () => ({ id: 4 })
+    findById: async () => ({ id: 4, status: 'public' })
   });
   stubMethods(t, enrollmentRepository, {
     exists: async () => false

@@ -19,7 +19,7 @@ const stubRepository = (t, stubs) => {
 
 test('start returns four options and does not expose answer fields', async (t) => {
   stubRepository(t, {
-    findCourseById: async () => ({ id: 12, title: 'Test course', quiz_duration: 30 }),
+    findCourseById: async () => ({ id: 12, status: 'public', title: 'Test course', quiz_duration: 30 }),
     getQuestionsByCourseId: async () => [{
       id: 1,
       content: 'Question',
@@ -69,7 +69,7 @@ test('submit scores 8 correct answers out of 10 as 8.0', async (t) => {
       started_at: new Date(),
       submitted_at: null
     }),
-    findCourseById: async () => ({ id: 12, quiz_duration: 30 }),
+    findCourseById: async () => ({ id: 12, status: 'public', quiz_duration: 30 }),
     getQuestionsByCourseId: async () => questions,
     updateAttemptResultIfNotSubmitted: async (attemptId, userId, result) => {
       savedResult = result;
@@ -97,7 +97,7 @@ test('submit rejects an attempt past the deadline and does not save it', async (
       started_at: startedAt,
       submitted_at: null
     }),
-    findCourseById: async () => ({ id: 12, quiz_duration: 2 }),
+    findCourseById: async () => ({ id: 12, status: 'public', quiz_duration: 2 }),
     updateAttemptResultIfNotSubmitted: async () => {
       saveCalled = true;
       return true;
@@ -116,7 +116,7 @@ test('submit rejects an attempt past the deadline and does not save it', async (
 // =========================================================================
 test('start rejects when the student has already used all 3 attempts', async (t) => {
   stubRepository(t, {
-    findCourseById: async () => ({ id: 12, title: 'Test course', quiz_duration: 30 }),
+    findCourseById: async () => ({ id: 12, status: 'public', title: 'Test course', quiz_duration: 30 }),
     getQuestionsByCourseId: async () => [{
       id: 1,
       content: 'Question',
@@ -164,7 +164,7 @@ test('submit returns the highest score across multiple attempts', async (t) => {
       started_at: new Date(),
       submitted_at: null
     }),
-    findCourseById: async () => ({ id: 12, quiz_duration: 30 }),
+    findCourseById: async () => ({ id: 12, status: 'public', quiz_duration: 30 }),
     getQuestionsByCourseId: async () => questions,
     updateAttemptResultIfNotSubmitted: async () => true,
     getBestScore: async () => 9
@@ -181,7 +181,7 @@ test('submit returns the highest score across multiple attempts', async (t) => {
 // =========================================================================
 test('start rejects when the student has not enrolled in the course', async (t) => {
   stubRepository(t, {
-    findCourseById: async () => ({ id: 12, title: 'Test course', quiz_duration: 30 }),
+    findCourseById: async () => ({ id: 12, status: 'public', title: 'Test course', quiz_duration: 30 }),
     getQuestionsByCourseId: async () => [{
       id: 1,
       content: 'Question',

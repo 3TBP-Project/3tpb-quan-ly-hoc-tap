@@ -15,6 +15,10 @@ const enrollmentService = require('../src/services/enrollmentService');
 const lessonService = require('../src/services/lessonService');
 const courseService = require('../src/services/courseService');
 
+// Danh sách chương học: không gọi CSDL thật trong unit test
+const chapterRepository = require('../src/repositories/chapterRepository');
+chapterRepository.findByCourseId = async () => [];
+
 const stubMethods = (t, repository, stubs) => {
   const originals = {};
   for (const [method, implementation] of Object.entries(stubs)) {
@@ -45,7 +49,9 @@ test('lesson repository stores a document path without PDF blob columns', async 
   assert.equal(id, 10);
   assert.match(query.sql, /file_path/);
   assert.doesNotMatch(query.sql, /file_data|file_name/);
-  assert.equal(query.params[4], '/files/lesson.pdf');
+  assert.match(query.sql, /chapter_id/);
+  assert.equal(query.params[1], null); // chưa thuộc chương nào
+  assert.equal(query.params[5], '/files/lesson.pdf');
 });
 
 test('enroll creates one enrollment and reports repeats as already enrolled', async (t) => {
@@ -89,7 +95,7 @@ test('enroll returns not found for a missing course', async (t) => {
 test('learning data is denied before querying lesson content when not enrolled', async (t) => {
   let lessonsQueried = false;
   stubMethods(t, lessonRepository, {
-    findCourseById: async () => ({ id: 4, title: 'Course' }),
+    findCourseById: async () => ({ id: 4, title: 'Course', status: 'public' }),
     findByCourseIdWithProgress: async () => {
       lessonsQueried = true;
       return [];
@@ -109,7 +115,7 @@ test('learning data is denied before querying lesson content when not enrolled',
 test('learning data returns only the current student progress', async (t) => {
   let received;
   stubMethods(t, lessonRepository, {
-    findCourseById: async () => ({ id: 4, title: 'Course' }),
+    findCourseById: async () => ({ id: 4, title: 'Course', status: 'public' }),
     findByCourseIdWithProgress: async (courseId, userId) => {
       received = { courseId, userId };
       return [
@@ -157,7 +163,8 @@ test('lesson completion requires enrollment and marks progress idempotently', as
   let enrollmentExists = false;
   let completionCount = 0;
   stubMethods(t, lessonRepository, {
-    findById: async () => ({ id: 7, course_id: 4 }),
+    findById: async () => ({ id: 7, course_id: 4, status: 'public', course_status: 'public' }),
+    countIncompletePrevious: async () => 0,
     markCompleted: async () => {
       completionCount += 1;
     }
@@ -194,6 +201,7 @@ test('course detail includes lesson summaries and enrollment status', async (t) 
     id: 4,
     status: 'public',
     isEnrolled: true,
+    chapters: [],
     lessons: [{ id: 5, title: 'Intro' }]
   });
 });

@@ -76,6 +76,7 @@ test('ẩn và bỏ ẩn khóa học đúng trạng thái', async (t) => {
   let status = 'draft';
   stubMethods(t, catalogRepository, {
     findCourseStatusById: async (id) => ({ id, title: 'Khóa A', status }),
+    countPublicLessons: async () => 1,
     hideCourse: async (id) => {
       calls.push(['hide', id]);
       status = 'hidden';
@@ -98,7 +99,17 @@ test('ẩn và bỏ ẩn khóa học đúng trạng thái', async (t) => {
 test('giảng viên không tự bỏ ẩn khóa học bị quản trị viên ẩn', async (t) => {
   let saved;
   stubMethods(t, courseRepository, {
-    findById: async () => ({ id: 6, user_id: 3, title: 'A', status: 'hidden' }),
+    findById: async () => ({
+      id: 6,
+      user_id: 3,
+      title: 'A',
+      description: null,
+      category_id: 1,
+      price_course: 0,
+      quiz_minutes: null,
+      thumbnail: null,
+      status: 'hidden'
+    }),
     update: async (_id, data) => {
       saved = data;
     }
