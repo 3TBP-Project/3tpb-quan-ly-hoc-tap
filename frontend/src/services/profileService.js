@@ -30,3 +30,8 @@ export const changePassword =({ currentPassword, newPassword }) =>
 export const getQuizHistory = (_params, signal) => axiosClient.get('/api/users/my-quizzes', { signal });
 
 export const getEnrolledCourses = (_params, signal) => axiosClient.get('/api/users/my-courses', { signal });
+
+export const getTeacherCourses = async (_params, signal) => {
+  const response = await axiosClient.get('/api/courses/my-courses', { signal });
+  return { status: 'success', data: Array.isArray(response.data) ? response.data : [] };
+};

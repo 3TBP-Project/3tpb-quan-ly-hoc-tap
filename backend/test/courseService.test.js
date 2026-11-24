@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const courseRepository = require('../src/repositories/courseRepository');
+const userRepository = require('../src/repositories/userRepository');
 const courseService = require('../src/services/courseService');
 
 // Danh sách chương học: không gọi CSDL thật trong unit test
@@ -90,8 +91,31 @@ test('updateCourse rejects a teacher who does not own the course', async (t) => 
   );
 });
 
+test('createCourse rejects a teacher who still uses the temporary password', async (t) => {
+  const originalFindProfile = userRepository.findProfileById;
+  userRepository.findProfileById = async () => ({ mustChangePassword: true });
+  t.after(() => { userRepository.findProfileById = originalFindProfile; });
+
+  let createCalled = false;
+  stubRepository(t, {
+    create: async () => {
+      createCalled = true;
+      return 1;
+    }
+  });
+
+  await assert.rejects(
+    courseService.createCourse(2, { title: 'Khóa học', category_id: 1 }),
+    (error) => error.statusCode === 403 && /đổi mật khẩu tạm/.test(error.message)
+  );
+  assert.equal(createCalled, false);
+});
+
 test('createCourse trims input, defaults to draft and saves for the teacher', async (t) => {
   let createPayload;
+  const originalFindProfile = userRepository.findProfileById;
+  userRepository.findProfileById = async () => ({ mustChangePassword: false });
+  t.after(() => { userRepository.findProfileById = originalFindProfile; });
   stubRepository(t, {
     create: async (data) => {
       createPayload = data;
@@ -119,6 +143,9 @@ test('createCourse trims input, defaults to draft and saves for the teacher', as
 });
 
 test('createCourse rejects invalid data with 400 before touching the database', async (t) => {
+  const originalFindProfile = userRepository.findProfileById;
+  userRepository.findProfileById = async () => ({ mustChangePassword: false });
+  t.after(() => { userRepository.findProfileById = originalFindProfile; });
   let createCalled = false;
   stubRepository(t, {
     create: async () => {

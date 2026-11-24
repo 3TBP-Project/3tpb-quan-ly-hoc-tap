@@ -25,6 +25,8 @@
 .um-btn:hover { background: var(--um-surface); }
 .um-btn-primary { background: var(--um-primary); border-color: var(--um-primary); color: #fff; }
 .um-btn-primary:hover { background: var(--um-primary-hover); }
+.um-btn-danger { background: var(--um-danger); border-color: var(--um-danger); color: #fff; }
+.um-btn-danger:hover { background: #b91c1c; border-color: #b91c1c; color: #fff; }
 .um-btn:disabled { opacity: .7; cursor: not-allowed; }
 
 /* Thanh công cụ */
@@ -82,6 +84,7 @@
 .um-badge.student { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
 .um-badge.teacher { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
 .um-badge.active { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.um-badge.pending { background: #fffbeb; color: #b45309; border-color: #fde68a; }
 .um-badge.locked { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
 
 .um-actions { display: flex; gap: 6px; }
@@ -113,6 +116,10 @@
 
 /* Hộp thoại */
 .um-modal-title { font-size: 16px; font-weight: 700; margin: 0; }
+.um-confirm-modal .modal-content { border: 0; border-radius: 8px; }
+.um-confirm-modal .modal-header { padding: 16px 20px; }
+.um-confirm-modal .modal-body { padding: 20px; line-height: 1.55; }
+.um-confirm-modal .modal-footer { padding: 12px 20px; gap: 8px; }
 .um-field { margin-bottom: 16px; }
 .um-field:last-child { margin-bottom: 0; }
 .um-field label { display: block; font-weight: 600; margin-bottom: 6px; }

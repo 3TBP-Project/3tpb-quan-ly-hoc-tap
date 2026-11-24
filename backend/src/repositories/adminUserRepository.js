@@ -7,7 +7,8 @@ const MANAGED_ROLES = ['student', 'teacher'];
 // Số khóa: học viên = số khóa đã ghi danh, giảng viên = số khóa đang giảng dạy
 const SELECT_USER = `
   SELECT
-    u.id, u.name, u.email, u.role, u.avatar, u.is_locked, u.created_at,
+    u.id, u.name, u.email, u.role, u.avatar, u.is_locked, u.status, u.must_change_password,
+    u.created_at,
     CASE
       WHEN u.role = 'teacher' THEN (SELECT COUNT(*) FROM courses AS c WHERE c.user_id = u.id)
       ELSE (SELECT COUNT(*) FROM enrollments AS e WHERE e.user_id = u.id)
@@ -21,7 +22,12 @@ const toUser = (row) => ({
   role: row.role,
   avatar: row.avatar ?? null,
   courses: Number(row.courses ?? 0),
-  status: Number(row.is_locked) === 1 ? 'locked' : 'active',
+  status: Number(row.is_locked) === 1
+    ? 'locked'
+    : row.role === 'teacher' && Number(row.must_change_password) === 1
+      ? 'pending'
+      : 'active',
+  mustChangePassword: Number(row.must_change_password) === 1,
   createdAt: row.created_at ?? null
 });
 
@@ -75,8 +81,8 @@ const findByEmail = async (email) => {
 const createTeacher = async ({ name, email, passwordHash }) => {
   try {
     const [result] = await pool.query(
-      `INSERT INTO users (name, email, password, role, is_locked, status)
-       VALUES (?, ?, ?, 'teacher', 0, 'active')`,
+      `INSERT INTO users (name, email, password, role, is_locked, status, must_change_password)
+       VALUES (?, ?, ?, 'teacher', 0, 'pending', 1)`,
       [name, email, passwordHash]
     );
     return Number(result.insertId);

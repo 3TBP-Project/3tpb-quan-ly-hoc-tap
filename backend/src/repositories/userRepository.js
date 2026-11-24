@@ -33,10 +33,13 @@ const createUser = async ({ name, email, password_hash, role }) => {
 
 const findProfileById = async (userId) => {
   const [rows] = await pool.query(
-    'SELECT id, name, email, role, avatar FROM users WHERE id = ? LIMIT 1',
+    'SELECT id, name, email, role, avatar, must_change_password AS mustChangePassword FROM users WHERE id = ? LIMIT 1',
     [userId]
   );
-  return rows[0] || null;
+  return rows[0] ? {
+    ...rows[0],
+    mustChangePassword: Number(rows[0].mustChangePassword) === 1
+  } : null;
 };
 
 const updateProfile = async (userId, { name, email }) => {
@@ -65,15 +68,18 @@ const updateAvatar = async (userId, avatarUrl) => {
 // HT-07: lấy chuỗi băm mật khẩu để đối chiếu khi đổi mật khẩu
 const findPasswordById = async (userId) => {
   const [rows] = await pool.query(
-    'SELECT id, password FROM users WHERE id = ? LIMIT 1',
+    'SELECT id, password, must_change_password AS mustChangePassword FROM users WHERE id = ? LIMIT 1',
     [userId]
   );
-  return rows[0] || null;
+  return rows[0] ? {
+    ...rows[0],
+    mustChangePassword: Number(rows[0].mustChangePassword) === 1
+  } : null;
 };
 
 const updatePassword = async (userId, passwordHash) => {
   const [result] = await pool.query(
-    'UPDATE users SET password = ? WHERE id = ?',
+    "UPDATE users SET password = ?, must_change_password = 0, status = 'active' WHERE id = ?",
     [passwordHash, userId]
   );
   return result.affectedRows > 0;

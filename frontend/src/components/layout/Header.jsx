@@ -14,6 +14,7 @@ const MENU_BY_ROLE = {
     { to: '/', label: 'Khóa học' },
     { to: '/teacher/lessons', label: 'Quản lý bài học' },
     { to: '/teacher/questions', label: 'Quản lý câu hỏi' },
+    { to: '/profile', label: 'Hồ sơ' },
   ],
   admin: [
     { to: '/admin/users', label: 'Người dùng' },

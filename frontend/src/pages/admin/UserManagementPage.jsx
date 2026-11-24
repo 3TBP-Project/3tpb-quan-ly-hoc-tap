@@ -67,7 +67,13 @@ const RoleBadge = ({ role }) => (
 );
 
 const StatusBadge = ({ status }) => (
-  <span className={`um-badge ${status === 'locked' ? 'locked' : 'active'}`}>{status === 'locked' ? 'Bị chặn' : 'Hoạt động'}</span>
+  <span className={`um-badge ${status}`}>
+    {status === 'locked'
+      ? 'Bị chặn'
+      : status === 'pending'
+        ? 'Đang chờ xác nhận'
+        : 'Hoạt động'}
+  </span>
 );
 
 const coursesText = (u) => `${fmt(u.courses)} khóa ${u.role === 'teacher' ? 'giảng dạy' : 'ghi danh'}`;
@@ -187,6 +193,7 @@ function UserManagementPage() {
   const [modal, setModal] = useState(null); // { type: 'form' | 'view', user }
   const [busyId, setBusyId] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Đợi người dùng ngừng gõ 300ms rồi mới gọi API tìm kiếm
   useEffect(() => {
@@ -236,15 +243,20 @@ function UserManagementPage() {
       notify('Không thể xóa', `${u.name} đang có ${u.courses} khóa học giảng dạy. Hãy chặn tài khoản thay vì xóa.`, 'warn');
       return;
     }
-    const question = isTeacher
-      ? `Xóa tài khoản giảng viên ${u.name}?`
-      : `Xóa tài khoản học viên ${u.name}?
-Toàn bộ ghi danh, kết quả làm bài và tiến độ học của học viên này cũng sẽ bị xóa.`;
-    if (!window.confirm(question)) return;
-    setBusyId(u.id);
+    setDeleteTarget(u);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setBusyId(deleteTarget.id);
     try {
-      await deleteUser(u.id);
-      notify(isTeacher ? 'Đã xóa giảng viên' : 'Đã xóa học viên', `${u.name} đã bị xóa khỏi hệ thống.`, 'warn');
+      await deleteUser(deleteTarget.id);
+      notify(
+        deleteTarget.role === 'teacher' ? 'Đã xóa giảng viên' : 'Đã xóa học viên',
+        `${deleteTarget.name} đã bị xóa khỏi hệ thống.`,
+        'warn'
+      );
+      setDeleteTarget(null);
     } catch (err) {
       notify('Không thể xóa', parseApiError(err).message, 'warn');
     } finally {
@@ -386,6 +398,38 @@ Toàn bộ ghi danh, kết quả làm bài và tiến độ học của học vi
         <UserFormModal key={modal.user?.id ?? 'new'} user={modal.user} onClose={() => setModal(null)} onSaved={handleSaved} />
       )}
       {modal?.type === 'view' && <UserProfileModal user={modal.user} onClose={() => setModal(null)} />}
+
+      <Modal
+        show={deleteTarget != null}
+        onHide={() => busyId == null && setDeleteTarget(null)}
+        centered
+        className="um-modal um-confirm-modal"
+      >
+        <Modal.Header closeButton={busyId == null}>
+          <Modal.Title as="h2" className="um-modal-title">Xác nhận xóa tài khoản</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {deleteTarget?.role === 'teacher'
+            ? `Bạn có chắc chắn muốn xóa tài khoản giảng viên ${deleteTarget.name} không?`
+            : (
+              <>
+                Bạn có chắc chắn muốn xóa tài khoản học viên <b>{deleteTarget?.name}</b> không?
+                <br />
+                <span className="text-muted small">
+                  Toàn bộ ghi danh, kết quả làm bài và tiến độ học của học viên này cũng sẽ bị xóa.
+                </span>
+              </>
+            )}
+        </Modal.Body>
+        <Modal.Footer>
+          <button type="button" className="um-btn" onClick={() => setDeleteTarget(null)} disabled={busyId != null}>
+            Hủy
+          </button>
+          <button type="button" className="um-btn um-btn-danger" onClick={confirmDelete} disabled={busyId != null}>
+            {busyId != null ? 'Đang xóa...' : 'Xóa tài khoản'}
+          </button>
+        </Modal.Footer>
+      </Modal>
 
       <ToastContainer position="top-end" className="p-3 um-toasts" containerPosition="fixed">
         {toasts.map((t) => (
