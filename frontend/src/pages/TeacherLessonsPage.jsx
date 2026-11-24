@@ -1,22 +1,29 @@
 // AI-assisted [AI-14]
 import { useCallback, useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Alert, Badge, Button, Card, Col, Form, ListGroup, Modal, Row } from 'react-bootstrap';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Alert, Badge, Button, Card, Col, Dropdown, Form, ListGroup, Modal, Row } from 'react-bootstrap';
 import PageHeader from '../components/common/PageHeader';
 import Loading from '../components/common/Loading';
+import Pagination from '../components/common/Pagination';
 import {
   createCourse,
   createLesson,
   deleteLesson,
   getCourseCategories,
+  getCourseChapters,
   getCourseLessons,
   getTeacherCourses,
   swapLessons,
   updateCourseStatus,
   updateLesson,
+  updateLessonStatus,
   uploadLessonFile,
 } from '../services/lessonService';
 import { parseApiError } from '../utils/apiError';
+import { groupLessonsByChapter, groupTitle } from '../utils/chapters';
+import ChapterManager from '../components/teacher/ChapterManager';
+import { getProfile } from '../services/profileService';
+import './TeacherLessonsPage.css';
 
 const MAX_PDF_SIZE = 5 * 1024 * 1024; // 5 MB (HT-NFR2)
 
@@ -25,6 +32,13 @@ const EMPTY_FORM = {
   content: '',
   videoPath: '',
   position: 1,
+  status: 'draft',
+  chapterId: '', // '' = không thuộc chương nào
+};
+
+const LESSON_STATUS_LABELS = {
+  draft: 'Bản nháp',
+  public: 'Công khai',
 };
 
 const COURSE_STATUS_LABELS = {
@@ -32,6 +46,8 @@ const COURSE_STATUS_LABELS = {
   public: 'Công khai',
   hidden: 'Bị ẩn bởi quản trị viên',
 };
+
+const LESSONS_PER_PAGE = 5;
 
 // Vị trí kế tiếp = vị trí lớn nhất hiện có + 1 (không dựa vào số lượng bài)
 const nextPosition = (list) =>
@@ -57,15 +73,19 @@ const EMPTY_COURSE_FORM = {
 
 function TeacherLessonsPage() {
   const { courseId: routeCourseId } = useParams();
+  const navigate = useNavigate();
 
   const [courses, setCourses] = useState([]);
   const [selectedCourseId, setSelectedCourseId] = useState(routeCourseId ? Number(routeCourseId) : '');
   const [lessons, setLessons] = useState([]);
+  const [chapters, setChapters] = useState([]);
+  const [lessonPage, setLessonPage] = useState(1);
 
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [loadingLessons, setLoadingLessons] = useState(false);
   const [savingLesson, setSavingLesson] = useState(false);
   const [movingId, setMovingId] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
 
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
@@ -85,6 +105,21 @@ function TeacherLessonsPage() {
   const [categories, setCategories] = useState([]);
   const [courseFormError, setCourseFormError] = useState('');
   const [savingCourse, setSavingCourse] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [deleteLessonTarget, setDeleteLessonTarget] = useState(null);
+  const [deletingLesson, setDeletingLesson] = useState(false);
+
+  useEffect(() => {
+    let ignore = false;
+    getProfile()
+      .then((res) => {
+        if (!ignore) setMustChangePassword(Boolean(res?.data?.mustChangePassword));
+      })
+      .catch(() => {});
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   // 1. Tải danh sách khóa học của giảng viên đang đăng nhập
   useEffect(() => {
@@ -112,6 +147,11 @@ function TeacherLessonsPage() {
 
   // 1b. Mở modal tạo khóa học, tải danh mục nếu chưa có
   const openCourseModal = async () => {
+    if (mustChangePassword) {
+      setError('Bạn phải đổi mật khẩu tạm trong Hồ sơ trước khi tạo khóa học.');
+      navigate('/profile');
+      return;
+    }
     setCourseForm(EMPTY_COURSE_FORM);
     setCourseFormError('');
     setShowCourseModal(true);
@@ -168,13 +208,18 @@ function TeacherLessonsPage() {
     setLoadingLessons(true);
     setError('');
     try {
-      const res = await getCourseLessons(cid);
-      const list = Array.isArray(res?.data) ? res.data : [];
+      const [lessonRes, chapterRes] = await Promise.all([
+        getCourseLessons(cid),
+        getCourseChapters(cid),
+      ]);
+      const list = Array.isArray(lessonRes?.data) ? lessonRes.data : [];
       setLessons(list);
+      setChapters(Array.isArray(chapterRes?.data) ? chapterRes.data : []);
       if (!keepForm) setFormData((prev) => ({ ...prev, position: nextPosition(list) }));
     } catch (err) {
       setError(parseApiError(err).message);
       setLessons([]);
+      setChapters([]);
     } finally {
       setLoadingLessons(false);
     }
@@ -196,6 +241,7 @@ function TeacherLessonsPage() {
 
   const handleCourseChange = (cid) => {
     setSelectedCourseId(cid);
+    setLessonPage(1);
     setEditingId(null);
     setFormData({ ...EMPTY_FORM });
     resetFileInput();
@@ -206,7 +252,32 @@ function TeacherLessonsPage() {
   // của người khác) thì chỉ được xem, không được sửa trạng thái hay bài học
   const isReadOnly = Boolean(selectedCourseId) && !loadingCourses && !selectedCourse;
   const editingLesson = editingId ? lessons.find((l) => l.id === editingId) : null;
+  // Chương đang chọn trong form (bỏ qua nếu chương vừa bị xóa)
+  const selectedChapterId = chapters.some((c) => String(c.id) === String(formData.chapterId))
+    ? String(formData.chapterId)
+    : '';
+  const lessonGroups = groupLessonsByChapter(lessons, chapters, { includeEmpty: true });
+  const hasChapters = chapters.length > 0;
   const existingFilePath = getLessonFilePath(editingLesson);
+  const publicLessonCount = lessons.filter((lesson) => lesson.status === 'public').length;
+  const lessonTotalPages = Math.ceil(lessons.length / LESSONS_PER_PAGE);
+  const pagedLessons = lessons.slice(
+    (lessonPage - 1) * LESSONS_PER_PAGE,
+    lessonPage * LESSONS_PER_PAGE
+  );
+  const pagedLessonIds = new Set(pagedLessons.map((lesson) => Number(lesson.id)));
+  const pagedLessonGroups = lessonGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter(({ lesson }) => pagedLessonIds.has(Number(lesson.id))),
+    }))
+    .filter((group) => group.items.length > 0);
+
+  useEffect(() => {
+    if (lessonTotalPages > 0 && lessonPage > lessonTotalPages) {
+      setLessonPage(lessonTotalPages);
+    }
+  }, [lessonPage, lessonTotalPages]);
 
   // Bài học khác đang giữ vị trí đang nhập (bỏ qua chính bài đang sửa)
   const positionValue = Number(formData.position);
@@ -266,6 +337,8 @@ function TeacherLessonsPage() {
       content: formData.content || null,
       videoPath: formData.videoPath ? formData.videoPath.trim() : null,
       position: positionValue,
+      status: formData.status === 'public' ? 'public' : 'draft',
+      chapterId: selectedChapterId === '' ? null : Number(selectedChapterId),
     };
     // Xóa tệp cũ khi giảng viên tick "Xóa tệp hiện tại" mà không chọn tệp mới
     if (editingId && removeExistingFile && !pdfFile) payload.filePath = null;
@@ -299,7 +372,8 @@ function TeacherLessonsPage() {
       setNotice(editingId ? 'Cập nhật bài học thành công!' : 'Thêm bài học mới thành công!');
     }
     setEditingId(null);
-    setFormData({ ...EMPTY_FORM });
+    // Giữ nguyên chương đã chọn để thêm liên tiếp nhiều bài vào cùng một chương
+    setFormData({ ...EMPTY_FORM, chapterId: selectedChapterId });
     resetFileInput();
     await loadLessons(selectedCourseId);
     setSavingLesson(false);
@@ -317,6 +391,8 @@ function TeacherLessonsPage() {
       content: lesson.content || '',
       videoPath: lesson.video_path || lesson.videoPath || lesson.videoUrl || '',
       position: lesson.position || lesson.order || 1,
+      status: lesson.status === 'public' ? 'public' : 'draft',
+      chapterId: lesson.chapterId == null ? '' : String(lesson.chapterId),
     });
     window.scrollTo({ top: 150, behavior: 'smooth' });
   };
@@ -333,30 +409,52 @@ function TeacherLessonsPage() {
   // 6. Xóa bài học (CRUD - Delete)
   const handleDeleteClick = async (lessonId) => {
     if (isReadOnly) return;
-    if (!window.confirm('Bạn có chắc chắn muốn xóa bài học này không?')) return;
+    setDeleteLessonTarget(lessonId);
+  };
 
+  const confirmDeleteLesson = async () => {
+    if (isReadOnly || deleteLessonTarget == null) return;
     setError('');
     setNotice('');
+    setDeletingLesson(true);
     try {
-      await deleteLesson(lessonId);
-      if (editingId === lessonId) {
+      await deleteLesson(deleteLessonTarget);
+      if (editingId === deleteLessonTarget) {
         handleCancelEdit();
       }
       setNotice('Đã xóa bài học thành công!');
-      await loadLessons(selectedCourseId, { keepForm: Boolean(editingId && editingId !== lessonId) });
+      await loadLessons(selectedCourseId, { keepForm: Boolean(editingId && editingId !== deleteLessonTarget) });
+      setDeleteLessonTarget(null);
     } catch (err) {
       setError(parseApiError(err).message);
+    } finally {
+      setDeletingLesson(false);
     }
   };
 
-  // 7. Sắp xếp thứ tự bài học (Lên / Xuống) - server đổi chỗ hai bài trong một giao dịch
-  const handleMove = async (index, direction) => {
+  // 6b. Đổi nhanh trạng thái bài học: Bản nháp <-> Công khai
+  const handleToggleLessonStatus = async (lesson) => {
     if (isReadOnly) return;
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= lessons.length) return;
+    const status = lesson.status === 'public' ? 'draft' : 'public';
+    setTogglingId(lesson.id);
+    setError('');
+    setNotice('');
+    try {
+      await updateLessonStatus(lesson.id, status);
+      setLessons((prev) => prev.map((l) => (l.id === lesson.id ? { ...l, status } : l)));
+      if (editingId === lesson.id) setFormData((prev) => ({ ...prev, status }));
+      setNotice(`Đã chuyển bài "${lesson.title}" sang trạng thái "${LESSON_STATUS_LABELS[status]}".`);
+    } catch (err) {
+      setError(parseApiError(err).message);
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
-    const current = lessons[index];
-    const target = lessons[targetIndex];
+  // 7. Sắp xếp thứ tự bài học (Lên / Xuống) trong cùng một chương -
+  //    server đổi chỗ hai bài trong một giao dịch
+  const handleMove = async (current, target) => {
+    if (isReadOnly || !current || !target) return;
 
     setMovingId(current.id);
     setError('');
@@ -377,7 +475,7 @@ function TeacherLessonsPage() {
     <>
       <PageHeader
         title="Quản lý bài học"
-        subtitle="Thêm, sửa, xóa bài học, nhúng video YouTube, đính kèm PDF và sắp xếp thứ tự."
+        subtitle="Thêm, sửa, xóa bài học, nhúng video YouTube, đính kèm PDF, sắp xếp thứ tự và công khai bài học."
         actions={(
           <Button variant="primary" onClick={openCourseModal}>
             + Tạo khóa học
@@ -403,21 +501,39 @@ function TeacherLessonsPage() {
                   Bạn chưa tạo khóa học nào. Bấm “+ Tạo khóa học” ở góc phải để bắt đầu.
                 </span>
               ) : (
-                <Form.Select
-                  value={selectedCourseId}
-                  onChange={(e) => handleCourseChange(Number(e.target.value))}
+                <Dropdown
+                  className="w-100"
+                  onSelect={(value) => handleCourseChange(Number(value))}
                 >
-                  {isReadOnly && (
-                    <option value={selectedCourseId}>
-                      Khóa học #{selectedCourseId} (không phải của bạn)
-                    </option>
-                  )}
-                  {courses.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.title} (ID: {c.id})
-                    </option>
-                  ))}
-                </Form.Select>
+                  <Dropdown.Toggle
+                    id="teacher-course-lessons-dropdown"
+                    variant="outline-secondary"
+                    className="w-100 text-start d-flex justify-content-between align-items-center"
+                  >
+                    {isReadOnly
+                      ? 'Khóa học ngoài quyền quản lý'
+                      : courses.find((c) => c.id === selectedCourseId)?.title || 'Chọn khóa học'}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu
+                    className="w-100"
+                    style={{ maxHeight: '240px', overflowY: 'auto' }}
+                  >
+                    {isReadOnly && (
+                      <Dropdown.Item eventKey={selectedCourseId} active>
+                        Khóa học ngoài quyền quản lý
+                      </Dropdown.Item>
+                    )}
+                    {courses.map((c) => (
+                      <Dropdown.Item
+                        key={c.id}
+                        eventKey={c.id}
+                        active={c.id === selectedCourseId}
+                      >
+                        {c.title}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                </Dropdown>
               )}
             </Col>
             {selectedCourseId && (
@@ -442,14 +558,23 @@ function TeacherLessonsPage() {
                 ) : selectedCourse.status === 'hidden' ? (
                   <Badge bg="dark">{COURSE_STATUS_LABELS.hidden}</Badge>
                 ) : (
-                  <Form.Select
-                    value={selectedCourse.status === 'public' ? 'public' : 'draft'}
-                    onChange={(e) => handleStatusChange(e.target.value)}
-                    disabled={savingStatus}
-                  >
-                    <option value="draft">Bản nháp (draft) - học viên chưa thấy</option>
-                    <option value="public">Công khai (public) - hiển thị cho học viên</option>
-                  </Form.Select>
+                  <>
+                    <Form.Select
+                      value={selectedCourse.status === 'public' ? 'public' : 'draft'}
+                      onChange={(e) => handleStatusChange(e.target.value)}
+                      disabled={savingStatus}
+                    >
+                      <option value="draft">Bản nháp (draft) - học viên chưa thấy</option>
+                      <option value="public" disabled={publicLessonCount < 1}>
+                        Công khai (public) - hiển thị cho học viên
+                      </option>
+                    </Form.Select>
+                    {publicLessonCount < 1 && (
+                      <Form.Text className="text-danger">
+                        Hãy công khai ít nhất một bài học trước khi công khai khóa học.
+                      </Form.Text>
+                    )}
+                  </>
                 )}
               </Col>
             </Form.Group>
@@ -462,6 +587,18 @@ function TeacherLessonsPage() {
           Bạn không phải giảng viên của khóa học này nên chỉ có thể xem danh sách bài học,
           không thể thêm, sửa, xóa hay đổi trạng thái.
         </Alert>
+      )}
+
+      {selectedCourseId && (
+        <ChapterManager
+          courseId={selectedCourseId}
+          chapters={chapters}
+          lessons={lessons}
+          readOnly={isReadOnly}
+          onChanged={() => loadLessons(selectedCourseId, { keepForm: true })}
+          onError={setError}
+          onNotice={setNotice}
+        />
       )}
 
       {selectedCourseId && (
@@ -490,6 +627,24 @@ function TeacherLessonsPage() {
                   </Form.Group>
 
                   <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">Chương</Form.Label>
+                    <Form.Select
+                      value={selectedChapterId}
+                      onChange={(e) => setFormData({ ...formData, chapterId: e.target.value })}
+                    >
+                      <option value="">-- Không thuộc chương nào --</option>
+                      {chapters.map((c, i) => (
+                        <option key={c.id} value={String(c.id)}>Chương {i + 1}. {c.title}</option>
+                      ))}
+                    </Form.Select>
+                    {!hasChapters && (
+                      <Form.Text className="text-muted">
+                        Tạo chương ở khung “Chương học” phía trên để nhóm bài học.
+                      </Form.Text>
+                    )}
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
                     <Form.Label className="fw-semibold">Thứ tự hiển thị (Position)</Form.Label>
                     <Form.Control
                       type="number"
@@ -505,9 +660,20 @@ function TeacherLessonsPage() {
                     </Form.Control.Feedback>
                     {!positionConflict && (
                       <Form.Text className="text-muted">
-                        Số nguyên dương thể hiện thứ tự xuất hiện của bài học. Mỗi vị trí chỉ có một bài.
+                        Số nguyên dương, sắp xếp bài trong cùng chương (số nhỏ đứng trước). Mỗi vị trí chỉ có một bài.
                       </Form.Text>
                     )}
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">Trạng thái bài học</Form.Label>
+                    <Form.Select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    >
+                      <option value="draft">Bản nháp (draft) - học viên chưa thấy</option>
+                      <option value="public">Công khai (public) - hiển thị cho học viên</option>
+                    </Form.Select>
                   </Form.Group>
 
                   <Form.Group className="mb-3">
@@ -519,7 +685,7 @@ function TeacherLessonsPage() {
                       onChange={(e) => setFormData({ ...formData, videoPath: e.target.value })}
                     />
                     <Form.Text className="text-muted">
-                      Chỉ lưu link YouTube để nhúng an toàn, không tải tệp video lên server (HT-NFR4).
+                      Chỉ lưu link YouTube để nhúng an toàn, không tải tệp video lên server.
                     </Form.Text>
                   </Form.Group>
 
@@ -552,7 +718,7 @@ function TeacherLessonsPage() {
                         ? `Đã chọn: ${pdfFile.name} (${(pdfFile.size / 1024 / 1024).toFixed(2)} MB)`
                         : existingFilePath
                         ? 'Chọn tệp mới nếu muốn thay tệp hiện tại. Chỉ nhận PDF, tối đa 5 MB.'
-                        : 'Chỉ nhận tệp PDF, tối đa 5 MB (HT-NFR2).'}
+                        : 'Chỉ nhận tệp PDF, tối đa 5 MB.'}
                     </Form.Text>
                   </Form.Group>
 
@@ -591,7 +757,10 @@ function TeacherLessonsPage() {
           <Col lg={7}>
             <Card className="shadow-sm">
               <Card.Header className="d-flex justify-content-between align-items-center">
-                <span className="fw-semibold">Danh sách bài học ({lessons.length} bài)</span>
+                <span className="fw-semibold">
+                  Danh sách bài học ({lessons.length} bài
+                  {lessons.length > 0 && `, ${lessons.filter((l) => l.status === 'public').length} công khai`})
+                </span>
                 {editingId && <Badge bg="warning" text="dark">Đang chỉnh sửa</Badge>}
               </Card.Header>
 
@@ -604,8 +773,29 @@ function TeacherLessonsPage() {
                   Khóa học này chưa có bài học nào. Hãy điền form bên cạnh để thêm bài đầu tiên!
                 </Card.Body>
               ) : (
+                <>
                 <ListGroup variant="flush">
-                  {lessons.map((lesson, index) => (
+                  {pagedLessonGroups.map((group) => [
+                    hasChapters && (
+                      <ListGroup.Item
+                        key={`${group.key}-header`}
+                        className="bg-body-tertiary d-flex justify-content-between align-items-center"
+                      >
+                        <span className="fw-semibold">{groupTitle(group)}</span>
+                        <small className="text-muted">{group.items.length} bài</small>
+                      </ListGroup.Item>
+                    ),
+                    hasChapters && group.items.length === 0 && (
+                      <ListGroup.Item key={`${group.key}-empty`} className="small text-muted fst-italic">
+                        Chưa có bài học nào trong chương này.
+                      </ListGroup.Item>
+                    ),
+                    ...group.items.map(({ lesson, index }, position) => {
+                      // Lên / xuống chỉ đổi chỗ với bài liền kề trong cùng chương
+                      const prevLesson = group.items[position - 1]?.lesson;
+                      const nextLesson = group.items[position + 1]?.lesson;
+                      const lessonLabel = group.number ? `${group.number}.${position + 1}` : `${index + 1}`;
+                      return (
                     <ListGroup.Item
                       key={lesson.id}
                       className={`p-3 ${editingId === lesson.id ? 'bg-light border-primary border-2' : ''}`}
@@ -613,7 +803,14 @@ function TeacherLessonsPage() {
                       <div className="d-flex justify-content-between align-items-start gap-2">
                         <div className="flex-grow-1" style={{ minWidth: 0 }}>
                           <div className="d-flex align-items-center gap-2 mb-1" style={{ minWidth: 0 }}>
-                            <Badge bg="secondary" className="flex-shrink-0">Bài {index + 1}</Badge>
+                            <Badge bg="secondary" className="flex-shrink-0">Bài {lessonLabel}</Badge>
+                            <Badge
+                              bg={lesson.status === 'public' ? 'success' : 'warning'}
+                              text={lesson.status === 'public' ? undefined : 'dark'}
+                              className="flex-shrink-0"
+                            >
+                              {LESSON_STATUS_LABELS[lesson.status] || LESSON_STATUS_LABELS.draft}
+                            </Badge>
                             <span
                               className="fw-semibold text-truncate"
                               style={{ minWidth: 0 }}
@@ -649,8 +846,8 @@ function TeacherLessonsPage() {
                           <Button
                             size="sm"
                             variant="outline-secondary"
-                            disabled={isReadOnly || index === 0 || movingId === lesson.id}
-                            onClick={() => handleMove(index, 'up')}
+                            disabled={isReadOnly || !prevLesson || movingId === lesson.id}
+                            onClick={() => handleMove(lesson, prevLesson)}
                             title="Di chuyển lên"
                           >
                             ▲
@@ -658,11 +855,22 @@ function TeacherLessonsPage() {
                           <Button
                             size="sm"
                             variant="outline-secondary"
-                            disabled={isReadOnly || index === lessons.length - 1 || movingId === lesson.id}
-                            onClick={() => handleMove(index, 'down')}
+                            disabled={isReadOnly || !nextLesson || movingId === lesson.id}
+                            onClick={() => handleMove(lesson, nextLesson)}
                             title="Di chuyển xuống"
                           >
                             ▼
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={lesson.status === 'public' ? 'outline-warning' : 'outline-success'}
+                            onClick={() => handleToggleLessonStatus(lesson)}
+                            disabled={isReadOnly || togglingId === lesson.id}
+                            title={lesson.status === 'public'
+                              ? 'Chuyển về bản nháp (ẩn với học viên)'
+                              : 'Công khai cho học viên'}
+                          >
+                            {lesson.status === 'public' ? 'Về nháp' : 'Công khai'}
                           </Button>
                           <Button
                             size="sm"
@@ -683,13 +891,53 @@ function TeacherLessonsPage() {
                         </div>
                       </div>
                     </ListGroup.Item>
-                  ))}
+                      );
+                    }),
+                  ])}
                 </ListGroup>
+                <div className="border-top px-3 py-3">
+                  <Pagination
+                    page={lessonPage}
+                    totalPages={lessonTotalPages}
+                    onPageChange={setLessonPage}
+                  />
+                </div>
+                </>
               )}
             </Card>
           </Col>
         </Row>
       )}
+
+      <Modal
+        show={deleteLessonTarget != null}
+        onHide={() => !deletingLesson && setDeleteLessonTarget(null)}
+        centered
+        className="lesson-confirm-modal"
+      >
+        <Modal.Header closeButton={!deletingLesson}>
+          <Modal.Title as="h2" className="lesson-confirm-title">Xác nhận xóa bài học</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Bạn có chắc chắn muốn xóa bài học này không?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="outline-secondary"
+            onClick={() => setDeleteLessonTarget(null)}
+            disabled={deletingLesson}
+          >
+            Hủy
+          </Button>
+          <Button
+            variant="danger"
+            onClick={confirmDeleteLesson}
+            disabled={deletingLesson}
+          >
+            {deletingLesson ? 'Đang xóa...' : 'Xóa bài học'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Modal show={showCourseModal} onHide={() => !savingCourse && setShowCourseModal(false)} centered>
         <Form onSubmit={handleCreateCourse}>

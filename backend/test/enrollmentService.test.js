@@ -15,7 +15,8 @@ const originalMethods = {
   findCourseById: enrollmentRepository.findCourseById,
   findByStudentAndCourse: enrollmentRepository.findByStudentAndCourse,
   create: enrollmentRepository.create,
-  findCoursesByStudent: enrollmentRepository.findCoursesByStudent
+  findCoursesByStudent: enrollmentRepository.findCoursesByStudent,
+  countPublicLessons: enrollmentRepository.countPublicLessons
 };
 
 test.afterEach(() => {
@@ -40,8 +41,19 @@ test('chỉ cho phép ghi danh khóa học công khai', async () => {
   );
 });
 
+test('không cho ghi danh khóa công khai chưa có bài công khai', async () => {
+  enrollmentRepository.findCourseById = async () => ({ id: 1, status: 'public' });
+  enrollmentRepository.countPublicLessons = async () => 0;
+
+  await assert.rejects(
+    enrollmentService.enroll(5, 1),
+    (error) => error.statusCode === 400 && /chưa có bài học công khai/.test(error.message)
+  );
+});
+
 test('không cho học viên ghi danh trùng khóa học', async () => {
   enrollmentRepository.findCourseById = async () => ({ id: 1, status: 'public' });
+  enrollmentRepository.countPublicLessons = async () => 1;
   enrollmentRepository.findByStudentAndCourse = async () => ({ id: 10 });
 
   await assert.rejects(
@@ -52,6 +64,7 @@ test('không cho học viên ghi danh trùng khóa học', async () => {
 
 test('ghi danh thành công khi khóa học công khai và chưa ghi danh', async () => {
   enrollmentRepository.findCourseById = async () => ({ id: 1, status: 'public' });
+  enrollmentRepository.countPublicLessons = async () => 1;
   enrollmentRepository.findByStudentAndCourse = async () => null;
   enrollmentRepository.create = async () => 20;
 

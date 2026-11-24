@@ -1,8 +1,13 @@
 const { pool } = require('../config/db');
 
+// Thứ tự học: theo thứ tự chương, rồi tới thứ tự bài trong chương.
+// Bài chưa thuộc chương nào (chapter_id NULL) xếp cuối khóa học.
+const NO_CHAPTER = 2147483647;
+const LESSON_ORDER_KEY = `COALESCE(ch.position, ${NO_CHAPTER}), COALESCE(ch.id, ${NO_CHAPTER}), l.position, l.id`;
+
 const findCourseById = async (courseId) => {
   const [rows] = await pool.query(
-    'SELECT id, title, user_id FROM courses WHERE id = ? LIMIT 1',
+    'SELECT id, title, user_id, status FROM courses WHERE id = ? LIMIT 1',
     [courseId]
   );
   return rows[0] || null;
@@ -10,8 +15,11 @@ const findCourseById = async (courseId) => {
 
 const findById = async (lessonId) => {
   const [rows] = await pool.query(
-    `SELECT id, course_id, title, content, video_path, file_path, position
-     FROM lessons WHERE id = ? LIMIT 1`,
+    `SELECT l.id, l.course_id, l.chapter_id, l.title, l.content, l.video_path, l.file_path,
+            l.position, l.status, c.status AS course_status
+     FROM lessons AS l
+     JOIN courses AS c ON c.id = l.course_id
+     WHERE l.id = ? LIMIT 1`,
     [lessonId]
   );
   return rows[0] || null;
@@ -19,38 +27,41 @@ const findById = async (lessonId) => {
 
 const findSummariesByCourseId = async (courseId) => {
   const [rows] = await pool.query(
-    `SELECT id, course_id AS courseId, position AS \`order\`, position, title, content,
-            video_path, file_path
-     FROM lessons
-     WHERE course_id = ?
-     ORDER BY position ASC, id ASC`,
+    `SELECT l.id, l.course_id AS courseId, l.chapter_id AS chapterId,
+            l.position AS \`order\`, l.position, l.title, l.content,
+            l.video_path, l.file_path, l.status
+     FROM lessons AS l
+     LEFT JOIN chapters AS ch ON ch.id = l.chapter_id
+     WHERE l.course_id = ?
+     ORDER BY ${LESSON_ORDER_KEY}`,
     [courseId]
   );
   return rows.map((lesson) => ({
     ...lesson,
     id: Number(lesson.id),
     courseId: Number(lesson.courseId),
+    chapterId: lesson.chapterId == null ? null : Number(lesson.chapterId),
     order: Number(lesson.order),
     position: Number(lesson.position)
   }));
 };
 
-const create = async ({ courseId, title, content, videoPath, filePath, position }) => {
+const create = async ({ courseId, chapterId = null, title, content, videoPath, filePath, position, status }) => {
   const [result] = await pool.query(
     `INSERT INTO lessons
-       (course_id, title, content, video_path, file_path, position)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [courseId, title, content, videoPath, filePath, position]
+       (course_id, chapter_id, title, content, video_path, file_path, position, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [courseId, chapterId, title, content, videoPath, filePath, position, status]
   );
   return result.insertId;
 };
 
-const update = async (lessonId, { title, content, videoPath, filePath, position }) => {
+const update = async (lessonId, { chapterId = null, title, content, videoPath, filePath, position, status }) => {
   const [result] = await pool.query(
     `UPDATE lessons
-     SET title = ?, content = ?, video_path = ?, file_path = ?, position = ?
+     SET chapter_id = ?, title = ?, content = ?, video_path = ?, file_path = ?, position = ?, status = ?
      WHERE id = ?`,
-    [title, content, videoPath, filePath, position, lessonId]
+    [chapterId, title, content, videoPath, filePath, position, status, lessonId]
   );
   return result.affectedRows > 0;
 };
@@ -82,6 +93,15 @@ const updateFilePath = async (lessonId, filePath) => {
   return result.affectedRows > 0;
 };
 
+// HT-10: đổi nhanh trạng thái bài học (draft / public)
+const updateStatus = async (lessonId, status) => {
+  const [result] = await pool.query(
+    'UPDATE lessons SET status = ? WHERE id = ?',
+    [status, lessonId]
+  );
+  return result.affectedRows > 0;
+};
+
 // Hoán đổi vị trí hai bài học trong một giao dịch
 const swapPositions = async (lessonA, lessonB) => {
   const connection = await pool.getConnection();
@@ -107,6 +127,7 @@ const findByCourseIdWithProgress = async (courseId, userId) => {
   const [rows] = await pool.query(
     `SELECT
        l.id,
+       l.chapter_id AS chapterId,
        l.position AS \`order\`,
        l.title,
        l.content,
@@ -114,19 +135,47 @@ const findByCourseIdWithProgress = async (courseId, userId) => {
        l.file_path AS fileUrl,
        COALESCE(lp.is_completed, 0) AS isCompleted
      FROM lessons AS l
+     LEFT JOIN chapters AS ch ON ch.id = l.chapter_id
      LEFT JOIN lesson_progress AS lp
        ON lp.lesson_id = l.id AND lp.user_id = ?
-     WHERE l.course_id = ?
-     ORDER BY l.position ASC, l.id ASC`,
+     WHERE l.course_id = ? AND l.status = 'public'
+     ORDER BY ${LESSON_ORDER_KEY}`,
     [userId, courseId]
   );
 
   return rows.map((lesson) => ({
     ...lesson,
     id: Number(lesson.id),
+    chapterId: lesson.chapterId == null ? null : Number(lesson.chapterId),
     order: Number(lesson.order),
     isCompleted: Boolean(lesson.isCompleted)
   }));
+};
+
+// Học tuần tự: đếm số bài công khai đứng trước bài này (theo thứ tự chương rồi tới
+// thứ tự bài) mà học viên chưa hoàn thành. Khác 0 nghĩa là bài này đang bị khóa.
+const countIncompletePrevious = async (userId, lesson) => {
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM lessons AS l
+     LEFT JOIN chapters AS ch ON ch.id = l.chapter_id
+     JOIN (
+       SELECT COALESCE(tch.position, ${NO_CHAPTER}) AS chapterPos,
+              COALESCE(tch.id, ${NO_CHAPTER}) AS chapterId,
+              t.position AS lessonPos,
+              t.id AS lessonId
+       FROM lessons AS t
+       LEFT JOIN chapters AS tch ON tch.id = t.chapter_id
+       WHERE t.id = ?
+     ) AS cur
+     LEFT JOIN lesson_progress AS lp
+       ON lp.lesson_id = l.id AND lp.user_id = ? AND lp.is_completed = 1
+     WHERE l.course_id = ? AND l.status = 'public'
+       AND (${LESSON_ORDER_KEY}) < (cur.chapterPos, cur.chapterId, cur.lessonPos, cur.lessonId)
+       AND lp.lesson_id IS NULL`,
+    [lesson.id, userId, lesson.course_id]
+  );
+  return Number(rows[0]?.total) || 0;
 };
 
 const markCompleted = async (userId, lessonId) => {
@@ -147,8 +196,10 @@ module.exports = {
   findByPosition,
   findMaxPosition,
   updateFilePath,
+  updateStatus,
   swapPositions,
   remove,
   findByCourseIdWithProgress,
+  countIncompletePrevious,
   markCompleted
 };

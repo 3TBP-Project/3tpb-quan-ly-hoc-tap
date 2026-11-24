@@ -3,7 +3,7 @@ const { pool } = require('../config/db');
 
 const findCourseById = async (courseId) => {
   const [rows] = await pool.query(
-    'SELECT id, title, quiz_minutes AS quiz_duration FROM courses WHERE id = ? LIMIT 1',
+    'SELECT id, title, status, quiz_minutes AS quiz_duration FROM courses WHERE id = ? LIMIT 1',
     [courseId]
   );
   return rows[0] || null;

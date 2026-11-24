@@ -69,6 +69,10 @@ export const downloadLessonFile = async (lessonId, fileName = 'tai-lieu.pdf') =>
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
+// 7c2. Đổi trạng thái bài học: 'draft' (nháp) hoặc 'public' (công khai)
+export const updateLessonStatus = (lessonId, status) =>
+  axiosClient.patch(`/api/lessons/${lessonId}/status`, { status });
+
 // 7d. Đổi chỗ hai bài học (nút lên / xuống)
 export const swapLessons = (lessonId, targetLessonId) =>
   axiosClient.post(`/api/lessons/${lessonId}/swap`, { targetLessonId });
@@ -80,3 +84,20 @@ export const updateCourseStatus = (courseId, status) =>
 // 8. Xóa bài học (HT-10)
 export const deleteLesson = (lessonId) =>
   axiosClient.delete(`/api/lessons/${lessonId}`);
+
+// 9. Chương học (giảng viên sở hữu khóa học / admin)
+export const getCourseChapters = (courseId, signal) =>
+  axiosClient.get(`/api/courses/${courseId}/chapters`, { signal });
+
+export const createChapter = (courseId, title) =>
+  axiosClient.post(`/api/courses/${courseId}/chapters`, { title });
+
+export const renameChapter = (chapterId, title) =>
+  axiosClient.put(`/api/chapters/${chapterId}`, { title });
+
+export const swapChapters = (chapterId, targetChapterId) =>
+  axiosClient.post(`/api/chapters/${chapterId}/swap`, { targetChapterId });
+
+// Xóa chương: các bài học trong chương được giữ lại, chuyển sang "chưa phân chương"
+export const deleteChapter = (chapterId) =>
+  axiosClient.delete(`/api/chapters/${chapterId}`);

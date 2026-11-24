@@ -89,6 +89,13 @@ const setCourseHidden = async (rawId, hidden) => {
     await catalogRepository.hideCourse(id);
   } else {
     if (course.status !== 'hidden') throw createHttpError('Khóa học này đang không bị ẩn.', 409);
+    const publicLessonCount = await catalogRepository.countPublicLessons(id);
+    if (publicLessonCount < 1) {
+      throw createHttpError(
+        'Khóa học cần ít nhất một bài học công khai trước khi bỏ ẩn.',
+        400
+      );
+    }
     await catalogRepository.unhideCourse(id);
   }
 

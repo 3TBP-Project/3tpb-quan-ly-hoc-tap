@@ -19,6 +19,7 @@ router.put('/lessons/:lessonId', ...courseManagers, lessonController.updateLesso
 router.delete('/lessons/:lessonId', ...courseManagers, lessonController.deleteLesson);
 router.post('/lessons/:lessonId/file', ...courseManagers, uploadLessonPdf, lessonController.uploadLessonFile);
 router.get('/lessons/:lessonId/file', verifyToken, lessonController.downloadLessonFile);
+router.patch('/lessons/:lessonId/status', ...courseManagers, lessonController.updateLessonStatus);
 router.post('/lessons/:lessonId/swap', ...courseManagers, lessonController.swapLessons);
 
 module.exports = router;

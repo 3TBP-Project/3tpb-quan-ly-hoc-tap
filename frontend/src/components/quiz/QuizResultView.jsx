@@ -28,7 +28,7 @@ export default function QuizResultView({
       <div className="quiz-result__summary-card">
         <div className="quiz-result__header">
           <span className="quiz-badge quiz-badge--success">Đã hoàn thành bài kiểm tra</span>
-          <h2 className="quiz-result__title">Kết quả: {courseTitle || 'Bài kiểm tra khóa học'}</h2>
+          <h2 className="quiz-result__title">{courseTitle || 'Bài kiểm tra khóa học'}</h2>
           {formattedSubmittedTime && (
             <p className="quiz-result__timestamp">Thời gian nộp bài: {formattedSubmittedTime}</p>
           )}
@@ -120,7 +120,7 @@ export default function QuizResultView({
                   </strong>
                 </p>
                 <p className="quiz-review-item__answer-row">
-                  <span>Đáp án đúng: </span>
+                  <span>Đáp án: </span>
                   <strong className="text-success">{item.correctAnswer}</strong>
                 </p>
               </div>

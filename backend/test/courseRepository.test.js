@@ -86,6 +86,8 @@ test('findLessonSummariesByCourseId returns lessons in course order', async (t) 
   const result = await courseRepository.findLessonSummariesByCourseId(4);
 
   assert.deepEqual(received.params, [4]);
-  assert.match(received.sql, /ORDER BY position ASC, id ASC/);
-  assert.deepEqual(result, [{ id: 5, order: 2, title: 'Second' }]);
+  // Thứ tự học: theo chương rồi tới vị trí bài, bài chưa có chương xếp cuối
+  assert.match(received.sql, /LEFT JOIN chapters/);
+  assert.match(received.sql, /ORDER BY COALESCE\(ch\.position, 2147483647\), COALESCE\(ch\.id, 2147483647\), l\.position, l\.id/);
+  assert.deepEqual(result, [{ id: 5, chapterId: null, order: 2, title: 'Second' }]);
 });

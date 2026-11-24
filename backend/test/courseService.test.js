@@ -3,6 +3,10 @@ const assert = require('node:assert/strict');
 const courseRepository = require('../src/repositories/courseRepository');
 const courseService = require('../src/services/courseService');
 
+// Danh sách chương học: không gọi CSDL thật trong unit test
+const chapterRepository = require('../src/repositories/chapterRepository');
+chapterRepository.findByCourseId = async () => [];
+
 const stubRepository = (t, stubs) => {
   const originals = {};
   for (const [method, implementation] of Object.entries(stubs)) {
@@ -32,6 +36,7 @@ test('updateCourse allows an admin and preserves omitted course fields', async (
       findCount += 1;
       return findCount === 1 ? existingCourse : { ...existingCourse, title: 'New title' };
     },
+    countPublicLessons: async () => 1,
     update: async (_id, data) => {
       updatePayload = data;
       return 1;
@@ -50,6 +55,28 @@ test('updateCourse allows an admin and preserves omitted course fields', async (
     status: 'public'
   });
   assert.equal(result.title, 'New title');
+});
+
+test('updateCourse rejects publishing a course without public lessons', async (t) => {
+  stubRepository(t, {
+    findById: async () => ({
+      id: 8,
+      user_id: 12,
+      title: 'Khóa học',
+      description: null,
+      category_id: 3,
+      price_course: 0,
+      quiz_minutes: null,
+      thumbnail: null,
+      status: 'draft'
+    }),
+    countPublicLessons: async () => 0
+  });
+
+  await assert.rejects(
+    courseService.updateCourse(12, 8, { status: 'public' }, 'teacher'),
+    (error) => error.statusCode === 400 && /ít nhất một bài học công khai/.test(error.message)
+  );
 });
 
 test('updateCourse rejects a teacher who does not own the course', async (t) => {
@@ -147,6 +174,6 @@ test('getCourseById hides draft courses from the public but not from managers', 
 
   assert.equal((await courseService.getCourseById(7, 2, 'teacher')).id, 7);
   assert.equal((await courseService.getCourseById(7, 1, 'admin')).id, 7);
-  // học viên đã ghi danh trước khi khóa học chuyển về nháp vẫn xem được
-  assert.equal((await courseService.getCourseById(7, 30, 'student')).id, 7);
+  // học viên đã ghi danh trước khi khóa học chuyển về nháp cũng không xem được nữa
+  await assert.rejects(courseService.getCourseById(7, 30, 'student'), (error) => error.statusCode === 404);
 });

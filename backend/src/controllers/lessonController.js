@@ -183,6 +183,22 @@ const downloadLessonFile = async (req, res) => {
   }
 };
 
+// PATCH /api/lessons/:lessonId/status  { status: 'draft' | 'public' }
+const updateLessonStatus = async (req, res) => {
+  const lessonId = parsePositiveId(req.params.lessonId);
+  if (!lessonId) {
+    return res.status(400).json({ status: 'error', message: 'ID bài học không hợp lệ.' });
+  }
+  try {
+    const data = await lessonService.updateLessonStatus(
+      lessonId, req.user.id, req.user.role, req.body?.status
+    );
+    return res.status(200).json({ status: 'success', data });
+  } catch (error) {
+    return sendError(res, error, 'Không thể đổi trạng thái bài học.', 'Lỗi khi đổi trạng thái bài học:');
+  }
+};
+
 // POST /api/lessons/:lessonId/swap  { targetLessonId }
 const swapLessons = async (req, res) => {
   const lessonId = parsePositiveId(req.params.lessonId);
@@ -208,5 +224,6 @@ module.exports = {
   deleteLesson,
   uploadLessonFile,
   downloadLessonFile,
+  updateLessonStatus,
   swapLessons
 };

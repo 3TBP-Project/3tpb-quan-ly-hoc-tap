@@ -44,7 +44,7 @@ function CourseDetailPage() {
 
   return (
     <>
-      <Button variant="link" className="px-0 mb-3" onClick={() => navigate(-1)}>← Quay lại</Button>
+      <Button variant="link" className="px-0 mb-3" onClick={() => navigate('/', { replace: true })}>← Quay lại</Button>
       {state?.notice && <Alert variant="warning">{state.notice}</Alert>}
       <Row className="g-4">
         <Col lg={8}>
@@ -62,7 +62,7 @@ function CourseDetailPage() {
               </Link>
             )}
           </div>
-          <LessonList lessons={course.lessons} unlocked={isEnrolled} />
+          <LessonList lessons={course.lessons} chapters={course.chapters} unlocked={isEnrolled} />
         </Col>
         <Col className="order-first order-lg-last">
           <img src={course.coverImage} alt={course.title} className="img-fluid rounded mb-3" />

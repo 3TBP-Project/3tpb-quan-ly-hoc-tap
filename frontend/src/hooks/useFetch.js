@@ -17,6 +17,12 @@ export function useFetch(fetcher, params = null) {
 
   useEffect(() => {
     let ignore = false;
+
+    if (typeof fetcher !== 'function') {
+      setResult({ key, data: null, error: null, status: null });
+      return undefined;
+    }
+
     const controller = new AbortController();
 
     fetcher(JSON.parse(key), controller.signal)

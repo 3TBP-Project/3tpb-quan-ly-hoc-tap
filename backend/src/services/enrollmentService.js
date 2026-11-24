@@ -23,6 +23,11 @@ class EnrollmentService {
       throw createError('Chỉ được ghi danh vào khóa học đang công khai.', 400);
     }
 
+    const publicLessonCount = await enrollmentRepository.countPublicLessons(courseId);
+    if (publicLessonCount < 1) {
+      throw createError('Khóa học này chưa có bài học công khai.', 400);
+    }
+
     const existingEnrollment = enrollmentRepository.findByStudentAndCourse
       ? await enrollmentRepository.findByStudentAndCourse(studentId, courseId)
       : await enrollmentRepository.exists(studentId, courseId);

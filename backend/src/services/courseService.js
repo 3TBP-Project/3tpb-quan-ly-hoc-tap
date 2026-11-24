@@ -3,6 +3,7 @@
  * Đảm bảo kiểm tra quyền sở hữu của giảng viên (HT-NFR3) và validate dữ liệu an toàn
  */
 const courseRepository = require('../repositories/courseRepository');
+const chapterRepository = require('../repositories/chapterRepository');
 
 const createCourseError = (message, statusCode) => {
   const error = new Error(message);
@@ -95,6 +96,12 @@ class CourseService {
     }
 
     const validated = validateCoursePayload(courseData, { allowHidden: false });
+    if (validated.status === 'public') {
+      throw createCourseError(
+        'Khóa học mới phải ở trạng thái Nháp cho đến khi có ít nhất một bài học công khai.',
+        400
+      );
+    }
     const payload = {
       ...validated,
       user_id: userId
@@ -126,18 +133,23 @@ class CourseService {
     if (!course) {
       throw createCourseError('Không tìm thấy khóa học!', 404);
     }
+    if (course.status === 'public' && Number(course.lessonCount) < 1) {
+      throw createCourseError('Khóa học chưa có bài học công khai.', 404);
+    }
 
     const isManager = (userId != null && Number(course.teacherId) === Number(userId)) || userRole === 'admin';
-    const canView =
-      course.status === 'public' ||
-      isManager ||
-      (course.status === 'draft' && course.isEnrolled);
+    // Bản nháp / bị ẩn chỉ giảng viên sở hữu và admin xem được,
+    // học viên dù đã ghi danh cũng không thấy nữa
+    const canView = course.status === 'public' || isManager;
     if (!canView) {
       throw createCourseError('Không tìm thấy khóa học!', 404);
     }
 
-    const lessons = await courseRepository.findLessonSummariesByCourseId(id);
-    return { ...course, lessons };
+    const [lessons, chapters] = await Promise.all([
+      courseRepository.findLessonSummariesByCourseId(id),
+      chapterRepository.findByCourseId(id)
+    ]);
+    return { ...course, chapters, lessons };
   }
 
   // ==========================================
@@ -178,6 +190,16 @@ class CourseService {
         validated.status = 'hidden';
       } else if (validated.status === 'hidden') {
         throw createCourseError('Giảng viên chỉ được đặt khóa học ở trạng thái Nháp hoặc Công khai.', 400);
+      }
+    }
+
+    if (validated.status === 'public') {
+      const publicLessonCount = await courseRepository.countPublicLessons(courseId);
+      if (publicLessonCount < 1) {
+        throw createCourseError(
+          'Khóa học cần ít nhất một bài học công khai trước khi công khai khóa học.',
+          400
+        );
       }
     }
 

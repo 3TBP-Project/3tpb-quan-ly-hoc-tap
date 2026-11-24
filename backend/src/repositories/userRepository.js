@@ -89,12 +89,13 @@ const listEnrolledCourses = async (userId) => {
        c.category_id AS categoryId,
        category.name AS categoryName,
        teacher.name AS teacherName,
-       (SELECT COUNT(*) FROM lessons AS l WHERE l.course_id = c.id) AS lessonCount
+       (SELECT COUNT(*) FROM lessons AS l
+        WHERE l.course_id = c.id AND l.status = 'public') AS lessonCount
      FROM enrollments AS e
      JOIN courses AS c ON c.id = e.course_id
      LEFT JOIN categories AS category ON category.id = c.category_id
      LEFT JOIN users AS teacher ON teacher.id = c.user_id
-     WHERE e.user_id = ?
+     WHERE e.user_id = ? AND c.status = 'public'
      ORDER BY c.id DESC`,
     [userId]
   );

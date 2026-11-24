@@ -3,7 +3,8 @@
  * Yêu cầu:
  * - 5 danh mục
  * - 19 người dùng (1 admin, 3 giảng viên, 15 học viên)
- * - 8 khóa học, mỗi khóa 5 bài học và 10 câu hỏi trắc nghiệm
+ * - 8 khóa học, mỗi khóa 3 chương, 5 bài học và 10 câu hỏi trắc nghiệm
+ * - Trạng thái bài học (nháp / công khai) khớp với CSDL hiện tại
  * - Ghi danh, một số lượt làm bài, tiến độ bài học, bình luận và thảo luận mẫu
  * - Mật khẩu demo: 12345678 (được băm bằng bcrypt)
  *
@@ -51,6 +52,13 @@ const COURSES = [
     category_id: 1,
     user_id: 2,
     quiz_minutes: 30,
+    chapters: [
+      'Làm quen với Node.js',
+      'ExpressJS căn bản',
+      'Làm việc với cơ sở dữ liệu'
+    ],
+    // Trạng thái 5 bài học theo thứ tự
+    lessonStatuses: ['public', 'public', 'public', 'public', 'public'],
     lessons: [
       'Giới thiệu Node.js và môi trường runtime',
       'Module, npm và quản lý gói',
@@ -79,6 +87,13 @@ const COURSES = [
     category_id: 1,
     user_id: 2,
     quiz_minutes: 45,
+    chapters: [
+      'Nền tảng React',
+      'Side effect và chia sẻ dữ liệu',
+      'Định tuyến và phân quyền'
+    ],
+    // Trạng thái 5 bài học theo thứ tự
+    lessonStatuses: ['public', 'public', 'public', 'public', 'public'],
     lessons: [
       'Ôn tập JSX, component và props',
       'Quản lý state với useState và useReducer',
@@ -107,6 +122,13 @@ const COURSES = [
     category_id: 2,
     user_id: 3,
     quiz_minutes: 30,
+    chapters: [
+      'Bắt đầu với Flutter',
+      'Điều hướng và dữ liệu',
+      'Quản lý state'
+    ],
+    // Trạng thái 5 bài học theo thứ tự
+    lessonStatuses: ['public', 'public', 'public', 'public', 'public'],
     lessons: [
       'Cài đặt Flutter và tạo project đầu tiên',
       'Widget, layout và hot reload',
@@ -135,6 +157,13 @@ const COURSES = [
     category_id: 2,
     user_id: 3,
     quiz_minutes: 40,
+    chapters: [
+      'Nền tảng Kotlin và Android',
+      'Hiển thị và lưu trữ dữ liệu',
+      'Kết nối mạng'
+    ],
+    // Trạng thái 5 bài học theo thứ tự
+    lessonStatuses: ['draft', 'draft', 'draft', 'draft', 'draft'],
     lessons: [
       'Kotlin cơ bản cho lập trình Android',
       'Activity, Fragment và vòng đời',
@@ -163,6 +192,13 @@ const COURSES = [
     category_id: 3,
     user_id: 4,
     quiz_minutes: 25,
+    chapters: [
+      'Thiết kế cơ sở dữ liệu',
+      'Truy vấn và tối ưu',
+      'Quản trị cơ sở dữ liệu'
+    ],
+    // Trạng thái 5 bài học theo thứ tự
+    lessonStatuses: ['public', 'draft', 'draft', 'draft', 'draft'],
     lessons: [
       'Tổng quan cơ sở dữ liệu quan hệ',
       'Thiết kế bảng, khóa chính và khóa ngoại',
@@ -191,6 +227,13 @@ const COURSES = [
     category_id: 4,
     user_id: 4,
     quiz_minutes: 60,
+    chapters: [
+      'Công cụ nền tảng',
+      'Làm sạch và trực quan hóa dữ liệu',
+      'Phân tích chuyên sâu'
+    ],
+    // Trạng thái 5 bài học theo thứ tự
+    lessonStatuses: ['draft', 'draft', 'draft', 'draft', 'draft'],
     lessons: [
       'NumPy và thao tác trên mảng số',
       'Pandas: Series và DataFrame',
@@ -219,6 +262,13 @@ const COURSES = [
     category_id: 5,
     user_id: 2,
     quiz_minutes: 20,
+    chapters: [
+      'Làm quen với Figma',
+      'Hệ thống thiết kế và tương tác',
+      'Bàn giao thiết kế'
+    ],
+    // Trạng thái 5 bài học theo thứ tự
+    lessonStatuses: ['draft', 'draft', 'draft', 'draft', 'draft'],
     lessons: [
       'Làm quen giao diện Figma và frame',
       'Auto layout và component',
@@ -247,6 +297,13 @@ const COURSES = [
     category_id: 4,
     user_id: 3,
     quiz_minutes: 45,
+    chapters: [
+      'Nhập môn học máy',
+      'Các mô hình cơ bản',
+      'Đánh giá mô hình'
+    ],
+    // Trạng thái 5 bài học theo thứ tự
+    lessonStatuses: ['draft', 'draft', 'draft', 'draft', 'draft'],
     lessons: [
       'Tổng quan học máy và bài toán phân loại',
       'Tiền xử lý dữ liệu với scikit-learn',
@@ -327,6 +384,9 @@ const LESSON_VIDEO_URLS = {
     'https://www.youtube.com/watch?v=glLNo1ZnmPA'
   ]
 };
+
+// Bài thứ i trong khóa thuộc chương nào: bài 1-2 -> chương 1, bài 3-4 -> chương 2, bài 5 -> chương 3
+const LESSON_CHAPTER_INDEX = [0, 0, 1, 1, 2];
 
 const ENROLLMENTS = [
   { user_id: 5, course_id: 1 },
@@ -449,6 +509,24 @@ const buildCourses = () =>
     status: 'public'
   }));
 
+// Mỗi khóa 3 chương, id chương = (id khóa - 1) * 3 + thứ tự chương
+const chapterId = (courseId, chapterIndex) => (courseId - 1) * 3 + chapterIndex + 1;
+
+const buildChapters = () => {
+  const chapters = [];
+  COURSES.forEach((course) => {
+    course.chapters.forEach((title, i) => {
+      chapters.push({
+        id: chapterId(course.id, i),
+        course_id: course.id,
+        title,
+        position: i + 1
+      });
+    });
+  });
+  return chapters;
+};
+
 const buildLessons = () => {
   const lessons = [];
   COURSES.forEach((course) => {
@@ -456,8 +534,10 @@ const buildLessons = () => {
       lessons.push({
         id: (course.id - 1) * 5 + i + 1,
         course_id: course.id,
+        chapter_id: chapterId(course.id, LESSON_CHAPTER_INDEX[i]),
         title,
         content: `Nội dung bài học "${title}" của khóa "${course.title}".`,
+        status: course.lessonStatuses[i],
         video_path: LESSON_VIDEO_URLS[course.id][i],
         position: i + 1
       });
@@ -500,6 +580,7 @@ exports.seed = async function (knex) {
       'comments',
       'questions',
       'lessons',
+      'chapters',
       'enrollments',
       'courses',
       'users',
@@ -511,6 +592,7 @@ exports.seed = async function (knex) {
   await knex('categories').insert(CATEGORIES);
   await knex('users').insert(buildUsers(hashedPassword));
   await knex('courses').insert(buildCourses());
+  await knex('chapters').insert(buildChapters());
   await knex('lessons').insert(buildLessons());
   await knex('questions').insert(buildQuestions());
   await knex('enrollments').insert(ENROLLMENTS);
