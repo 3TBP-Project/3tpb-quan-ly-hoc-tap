@@ -70,9 +70,9 @@ function QuestionCard({ question, maxAttempts }) {
       <footer className="qr-answer-bar">
         <span className="qr-answer-key">
           {question.correctAnswer != null ? (
-            <>Đáp án đúng: <b>{question.correctLabel ?? question.correctAnswer}</b></>
+            <>Đáp án: <b>{question.correctLabel ?? question.correctAnswer}</b></>
           ) : (
-            <span className="qr-answer-hidden">Đáp án đúng: ẩn đến khi dùng hết {maxAttempts} lượt</span>
+            <span className="qr-answer-hidden">Đáp án: ẩn đến khi dùng hết {maxAttempts} lượt</span>
           )}
           {!question.isAnswered && <span className="qr-answer-skip"></span>}
         </span>
