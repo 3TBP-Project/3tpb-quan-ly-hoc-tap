@@ -21,7 +21,8 @@ const getQuestionsByCourseId = async (courseId) => {
   return rows;
 };
 
-const createAttemptWithLock = async ({ userId, courseId, startedAt, maxAttempts }) => {
+// questions: [{ id, content, options }] – thứ tự lựa chọn đã xáo, lưu lại để xem bài cũ
+const createAttemptWithLock = async ({ userId, courseId, startedAt, maxAttempts, questions = [] }) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
@@ -56,6 +57,17 @@ const createAttemptWithLock = async ({ userId, courseId, startedAt, maxAttempts 
       [userId, courseId, startedAt]
     );
 
+    if (questions.length > 0) {
+      await connection.query(
+        `INSERT INTO quiz_attempt_answers
+         (attempt_id, question_id, position, question_content, options, selected_answer, correct_answer, is_correct)
+         VALUES ?`,
+        [questions.map((q, index) => [
+          result.insertId, q.id, index + 1, q.content, JSON.stringify(q.options), null, null, false
+        ])]
+      );
+    }
+
     await connection.commit();
 
     return {
@@ -85,14 +97,58 @@ const findAttemptById = async (attemptId) => {
   return rows[0] || null;
 };
 
-const updateAttemptResultIfNotSubmitted = async (attemptId, userId, { score, submitted_at }) => {
-  const [result] = await pool.query(
-    `UPDATE quiz_attempts
-     SET score = ?, status = 'submitted', submitted_at = ?
-     WHERE id = ? AND user_id = ? AND submitted_at IS NULL`,
-    [score, submitted_at, attemptId, userId]
-  );
-  return result.affectedRows > 0;
+// Nộp bài trong một transaction: chốt điểm (chỉ khi chưa nộp) rồi ghi chi tiết từng câu.
+// details: [{ questionId, content, selectedAnswer, correctAnswer, isCorrect, options }]
+// options lấy theo thứ tự đã lưu lúc bắt đầu; câu nào chưa có thì dùng options truyền vào.
+const updateAttemptResultIfNotSubmitted = async (attemptId, userId, { score, submitted_at }, details = []) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const [result] = await connection.query(
+      `UPDATE quiz_attempts
+       SET score = ?, status = 'submitted', submitted_at = ?
+       WHERE id = ? AND user_id = ? AND submitted_at IS NULL`,
+      [score, submitted_at, attemptId, userId]
+    );
+    if (result.affectedRows === 0) {
+      await connection.rollback();
+      return false;
+    }
+
+    if (details.length > 0) {
+      const [snapshots] = await connection.query(
+        'SELECT question_id AS questionId, options FROM quiz_attempt_answers WHERE attempt_id = ?',
+        [attemptId]
+      );
+      const savedOptions = new Map(snapshots.map((row) => [Number(row.questionId), row.options]));
+
+      await connection.query('DELETE FROM quiz_attempt_answers WHERE attempt_id = ?', [attemptId]);
+      await connection.query(
+        `INSERT INTO quiz_attempt_answers
+         (attempt_id, question_id, position, question_content, options, selected_answer, correct_answer, is_correct)
+         VALUES ?`,
+        [details.map((item, index) => [
+          attemptId,
+          item.questionId,
+          index + 1,
+          item.content,
+          savedOptions.get(Number(item.questionId)) ?? JSON.stringify(item.options ?? []),
+          typeof item.selectedAnswer === 'string' ? item.selectedAnswer.slice(0, 255) : null,
+          item.correctAnswer,
+          item.isCorrect
+        ])]
+      );
+    }
+
+    await connection.commit();
+    return true;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 };
 
 const getBestScore = async (userId, courseId) => {

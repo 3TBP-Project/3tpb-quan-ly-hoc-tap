@@ -90,7 +90,8 @@ const start = async (userId, courseId) => {
     userId,
     courseId,
     startedAt,
-    maxAttempts: MAX_ATTEMPTS
+    maxAttempts: MAX_ATTEMPTS,
+    questions: sanitizedQuestions
   });
 
   return {
@@ -159,7 +160,9 @@ const submit = async (attemptId, userId, answers = {}) => {
       content: q.content,
       selectedAnswer,
       correctAnswer: q.correct_answer,
-      isCorrect
+      isCorrect,
+      // Dự phòng khi lượt làm bài chưa lưu thứ tự lựa chọn (câu hỏi được thêm sau khi bắt đầu)
+      options: [q.correct_answer, ...getFalseOptions(q)]
     };
   });
 
@@ -171,7 +174,7 @@ const submit = async (attemptId, userId, answers = {}) => {
   const updated = await quizRepository.updateAttemptResultIfNotSubmitted(attemptId, userId, {
     score,
     submitted_at: now
-  });
+  }, details);
 
   if (!updated) {
     throw createHttpError('Lượt làm bài này đã được nộp trước đó.', 400);
