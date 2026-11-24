@@ -107,7 +107,7 @@
   display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 14px;
   padding-top: 12px; border-top: 1px dashed var(--qr-border);
 }
-.qr-answer-key { color: var(--qr-wrong); font-weight: 600; }
+.qr-answer-key { color: #1e3a8a; font-weight: 600; }
 .qr-answer-key b { font-size: 15px; }
 .qr-answer-hidden { color: var(--qr-muted); font-weight: 500; font-style: italic; }
 .qr-notice {
@@ -115,7 +115,7 @@
   background: #fffbeb; border: 1px solid #fde68a; color: #92400e; line-height: 1.5;
 }
 .qr-answer-skip { color: var(--qr-muted); font-weight: 500; }
-.qr-bubbles { display: inline-flex; gap: 10px; padding: 6px 14px; border: 1px solid var(--qr-wrong-border); border-radius: 6px; }
+.qr-bubbles { display: inline-flex; gap: 10px; padding: 6px 14px; border: 1.5px solid #1e3a8a; border-radius: 6px; background: #fff; }
 .qr-bubble {
   display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
   border: 1px solid transparent; font-weight: 600; color: var(--qr-text);
