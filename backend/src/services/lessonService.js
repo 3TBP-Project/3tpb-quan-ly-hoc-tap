@@ -1,6 +1,7 @@
 const enrollmentRepository = require('../repositories/enrollmentRepository');
 const lessonRepository = require('../repositories/lessonRepository');
 const courseRepository = require('../repositories/courseRepository');
+const chapterRepository = require('../repositories/chapterRepository');
 const fs = require('fs');
 const path = require('path');
 const { PRIVATE_PDF_DIR } = require('../middlewares/pdfUploadMiddleware');
@@ -29,20 +30,67 @@ const createHttpError = (message, statusCode) => {
   return error;
 };
 
+// HT-10: trạng thái bài học. Bản nháp (draft) chỉ giảng viên/admin thấy,
+// công khai (public) mới hiển thị cho học viên.
+const LESSON_STATUSES = ['draft', 'public'];
+
+// Khóa học bản nháp (draft) hoặc bị ẩn (hidden) thì học viên không được vào học nữa,
+// kể cả khi đã ghi danh từ trước.
+const COURSE_UNAVAILABLE_MESSAGE = 'Khóa học hiện không còn công khai nên bạn không thể vào học.';
+
+const assertCourseOpenForStudent = (courseStatus) => {
+  if (courseStatus !== 'public') throw createHttpError(COURSE_UNAVAILABLE_MESSAGE, 404);
+};
+
+// Học viên không được truy cập bài nháp hoặc bài của khóa học chưa công khai:
+// trả 404 để không lộ sự tồn tại của bài
+const assertLessonVisibleToStudent = (lesson) => {
+  assertCourseOpenForStudent(lesson.course_status);
+  if (lesson.status !== 'public') throw createHttpError('Không tìm thấy bài học.', 404);
+};
+
+// Học tuần tự (giống F8): phải hoàn thành hết các bài trước mới mở được bài này
+const LESSON_LOCKED_MESSAGE = 'Bạn cần hoàn thành các bài học trước để mở khóa bài này.';
+
+const assertLessonUnlocked = async (userId, lesson) => {
+  if (await lessonRepository.countIncompletePrevious(userId, lesson) > 0) {
+    throw createHttpError(LESSON_LOCKED_MESSAGE, 403);
+  }
+};
+
+// Bài đầu tiên chưa hoàn thành và mọi bài trước nó được mở; các bài sau bị khóa
+// và không gửi nội dung (video, văn bản, tệp) về trình duyệt.
+const applySequentialLock = (lessons) => {
+  const firstIncomplete = lessons.findIndex((lesson) => !lesson.isCompleted);
+  return lessons.map((lesson, index) => {
+    const isLocked = firstIncomplete !== -1 && index > firstIncomplete;
+    return isLocked
+      ? { ...lesson, isLocked, content: null, videoUrl: null, fileUrl: null }
+      : { ...lesson, isLocked };
+  });
+};
+
 const getLearnData = async (userId, courseId) => {
   const course = await lessonRepository.findCourseById(courseId);
   if (!course) {
     throw createHttpError('Không tìm thấy khóa học.', 404);
   }
+  assertCourseOpenForStudent(course.status);
 
   const isEnrolled = await enrollmentRepository.exists(userId, courseId);
   if (!isEnrolled) {
     throw createHttpError('Bạn cần ghi danh khóa học trước khi vào học.', 403);
   }
 
-  const lessons = await lessonRepository.findByCourseIdWithProgress(courseId, userId);
+  const [lessonRows, chapters] = await Promise.all([
+    lessonRepository.findByCourseIdWithProgress(courseId, userId),
+    chapterRepository.findByCourseId(courseId)
+  ]);
+  const lessons = applySequentialLock(lessonRows);
   return {
     course: { id: Number(course.id), title: course.title },
+    // Danh sách chương để giao diện nhóm bài học (lessons đã xếp theo chương rồi tới bài)
+    chapters,
     lessons,
     completedLessonIds: lessons.filter((lesson) => lesson.isCompleted).map((lesson) => lesson.id)
   };
@@ -58,6 +106,8 @@ const completeLesson = async (userId, lessonId) => {
   if (!isEnrolled) {
     throw createHttpError('Bạn cần ghi danh khóa học trước khi cập nhật tiến độ.', 403);
   }
+  assertLessonVisibleToStudent(lesson);
+  await assertLessonUnlocked(userId, lesson);
 
   await lessonRepository.markCompleted(userId, lessonId);
   return { lessonId: Number(lessonId), completed: true };
@@ -76,6 +126,8 @@ const getLesson = async (userId, lessonId) => {
   if (!isEnrolled) {
     throw createHttpError('Bạn cần ghi danh khóa học trước khi xem bài học.', 403);
   }
+  assertLessonVisibleToStudent(lesson);
+  await assertLessonUnlocked(userId, lesson);
 
   return {
     id: Number(lesson.id),
@@ -84,7 +136,9 @@ const getLesson = async (userId, lessonId) => {
     content: lesson.content,
     video_path: lesson.video_path,
     file_path: lesson.file_path,
-    position: Number(lesson.position)
+    position: Number(lesson.position),
+    chapterId: lesson.chapter_id == null ? null : Number(lesson.chapter_id),
+    status: lesson.status
   };
 };
 
@@ -101,7 +155,8 @@ const normalizeLessonInput = (data) => {
     throw createHttpError('Dữ liệu bài học không hợp lệ.', 400);
   }
   const allowedFields = [
-    'title', 'content', 'videoPath', 'filePath', 'video_path', 'file_path', 'position'
+    'title', 'content', 'videoPath', 'filePath', 'video_path', 'file_path', 'position', 'status',
+    'chapterId', 'chapter_id'
   ];
   if (Object.keys(data).some((field) => !allowedFields.includes(field))) {
     throw createHttpError('Dữ liệu bài học chứa trường không được phép.', 400);
@@ -114,10 +169,21 @@ const normalizeLessonInput = (data) => {
       data.filePath !== data.file_path) {
     throw createHttpError('Chỉ gửi một trong hai trường filePath hoặc file_path.', 400);
   }
+  if (data.chapterId !== undefined && data.chapter_id !== undefined &&
+      data.chapterId !== data.chapter_id) {
+    throw createHttpError('Chỉ gửi một trong hai trường chapterId hoặc chapter_id.', 400);
+  }
   const videoPath = data.videoPath !== undefined ? data.videoPath : data.video_path;
   const filePath = data.filePath !== undefined ? data.filePath : data.file_path;
+  const rawChapterId = data.chapterId !== undefined ? data.chapterId : data.chapter_id;
   return {
     ...data,
+    // '' hoặc null = bài học không thuộc chương nào
+    chapterId: rawChapterId === '' || rawChapterId === null
+      ? null
+      : typeof rawChapterId === 'string' && /^\d+$/.test(rawChapterId)
+        ? Number(rawChapterId)
+        : rawChapterId,
     content: data.content === '' ? null : data.content,
     videoPath: videoPath === '' ? null : videoPath,
     filePath: filePath === '' ? null : filePath,
@@ -144,6 +210,22 @@ const validateLesson = (data) => {
     (!Number.isSafeInteger(data.position) || data.position < 1 || data.position > 2147483647)) {
     throw createHttpError('position phải là số nguyên dương.', 400);
   }
+  if (data.status !== undefined && !LESSON_STATUSES.includes(data.status)) {
+    throw createHttpError('Trạng thái bài học chỉ được là "draft" hoặc "public".', 400);
+  }
+  if (data.chapterId !== undefined && data.chapterId !== null &&
+    (!Number.isSafeInteger(data.chapterId) || data.chapterId < 1)) {
+    throw createHttpError('chapterId phải là số nguyên dương hoặc null.', 400);
+  }
+};
+
+// Chương được chọn phải tồn tại và thuộc đúng khóa học của bài
+const assertChapterInCourse = async (chapterId, courseId) => {
+  if (chapterId == null) return;
+  const chapter = await chapterRepository.findById(chapterId);
+  if (!chapter || Number(chapter.courseId) !== Number(courseId)) {
+    throw createHttpError('Chương học không tồn tại trong khóa học này.', 400);
+  }
 };
 
 const assertPositionFree = async (courseId, position, excludeLessonId = null) => {
@@ -163,15 +245,19 @@ const createLesson = async (courseId, userId, role, data) => {
   if (normalized.filePath != null) {
     throw createHttpError('Tệp PDF phải được tải lên bằng chức năng chọn tệp.', 400);
   }
+  await assertChapterInCourse(normalized.chapterId, courseId);
   const position = normalized.position ?? (await lessonRepository.findMaxPosition(courseId)) + 1;
   await assertPositionFree(courseId, position);
   const lessonId = await lessonRepository.create({
     courseId,
+    chapterId: normalized.chapterId ?? null,
     title: normalized.title.trim(),
     content: normalized.content ?? null,
     videoPath: normalized.videoPath ?? null,
     filePath: null,
-    position
+    position,
+    // Bài mới mặc định là bản nháp, giảng viên chủ động công khai khi đã sẵn sàng
+    status: normalized.status ?? 'draft'
   });
   return lessonRepository.findById(lessonId);
 };
@@ -191,9 +277,14 @@ const updateLesson = async (lessonId, userId, role, updates) => {
     content: normalizedUpdates.content !== undefined ? normalizedUpdates.content : lesson.content,
     videoPath: normalizedUpdates.videoPath !== undefined ? normalizedUpdates.videoPath : lesson.video_path,
     filePath: normalizedUpdates.filePath !== undefined ? normalizedUpdates.filePath : lesson.file_path,
-    position: normalizedUpdates.position !== undefined ? normalizedUpdates.position : lesson.position
+    position: normalizedUpdates.position !== undefined ? normalizedUpdates.position : lesson.position,
+    status: normalizedUpdates.status !== undefined ? normalizedUpdates.status : lesson.status,
+    chapterId: normalizedUpdates.chapterId !== undefined ? normalizedUpdates.chapterId : (lesson.chapter_id ?? null)
   };
   validateLesson(merged);
+  if (merged.chapterId != null && Number(merged.chapterId) !== Number(lesson.chapter_id)) {
+    await assertChapterInCourse(merged.chapterId, lesson.course_id);
+  }
   // file_path chỉ được giữ nguyên hoặc xóa (null); tệp mới phải đi qua API tải lên
   if (merged.filePath != null && merged.filePath !== lesson.file_path) {
     throw createHttpError('Tệp PDF phải được tải lên bằng chức năng chọn tệp.', 400);
@@ -205,6 +296,7 @@ const updateLesson = async (lessonId, userId, role, updates) => {
     ...merged,
     title: merged.title.trim()
   });
+  await courseRepository.setDraftIfNoPublicLessons(lesson.course_id);
   if (lesson.file_path && merged.filePath == null) {
     await removeStoredPdf(lesson.file_path);
   }
@@ -217,6 +309,7 @@ const deleteLesson = async (lessonId, userId, role) => {
   await requireCourseManager(lesson.course_id, userId, role);
   await lessonRepository.remove(lessonId);
   await removeStoredPdf(lesson.file_path);
+  await courseRepository.setDraftIfNoPublicLessons(lesson.course_id);
 };
 
 // HT-10: giảng viên tải tệp PDF cho bài học (tệp đã được pdfUploadMiddleware lưu tạm)
@@ -260,6 +353,8 @@ const getLessonFile = async (lessonId, userId, role) => {
     if (!isEnrolled) {
       throw createHttpError('Bạn cần ghi danh khóa học trước khi tải tài liệu.', 403);
     }
+    assertLessonVisibleToStudent(lesson);
+    await assertLessonUnlocked(userId, lesson);
   } else {
     await requireCourseManager(lesson.course_id, userId, role);
   }
@@ -270,6 +365,19 @@ const getLessonFile = async (lessonId, userId, role) => {
   }
   const safeTitle = String(lesson.title).replace(/[\\/:*?"<>|\r\n]+/g, ' ').trim() || 'tai-lieu';
   return { fullPath, downloadName: `${safeTitle}.pdf` };
+};
+
+// HT-10: PATCH trạng thái bài học (Bản nháp <-> Công khai)
+const updateLessonStatus = async (lessonId, userId, role, status) => {
+  if (!LESSON_STATUSES.includes(status)) {
+    throw createHttpError('Trạng thái bài học chỉ được là "draft" hoặc "public".', 400);
+  }
+  const lesson = await lessonRepository.findById(lessonId);
+  if (!lesson) throw createHttpError('Không tìm thấy bài học.', 404);
+  await requireCourseManager(lesson.course_id, userId, role);
+  await lessonRepository.updateStatus(lessonId, status);
+  await courseRepository.setDraftIfNoPublicLessons(lesson.course_id);
+  return lessonRepository.findById(lessonId);
 };
 
 // Đổi chỗ hai bài học cùng khóa (nút lên / xuống)
@@ -299,5 +407,6 @@ module.exports = {
   deleteLesson,
   uploadLessonFile,
   getLessonFile,
+  updateLessonStatus,
   swapLessons
 };
