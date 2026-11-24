@@ -267,6 +267,9 @@ function QuizHistory({ history, loading, error }) {
               <tr key={attempt.attemptId}>
                 <td>
                   <span className="pf-attempt-tag">Lần {attempt.attemptNumber}</span>
+                  {attempt.status === 'expired' && (
+                    <span className="pf-expired-tag" title="Lượt này bị bỏ dở và hệ thống tự đóng khi hết giờ">Bỏ dở</span>
+                  )}
                   {attempt.score === course.bestScore && <span className="pf-best-mark">● Cao nhất</span>}
                 </td>
                 <td className={`pf-score ${scoreClass(attempt.score)}`}>{formatScore(attempt.score)}</td>
