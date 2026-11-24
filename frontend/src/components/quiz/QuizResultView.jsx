@@ -17,6 +17,7 @@ export default function QuizResultView({
     totalQuestions = 0,
     submittedAt,
     details = [],
+    answersRevealed = true,
   } = result || {};
 
   const formattedSubmittedTime = submittedAt
@@ -90,6 +91,11 @@ export default function QuizResultView({
 
       <div className="quiz-result__review-section">
         <h3 className="quiz-result__section-heading">Chi tiết đáp án sau khi nộp bài</h3>
+        {!answersRevealed && (
+          <p className="quiz-result__answers-hidden">
+            Đáp án đúng của các câu sai / bỏ trống sẽ được hiển thị khi bạn đã dùng hết {maxAttempts} lượt làm bài.
+          </p>
+        )}
 
         <div className="quiz-review-list">
           {details.map((item, index) => (
@@ -121,7 +127,11 @@ export default function QuizResultView({
                 </p>
                 <p className="quiz-review-item__answer-row">
                   <span>Đáp án: </span>
-                  <strong className="text-success">{item.correctAnswer}</strong>
+                  {item.correctAnswer != null ? (
+                    <strong className="text-success">{item.correctAnswer}</strong>
+                  ) : (
+                    <span className="text-muted fst-italic">Ẩn cho đến khi bạn dùng hết {maxAttempts} lượt</span>
+                  )}
                 </p>
               </div>
             </div>
