@@ -11,6 +11,7 @@ import ErrorMessage from '../components/common/ErrorMessage';
 import LessonList from '../components/course/LessonList';
 import EnrollButton from '../components/course/EnrollButton';
 import NotFoundPage from './NotFoundPage';
+import UserAvatar from '../components/common/UserAvatar';
 
 function CourseDetailPage() {
   const { id } = useParams();
@@ -50,7 +51,10 @@ function CourseDetailPage() {
         <Col lg={8}>
           <Badge bg="primary" className="mb-2">{course.categoryName}</Badge>
           <h1 className="h3">{course.title}</h1>
-          <p className="text-muted">Giảng viên: {course.teacherName}</p>
+          <div className="d-flex align-items-center gap-2 text-muted mb-3">
+            <UserAvatar name={course.teacherName} avatar={course.teacherAvatar} role="teacher" size={36} />
+            <span>Giảng viên: <span className="text-body fw-semibold">{course.teacherName}</span></span>
+          </div>
           <h2 className="h5 mt-4">Mô tả</h2>
           <p>{course.description}</p>
           <div className="d-flex justify-content-between align-items-center mt-4 mb-2">

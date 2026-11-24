@@ -59,6 +59,7 @@ export function saveEnrolledCourse(courseOrId) {
       title: courseObj.title || existing.title || `Khóa học #${id}`,
       coverImage: courseObj.coverImage || existing.coverImage || '/images/course-default.jpg',
       teacherName: courseObj.teacherName || existing.teacherName || 'Giảng viên',
+      teacherAvatar: courseObj.teacherAvatar ?? existing.teacherAvatar ?? null,
       categoryName: courseObj.categoryName || existing.categoryName || '',
       lessonCount: courseObj.lessonCount ?? existing.lessonCount ?? 0,
     };
