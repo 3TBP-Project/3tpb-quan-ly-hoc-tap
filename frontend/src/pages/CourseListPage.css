@@ -1,0 +1,240 @@
+/* AI-assisted [AI-16] — Figma "Trang chủ · Desktop/Mobile" (trang "Trang chủ – thiết kế") */
+.ht-home {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 8px 0 40px;
+}
+
+/* ---------- Khối giới thiệu ---------- */
+.ht-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 40px;
+  border-radius: var(--ht-radius-xl);
+  background: var(--ht-primary-soft);
+  overflow: hidden;
+}
+
+.ht-intro__text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 620px;
+}
+
+.ht-intro__art {
+  position: relative;
+  flex: 0 0 330px;
+  height: 132px;
+}
+
+.ht-intro__blob {
+  position: absolute;
+  left: 120px;
+  top: -10px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--ht-primary);
+  opacity: 0.16;
+}
+
+.ht-intro__sticker {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  border: 2px solid var(--cat-solid);
+  background: var(--cat-bg);
+  color: var(--cat-fg);
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.ht-intro__sticker--1 { left: 20px; top: 30px; transform: rotate(8deg); }
+.ht-intro__sticker--2 { left: 104px; top: 4px; transform: rotate(-6deg); }
+.ht-intro__sticker--3 { left: 188px; top: 46px; transform: rotate(4deg); }
+.ht-intro__sticker--4 { left: 262px; top: 8px; width: 56px; height: 56px; transform: rotate(-9deg); }
+
+/* ---------- Tiêu đề danh sách ---------- */
+.ht-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ht-home__list {
+  transition: opacity 150ms ease-out;
+}
+
+.ht-home__list.is-refreshing {
+  opacity: 0.5;
+}
+
+/* ---------- Trạng thái trống / lỗi (Figma "Trạng thái danh sách") ---------- */
+.ht-list-state {
+  width: 100%;
+  max-width: 480px;
+  margin: 20px auto 0;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+}
+
+.ht-list-state__art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--ht-primary-soft);
+  --art-fg: var(--ht-primary);
+}
+
+.ht-list-state__art--error {
+  background: var(--ht-error-bg);
+  --art-fg: var(--ht-error-fg);
+}
+
+.ht-list-state__sticker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  border: 2px solid var(--art-fg);
+  background: var(--ht-bg-surface);
+  color: var(--art-fg);
+}
+
+.ht-list-state__sticker i {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--art-fg);
+}
+
+.ht-list-state__sticker strong {
+  font-family: var(--ht-font-heading);
+  font-size: 26px;
+  line-height: 34px;
+}
+
+.ht-list-state .ht-btn {
+  margin-top: 8px;
+}
+
+/* ---------- Modal "Cần đăng nhập" ---------- */
+.ht-modal-dialog {
+  max-width: 480px;
+}
+
+.ht-modal {
+  gap: 12px;
+  padding: 28px;
+  border: 0;
+  border-radius: var(--ht-radius-xl);
+  background: var(--ht-bg-surface);
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+}
+
+.ht-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.modal-backdrop.ht-backdrop {
+  background: var(--ht-overlay);
+}
+
+.modal-backdrop.ht-backdrop.show {
+  opacity: 1;
+}
+
+/* Modal mở: lớp phủ mờ dần + hộp thoại phóng 96→100% trong 200ms */
+.modal.fade .ht-modal-dialog {
+  transform: scale(0.96);
+  transition: transform 200ms ease-out;
+}
+
+.modal.show .ht-modal-dialog {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal.fade .ht-modal-dialog { transition: none; transform: none; }
+}
+
+/* ---------- Điện thoại ---------- */
+@media (max-width: 767.98px) {
+  .ht-home {
+    gap: 20px;
+    padding-top: 0;
+  }
+
+  .ht-intro {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 20px;
+  }
+
+  .ht-intro .ht-h1 {
+    font-size: 28px;
+    line-height: 34px;
+  }
+
+  /* Sticker xếp thành 1 hàng thấp bên dưới chữ */
+  .ht-intro__art {
+    flex-basis: auto;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .ht-intro__blob { display: none; }
+
+  .ht-intro__sticker {
+    position: static;
+    width: 52px;
+    height: 52px;
+  }
+
+  .ht-intro__sticker--4 { width: 52px; height: 52px; }
+
+  .ht-list-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .ht-list-head .ht-body-muted {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .ht-list-state {
+    padding: 28px 20px;
+  }
+}

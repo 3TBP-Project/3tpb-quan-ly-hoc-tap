@@ -1,0 +1,222 @@
+/* AI-assisted [AI-16]
+ * Bộ màu "Học Vui" lấy từ Figma (biến "HT · Màu (Sáng)" / "HT · Màu (Tối)",
+ * "HT · Khoảng cách & bo góc", "HT · Chữ & đổ bóng").
+ * Chế độ tối bật bằng thuộc tính data-theme="dark" trên thẻ <html> (xem utils/theme.js).
+ */
+
+:root {
+  /* Màu nền, viền, chữ */
+  --ht-bg-page: #fff9f2;
+  --ht-bg-surface: #ffffff;
+  --ht-bg-surface-2: #f3f0ff;
+  --ht-border-default: #e7e2f5;
+  --ht-border-strong: #8e89b5;
+  --ht-text-primary: #1b1a3a;
+  --ht-text-secondary: #55547a;
+  --ht-text-on-primary: #ffffff;
+
+  /* Màu nhấn chính */
+  --ht-primary: #5b3ff0;
+  --ht-primary-press: #3f27c2;
+  --ht-primary-soft: #ece8ff;
+  --ht-shadow-primary: rgba(91, 63, 240, 0.18);
+  --ht-overlay: rgba(27, 26, 58, 0.55);
+
+  /* Màu ngữ nghĩa */
+  --ht-success-fg: #15803d;
+  --ht-success-bg: #dcfce7;
+  --ht-error-fg: #b91c1c;
+  --ht-error-bg: #fee2e2;
+  --ht-warning-fg: #92400e;
+  --ht-warning-bg: #fef3c7;
+
+  /* Bo góc */
+  --ht-radius-sm: 10px;
+  --ht-radius-md: 14px;
+  --ht-radius-lg: 20px;
+  --ht-radius-xl: 28px;
+  --ht-radius-full: 999px;
+
+  /* Chữ */
+  --ht-font-heading: 'Baloo 2', 'Be Vietnam Pro', system-ui, sans-serif;
+  --ht-font-body: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Bootstrap dùng chung font và màu nền của giao diện mới */
+  --bs-body-font-family: var(--ht-font-body);
+  --bs-body-bg: var(--ht-bg-page);
+  --bs-body-color: var(--ht-text-primary);
+}
+
+:root[data-theme='dark'] {
+  --ht-bg-page: #0e1330;
+  --ht-bg-surface: #161c3f;
+  --ht-bg-surface-2: #1f2752;
+  --ht-border-default: #2e3766;
+  --ht-border-strong: #6b74a8;
+  --ht-text-primary: #eef1ff;
+  --ht-text-secondary: #aab2dd;
+  --ht-text-on-primary: #0e1330;
+
+  --ht-primary: #9b87ff;
+  --ht-primary-press: #6a55e0;
+  --ht-primary-soft: #2a2560;
+  --ht-shadow-primary: rgba(155, 135, 255, 0.35);
+  --ht-overlay: rgba(5, 8, 24, 0.7);
+
+  --ht-success-fg: #4ade80;
+  --ht-success-bg: #12352a;
+  --ht-error-fg: #ff7a7a;
+  --ht-error-bg: #3d1a24;
+  --ht-warning-fg: #ffc24d;
+  --ht-warning-bg: #3a2e12;
+}
+
+/* Màu riêng cho từng danh mục: fg = chữ, bg = nền nhạt, solid = khối màu đậm */
+.ht-cat--lap-trinh { --cat-fg: #4b2fd0; --cat-bg: #eee9ff; --cat-solid: #7b61ff; }
+.ht-cat--thiet-ke { --cat-fg: #b0145e; --cat-bg: #ffe6f1; --cat-solid: #ff4f9a; }
+.ht-cat--ngoai-ngu { --cat-fg: #00695f; --cat-bg: #ddf7f4; --cat-solid: #00b8a9; }
+.ht-cat--kinh-doanh { --cat-fg: #a84300; --cat-bg: #ffebdd; --cat-solid: #ff8a3d; }
+.ht-cat--du-lieu { --cat-fg: #0b5cad; --cat-bg: #e1f0ff; --cat-solid: #3da5ff; }
+.ht-cat--marketing { --cat-fg: #4a5c00; --cat-bg: #f1fad0; --cat-solid: #b8e000; }
+
+:root[data-theme='dark'] .ht-cat--lap-trinh { --cat-fg: #a48bff; --cat-bg: #2a2560; --cat-solid: #6e55f0; }
+:root[data-theme='dark'] .ht-cat--thiet-ke { --cat-fg: #ff6fb5; --cat-bg: #3a1f45; --cat-solid: #e0458c; }
+:root[data-theme='dark'] .ht-cat--ngoai-ngu { --cat-fg: #2ee6d0; --cat-bg: #12363f; --cat-solid: #0e9c90; }
+:root[data-theme='dark'] .ht-cat--kinh-doanh { --cat-fg: #ffa35c; --cat-bg: #3d2a1c; --cat-solid: #e8742a; }
+:root[data-theme='dark'] .ht-cat--du-lieu { --cat-fg: #5cb8ff; --cat-bg: #16304f; --cat-solid: #2d86d6; }
+:root[data-theme='dark'] .ht-cat--marketing { --cat-fg: #d4f53c; --cat-bg: #2c3412; --cat-solid: #93b100; }
+
+/* Khung nội dung: rộng 1206px như Figma (lề 80px ở màn 1366), lề 16px trên điện thoại */
+.ht-container {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 1200px) {
+  .ht-container {
+    max-width: calc(1206px + 2 * 16px);
+  }
+}
+
+/* ---------- Chữ ---------- */
+.ht-h1 {
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 42px;
+  color: var(--ht-text-primary);
+  margin: 0;
+}
+
+.ht-h2 {
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 34px;
+  color: var(--ht-text-primary);
+  margin: 0;
+}
+
+.ht-h3 {
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+  margin: 0;
+}
+
+.ht-body {
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+  margin: 0;
+}
+
+.ht-body-muted {
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-secondary);
+  margin: 0;
+}
+
+.ht-caption {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+/* ---------- Nút ---------- */
+.ht-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--ht-radius-md);
+  border: 2px solid transparent;
+  font-family: var(--ht-font-body);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 100ms ease-out, box-shadow 100ms ease-out, background-color 150ms ease-out,
+    filter 150ms ease-out;
+}
+
+.ht-btn:focus-visible {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-btn--primary {
+  /* Không có viền: cao 48px như Figma */
+  border-width: 0;
+  background: var(--ht-primary);
+  color: var(--ht-text-on-primary);
+  box-shadow: 0 4px 0 var(--ht-primary-press);
+}
+
+.ht-btn--secondary {
+  background: var(--ht-bg-surface);
+  color: var(--ht-primary);
+  border-color: var(--ht-primary);
+}
+
+.ht-btn--ghost {
+  border-width: 0;
+  background: transparent;
+  color: var(--ht-primary);
+}
+
+.ht-btn:hover {
+  filter: brightness(1.06);
+  color: inherit;
+}
+
+.ht-btn--primary:hover { color: var(--ht-text-on-primary); }
+.ht-btn--secondary:hover,
+.ht-btn--ghost:hover { color: var(--ht-primary); }
+.ht-btn--ghost:hover { background: var(--ht-primary-soft); }
+
+/* Nhấn: lún 2px trong 100ms */
+.ht-btn:active { transform: translateY(2px); }
+.ht-btn--primary:active { box-shadow: 0 2px 0 var(--ht-primary-press); }
+
+.ht-btn:disabled,
+.ht-btn[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ht-btn,
+  .ht-btn:active {
+    transition: none;
+    transform: none;
+  }
+}

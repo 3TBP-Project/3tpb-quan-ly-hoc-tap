@@ -1,7 +1,12 @@
-// AI-assisted [AI-04] [AI-07]
-import { Container, Nav, Navbar, Button } from 'react-bootstrap';
+// AI-assisted [AI-04] [AI-07] [AI-16]
+import { useState } from 'react';
+import { Container, Nav, Navbar } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
+import { getInitials } from '../../utils/categoryTheme';
+import { applyTheme, getSavedTheme } from '../../utils/theme';
+import Logo from './Logo';
+import './layout.css';
 
 const MENU_BY_ROLE = {
   guest: [{ to: '/', label: 'Khóa học' }],
@@ -22,55 +27,120 @@ const MENU_BY_ROLE = {
   ],
 };
 
+const ROLE_LABEL = { student: 'Học viên', teacher: 'Giảng viên', admin: 'Quản trị viên' };
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState(getSavedTheme);
+  const isDark = theme === 'dark';
+
+  const toggle = () => {
+    const next = isDark ? 'light' : 'dark';
+    applyTheme(next);
+    setTheme(next);
+  };
+
+  return (
+    <button
+      type="button"
+      className="ht-icon-btn"
+      onClick={toggle}
+      aria-label={isDark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+      title={isDark ? 'Giao diện sáng' : 'Giao diện tối'}
+    >
+      {isDark ? (
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.5" fill="currentColor" />
+          <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
+          </g>
+        </svg>
+      ) : (
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 function Header() {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
   const menu = MENU_BY_ROLE[role] ?? MENU_BY_ROLE.guest;
+  const close = () => setExpanded(false);
 
   const handleLogout = () => {
+    close();
     logout();
     navigate('/login');
   };
 
   return (
-    <Navbar bg="dark" data-bs-theme="dark" expand="md">
-      <Container>
-        <Navbar.Brand as={Link} to="/">
-          Quản Lý Học Tập
+    <Navbar expand="lg" expanded={expanded} onToggle={setExpanded} className="ht-header">
+      <Container className="ht-container ht-header__inner">
+        <Navbar.Toggle aria-controls="main-nav" className="ht-header__toggle" aria-label="Mở menu">
+          <span className="ht-burger" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+        </Navbar.Toggle>
+
+        <Navbar.Brand as={Link} to="/" onClick={close} className="ht-header__brand">
+          <Logo />
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="main-nav" />
+
+        <div className="ht-header__theme-mobile d-lg-none">
+          <ThemeToggle />
+        </div>
+
         <Navbar.Collapse id="main-nav">
-          <Nav className="me-auto">
+          <Nav className="ht-nav me-auto">
             {menu.map((item) => (
               <Nav.Link
                 key={item.to}
                 as={NavLink}
                 to={item.to}
                 end={item.to === '/'}
+                onClick={close}
+                className="ht-nav__link"
               >
                 {item.label}
               </Nav.Link>
             ))}
           </Nav>
-          <Nav className="align-items-md-center">
+
+          <div className="ht-header__actions">
+            <div className="d-none d-lg-block">
+              <ThemeToggle />
+            </div>
             {user ? (
               <>
-                <Navbar.Text className="me-md-3">Xin chào, {user.name}</Navbar.Text>
-                <Button variant="outline-light" size="sm" onClick={handleLogout}>
+                <div className="ht-user">
+                  <span className="ht-user__avatar" aria-hidden="true">
+                    {getInitials(user.name)}
+                  </span>
+                  <span className="ht-user__text">
+                    <span className="ht-user__name">{user.name}</span>
+                    <span className="ht-user__role">{ROLE_LABEL[role] ?? ''}</span>
+                  </span>
+                </div>
+                <button type="button" className="ht-btn ht-btn--ghost" onClick={handleLogout}>
                   Đăng xuất
-                </Button>
+                </button>
               </>
             ) : (
               <>
-                <Nav.Link as={Link} to="/login">
+                <Link to="/login" onClick={close} className="ht-btn ht-btn--secondary">
                   Đăng nhập
-                </Nav.Link>
-                <Nav.Link as={Link} to="/register">
+                </Link>
+                <Link to="/register" onClick={close} className="ht-btn ht-btn--primary">
                   Đăng ký
-                </Nav.Link>
+                </Link>
               </>
             )}
-          </Nav>
+          </div>
         </Navbar.Collapse>
       </Container>
     </Navbar>

@@ -1,0 +1,80 @@
+/* AI-assisted [AI-16] — Figma "Pagination · Trang chủ" (Desktop / Mobile) */
+.ht-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.ht-pagination__pages {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ht-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--ht-border-default);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  transition: background-color 150ms ease-out;
+}
+
+button.ht-page:hover:not(:disabled):not(.ht-page--current) {
+  background: var(--ht-bg-surface-2);
+}
+
+.ht-page:focus-visible {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-page--current {
+  border-color: var(--ht-primary);
+  background: var(--ht-primary);
+  color: var(--ht-text-on-primary);
+}
+
+/* Không bấm được: mờ + viền nét đứt (không chỉ đổi màu) */
+.ht-page:disabled {
+  opacity: 0.55;
+  border: 1.5px dashed var(--ht-border-strong);
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+  cursor: not-allowed;
+}
+
+.ht-pagination__compact {
+  display: none;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+@media (max-width: 575.98px) {
+  .ht-pagination {
+    justify-content: space-between;
+  }
+
+  .ht-pagination__pages,
+  .ht-page__label {
+    display: none;
+  }
+
+  .ht-pagination__compact {
+    display: inline;
+  }
+}
