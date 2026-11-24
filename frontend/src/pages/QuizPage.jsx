@@ -9,6 +9,36 @@ import './QuizPage.css';
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 
+// Lưu tạm đáp án đang chọn theo từng lượt để F5 / mở lại trang vẫn còn (server giữ lượt làm dở)
+const draftKey = (attemptId) => `quiz-draft-${attemptId}`;
+const readDraft = (attemptId, questions) => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(draftKey(attemptId))) || {};
+    // Chỉ giữ đáp án còn khớp với câu hỏi / lựa chọn của lượt này
+    return Object.fromEntries(
+      questions
+        .filter((q) => typeof saved[q.id] === 'string' && q.options?.includes(saved[q.id]))
+        .map((q) => [q.id, saved[q.id]])
+    );
+  } catch {
+    return {};
+  }
+};
+const writeDraft = (attemptId, answers) => {
+  try {
+    localStorage.setItem(draftKey(attemptId), JSON.stringify(answers));
+  } catch {
+    // Bộ nhớ trình duyệt bị chặn: vẫn làm bài bình thường, chỉ không khôi phục được khi F5
+  }
+};
+const clearDraft = (attemptId) => {
+  try {
+    localStorage.removeItem(draftKey(attemptId));
+  } catch {
+    // bỏ qua
+  }
+};
+
 export default function QuizPage() {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -36,7 +66,7 @@ export default function QuizPage() {
     try {
       const data = await startQuizApi(courseId);
       setAttemptData(data);
-      setAnswers({});
+      setAnswers(data.resumed ? readDraft(data.attemptId, data.questions || []) : {});
       setResultData(null);
       setStep('taking');
     } catch (err) {
@@ -48,10 +78,11 @@ export default function QuizPage() {
 
   const handleSelectOption = (questionId, optionValue) => {
     if (submitting) return;
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: optionValue,
-    }));
+    setAnswers((prev) => {
+      const next = { ...prev, [questionId]: optionValue };
+      if (attemptData?.attemptId) writeDraft(attemptData.attemptId, next);
+      return next;
+    });
   };
 
   const executeSubmit = useCallback(
@@ -64,6 +95,7 @@ export default function QuizPage() {
 
       try {
         const result = await submitQuizApi(attemptData.attemptId, answers);
+        clearDraft(attemptData.attemptId);
         setResultData(result);
         setStep('result');
       } catch (err) {
@@ -175,6 +207,11 @@ export default function QuizPage() {
         {step === 'taking' && attemptData && (
           <form className="quiz-taking" onSubmit={handleManualSubmit}>
             {/* Thanh trạng thái dính trên cùng: Tên khóa, lượt thi, đồng hồ, nút nộp */}
+            {attemptData.resumed && (
+              <div className="quiz-alert quiz-alert--info" role="status">
+                Bạn đang làm tiếp lượt {attemptData.attemptNumber} còn dở. Đồng hồ vẫn tính từ lúc bạn bắt đầu lượt này.
+              </div>
+            )}
             <header className="quiz-topbar">
               <div className="quiz-topbar__info">
                 <h1 className="quiz-topbar__title">{attemptData.courseTitle}</h1>
