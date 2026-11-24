@@ -67,7 +67,13 @@ const RoleBadge = ({ role }) => (
 );
 
 const StatusBadge = ({ status }) => (
-  <span className={`um-badge ${status === 'locked' ? 'locked' : 'active'}`}>{status === 'locked' ? 'Bị chặn' : 'Hoạt động'}</span>
+  <span className={`um-badge ${status}`}>
+    {status === 'locked'
+      ? 'Bị chặn'
+      : status === 'pending'
+        ? 'Đang chờ xác nhận'
+        : 'Hoạt động'}
+  </span>
 );
 
 const coursesText = (u) => `${fmt(u.courses)} khóa ${u.role === 'teacher' ? 'giảng dạy' : 'ghi danh'}`;

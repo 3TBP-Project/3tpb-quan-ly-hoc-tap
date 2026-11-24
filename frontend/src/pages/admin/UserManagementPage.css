@@ -82,6 +82,7 @@
 .um-badge.student { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
 .um-badge.teacher { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
 .um-badge.active { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.um-badge.pending { background: #fffbeb; color: #b45309; border-color: #fde68a; }
 .um-badge.locked { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
 
 .um-actions { display: flex; gap: 6px; }
