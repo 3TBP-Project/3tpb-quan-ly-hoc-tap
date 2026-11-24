@@ -1,6 +1,7 @@
 // AI-assisted [AI-06]
 import { useCallback, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Modal } from 'react-bootstrap';
 import { startQuizApi, submitQuizApi } from '../services/quizApi';
 import QuizTimer from '../components/quiz/QuizTimer';
 import QuizResultView from '../components/quiz/QuizResultView';
@@ -23,6 +24,9 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState({});
   // Dữ liệu kết quả nhận từ POST /api/quizzes/attempts/:attemptId/submit
   const [resultData, setResultData] = useState(null);
+
+  // Hộp thoại xác nhận nộp bài khi còn câu chưa chọn (thay cho window.confirm)
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isSubmittingRef = useRef(false);
 
@@ -81,17 +85,21 @@ export default function QuizPage() {
     const answeredCount = Object.keys(answers).length;
 
     if (answeredCount < totalQuestions) {
-      const unanswered = totalQuestions - answeredCount;
-      const confirmed = window.confirm(
-        `Bạn còn ${unanswered} câu chưa chọn đáp án. Bạn có chắc chắn muốn nộp bài ngay bây giờ không?`
-      );
-      if (!confirmed) return;
+      setConfirmOpen(true);
+      return;
     }
 
     executeSubmit(false);
   };
 
+  const handleConfirmSubmit = () => {
+    setConfirmOpen(false);
+    executeSubmit(false);
+  };
+
   const handleTimeUp = useCallback(() => {
+    // Hết giờ thì nộp luôn, đóng hộp thoại xác nhận nếu đang mở
+    setConfirmOpen(false);
     executeSubmit(true);
   }, [executeSubmit]);
 
@@ -108,6 +116,16 @@ export default function QuizPage() {
 
   const questions = attemptData?.questions || [];
   const answeredCount = Object.keys(answers).length;
+  // Số thứ tự các câu chưa chọn, để học viên bấm quay lại làm tiếp
+  const unansweredQuestions = questions
+    .map((q, index) => ({ id: q.id, number: index + 1 }))
+    .filter((q) => !answers[q.id]);
+
+  const handleGoToQuestion = (questionId) => {
+    setConfirmOpen(false);
+    // Đợi hộp thoại đóng rồi mới cuộn tới câu hỏi
+    setTimeout(() => scrollToQuestion(questionId), 200);
+  };
 
   return (
     <div className="quiz-page">
@@ -282,6 +300,58 @@ export default function QuizPage() {
             </div>
           </form>
         )}
+
+        <Modal
+          show={confirmOpen && step === 'taking'}
+          onHide={() => setConfirmOpen(false)}
+          centered
+          className="quiz-confirm-modal"
+          aria-labelledby="quiz-confirm-title"
+        >
+          <Modal.Body>
+            <div className="quiz-confirm__icon" aria-hidden="true">!</div>
+            <h2 id="quiz-confirm-title" className="quiz-confirm__title">Bạn chưa làm hết bài</h2>
+            <p className="quiz-confirm__text">
+              Bạn còn <strong>{unansweredQuestions.length}</strong> câu chưa chọn đáp án.
+              Câu bỏ trống sẽ không được tính điểm. Bạn có chắc chắn muốn nộp bài ngay bây giờ không?
+            </p>
+            {unansweredQuestions.length > 0 && (
+              <div className="quiz-confirm__list">
+                <span className="quiz-confirm__list-label">Câu chưa làm (bấm để quay lại):</span>
+                <div className="quiz-confirm__chips">
+                  {unansweredQuestions.map((q) => (
+                    <button
+                      key={q.id}
+                      type="button"
+                      className="quiz-confirm__chip"
+                      onClick={() => handleGoToQuestion(q.id)}
+                    >
+                      {q.number}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="quiz-confirm__actions">
+              <button
+                type="button"
+                className="quiz-btn quiz-btn--secondary"
+                onClick={() => setConfirmOpen(false)}
+                autoFocus
+              >
+                Tiếp tục làm bài
+              </button>
+              <button
+                type="button"
+                className="quiz-btn quiz-btn--primary"
+                onClick={handleConfirmSubmit}
+                disabled={submitting}
+              >
+                Nộp bài
+              </button>
+            </div>
+          </Modal.Body>
+        </Modal>
 
         {/* GIAI ĐOẠN 3: TRANG KẾT QUẢ */}
         {step === 'result' && resultData && (
