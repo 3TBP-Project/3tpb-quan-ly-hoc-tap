@@ -36,6 +36,8 @@
 .cc-btn:hover { background: var(--cc-surface); }
 .cc-btn-primary { background: var(--cc-primary); border-color: var(--cc-primary); color: #fff; }
 .cc-btn-primary:hover { background: var(--cc-primary-hover); }
+.cc-btn-danger { background: var(--cc-danger); border-color: var(--cc-danger); color: #fff; }
+.cc-btn-danger:hover { background: #b91c1c; border-color: #b91c1c; color: #fff; }
 .cc-btn:disabled { opacity: .7; cursor: not-allowed; }
 
 /* Bảng */

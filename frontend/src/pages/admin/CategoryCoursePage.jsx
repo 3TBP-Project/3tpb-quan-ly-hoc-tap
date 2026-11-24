@@ -86,6 +86,8 @@ function CategoryModal({ category, onClose, onSaved }) {
 function CategoryPanel({ notify }) {
   const [version, setVersion] = useState(0);
   const [editing, setEditing] = useState(null); // null = đóng, {} = thêm mới, {id,name} = sửa
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const { data, loading, error } = useFetch(getAdminCategories, { version });
   const categories = Array.isArray(data) ? data : [];
   const reload = () => setVersion((v) => v + 1);
@@ -96,20 +98,28 @@ function CategoryPanel({ notify }) {
     reload();
   };
 
-  const handleDelete = async (category) => {
+  const handleDelete = (category) => {
     if (category.courseCount > 0) {
       notify('Không thể xóa',
         `Danh mục "${category.name}" đang có ${category.courseCount} khóa học. Hãy chuyển các khóa sang danh mục khác trước.`, 'warn');
       return;
     }
-    if (!window.confirm(`Xóa danh mục "${category.name}"?`)) return;
+    setDeleteTarget(category);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await deleteCategory(category.id);
-      notify('Đã xóa danh mục', `Đã xóa "${category.name}".`);
+      await deleteCategory(deleteTarget.id);
+      notify('Đã xóa danh mục', `Đã xóa "${deleteTarget.name}".`);
+      setDeleteTarget(null);
     } catch (err) {
       notify('Không thể xóa', parseApiError(err).message, 'warn');
+    } finally {
+      setDeleting(false);
+      reload();
     }
-    reload();
   };
 
   return (
@@ -157,6 +167,25 @@ function CategoryPanel({ notify }) {
       {editing && (
         <CategoryModal key={editing.id ?? 'new'} category={editing} onClose={() => setEditing(null)} onSaved={handleSaved} />
       )}
+      <Modal
+        show={deleteTarget != null}
+        onHide={() => !deleting && setDeleteTarget(null)}
+        centered
+        className="cc-modal"
+      >
+        <Modal.Header closeButton={!deleting}>
+          <Modal.Title as="h2" className="cc-modal-title">Xác nhận xóa danh mục</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Bạn có chắc chắn muốn xóa danh mục <b>{deleteTarget?.name}</b> không?
+        </Modal.Body>
+        <Modal.Footer>
+          <button type="button" className="cc-btn" onClick={() => setDeleteTarget(null)} disabled={deleting}>Hủy</button>
+          <button type="button" className="cc-btn cc-btn-danger" onClick={confirmDelete} disabled={deleting}>
+            {deleting ? 'Đang xóa...' : 'Xóa danh mục'}
+          </button>
+        </Modal.Footer>
+      </Modal>
     </section>
   );
 }
