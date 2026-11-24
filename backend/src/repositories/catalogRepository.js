@@ -63,6 +63,16 @@ const countCoursesInCategory = async (id) => {
   return Number(rows[0].total);
 };
 
+const countPublicLessons = async (courseId) => {
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM lessons
+     WHERE course_id = ? AND status = 'public'`,
+    [courseId]
+  );
+  return Number(rows[0].total);
+};
+
 // Chỉ xóa khi danh mục không còn khóa học (khóa ngoại courses.category_id đang ON DELETE CASCADE)
 const deleteEmptyCategory = async (id) => {
   const [result] = await pool.query(
@@ -81,7 +91,6 @@ const findAllCoursesForAdmin = async () => {
        c.id,
        c.title,
        c.status,
-       c.status_before_hidden AS statusBeforeHidden,
        c.category_id AS categoryId,
        category.name AS categoryName,
        c.user_id AS teacherId,
@@ -101,28 +110,28 @@ const findAllCoursesForAdmin = async () => {
 
 const findCourseStatusById = async (id) => {
   const [rows] = await pool.query(
-    'SELECT id, title, status, status_before_hidden AS statusBeforeHidden FROM courses WHERE id = ? LIMIT 1',
+    'SELECT id, title, status FROM courses WHERE id = ? LIMIT 1',
     [id]
   );
   return rows[0] ? { ...rows[0], id: Number(rows[0].id) } : null;
 };
 
-// Ẩn: nhớ trạng thái hiện tại vào status_before_hidden
+// Ẩn khóa học bằng cách đổi trực tiếp trạng thái
 const hideCourse = async (id) => {
   const [result] = await pool.query(
     `UPDATE courses
-     SET status_before_hidden = status, status = 'hidden'
+     SET status = 'hidden'
      WHERE id = ? AND status <> 'hidden'`,
     [id]
   );
   return result.affectedRows > 0;
 };
 
-// Bỏ ẩn: khôi phục trạng thái cũ (mặc định công khai nếu không có)
+// Bỏ ẩn thì công khai khóa học trở lại
 const unhideCourse = async (id) => {
   const [result] = await pool.query(
     `UPDATE courses
-     SET status = COALESCE(status_before_hidden, 'public'), status_before_hidden = NULL
+     SET status = 'public'
      WHERE id = ? AND status = 'hidden'`,
     [id]
   );
@@ -138,6 +147,7 @@ module.exports = {
   createCategory,
   updateCategory,
   countCoursesInCategory,
+  countPublicLessons,
   deleteEmptyCategory,
   findAllCoursesForAdmin,
   findCourseStatusById,
