@@ -159,11 +159,44 @@ const getBestScore = async (userId, courseId) => {
   return rows[0].best_score !== null ? Number(rows[0].best_score) : 0;
 };
 
+// HT-07: một lượt làm bài đã nộp kèm số thứ tự lượt trong khóa học
+const findAttemptForReview = async (attemptId) => {
+  const [rows] = await pool.query(
+    `SELECT qa.id, qa.user_id, qa.course_id, qa.score, qa.started_at, qa.submitted_at,
+            c.title AS course_title,
+            (SELECT COUNT(*) FROM quiz_attempts AS prev
+             WHERE prev.user_id = qa.user_id AND prev.course_id = qa.course_id
+               AND prev.submitted_at IS NOT NULL AND prev.score IS NOT NULL
+               AND (prev.started_at < qa.started_at
+                    OR (prev.started_at = qa.started_at AND prev.id <= qa.id))) AS attempt_number
+     FROM quiz_attempts AS qa
+     JOIN courses AS c ON c.id = qa.course_id
+     WHERE qa.id = ?
+     LIMIT 1`,
+    [attemptId]
+  );
+  return rows[0] || null;
+};
+
+const getAttemptAnswers = async (attemptId) => {
+  const [rows] = await pool.query(
+    `SELECT question_id, position, question_content, options,
+            selected_answer, correct_answer, is_correct
+     FROM quiz_attempt_answers
+     WHERE attempt_id = ?
+     ORDER BY position ASC, id ASC`,
+    [attemptId]
+  );
+  return rows;
+};
+
 module.exports = {
   findCourseById,
   getQuestionsByCourseId,
   createAttemptWithLock,
   findAttemptById,
   updateAttemptResultIfNotSubmitted,
-  getBestScore
+  getBestScore,
+  findAttemptForReview,
+  getAttemptAnswers
 };
