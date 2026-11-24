@@ -3,6 +3,7 @@
  * Đảm bảo kiểm tra quyền sở hữu của giảng viên (HT-NFR3) và validate dữ liệu an toàn
  */
 const courseRepository = require('../repositories/courseRepository');
+const userRepository = require('../repositories/userRepository');
 const chapterRepository = require('../repositories/chapterRepository');
 
 const createCourseError = (message, statusCode) => {
@@ -93,6 +94,14 @@ class CourseService {
   async createCourse(userId, courseData) {
     if (!isPlainObject(courseData)) {
       throw createCourseError('Dữ liệu khóa học không hợp lệ.', 400);
+    }
+
+    const creator = await userRepository.findProfileById(userId);
+    if (creator?.mustChangePassword) {
+      throw createCourseError(
+        'Bạn phải đổi mật khẩu tạm trước khi tạo khóa học.',
+        403
+      );
     }
 
     const validated = validateCoursePayload(courseData, { allowHidden: false });
