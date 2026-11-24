@@ -1,6 +1,7 @@
 // AI-assisted [AI-03] [AI-08]
 import { Badge, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import UserAvatar from '../common/UserAvatar';
 
 const DEFAULT_COVER = '/images/course-default.jpg';
 
@@ -46,10 +47,12 @@ function CourseCard({
         </Card.Title>
 
         <div className="d-flex align-items-center text-muted small mb-2">
-          <span
-            className="rounded-circle border bg-light d-inline-block me-2"
-            style={{ width: 24, height: 24 }}
-            aria-hidden="true"
+          <UserAvatar
+            name={course.teacherName}
+            avatar={course.teacherAvatar}
+            role="teacher"
+            size={24}
+            className="me-2"
           />
           {course.teacherName}
         </div>
