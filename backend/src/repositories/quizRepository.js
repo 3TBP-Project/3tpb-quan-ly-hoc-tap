@@ -151,6 +151,15 @@ const updateAttemptResultIfNotSubmitted = async (attemptId, userId, { score, sub
   }
 };
 
+// Số lượt đã bắt đầu (kể cả lượt bỏ dở) – cùng cách đếm với giới hạn lượt khi bắt đầu làm bài
+const countStartedAttempts = async (userId, courseId) => {
+  const [rows] = await pool.query(
+    'SELECT COUNT(*) AS total FROM quiz_attempts WHERE user_id = ? AND course_id = ? AND started_at IS NOT NULL',
+    [userId, courseId]
+  );
+  return Number(rows[0].total);
+};
+
 const getBestScore = async (userId, courseId) => {
   const [rows] = await pool.query(
     'SELECT MAX(score) AS best_score FROM quiz_attempts WHERE user_id = ? AND course_id = ? AND submitted_at IS NOT NULL',
@@ -197,6 +206,7 @@ module.exports = {
   findAttemptById,
   updateAttemptResultIfNotSubmitted,
   getBestScore,
+  countStartedAttempts,
   findAttemptForReview,
   getAttemptAnswers
 };
