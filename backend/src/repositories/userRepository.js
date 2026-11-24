@@ -19,10 +19,21 @@ const findAuthStateById = async (id) => {
 };
 
 const createUser = async ({ name, email, password_hash, role }) => {
-  const [result] = await pool.query(
-    'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-    [name, email, password_hash, role]
-  );
+  let result;
+  try {
+    [result] = await pool.query(
+      'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+      [name, email, password_hash, role]
+    );
+  } catch (error) {
+    // Hai yêu cầu đăng ký cùng email gửi đồng thời: ràng buộc UNIQUE chặn, trả 409 thay vì 500
+    if (error.code === 'ER_DUP_ENTRY') {
+      const conflict = new Error('Email này đã được đăng ký trong hệ thống.');
+      conflict.statusCode = 409;
+      throw conflict;
+    }
+    throw error;
+  }
   return {
     id: result.insertId,
     name,
