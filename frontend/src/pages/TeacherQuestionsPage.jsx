@@ -1,7 +1,7 @@
 // AI-assisted [AI-13]
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Alert, Badge, Button, Card, Col, Form, ListGroup, Row } from 'react-bootstrap';
+import { Alert, Badge, Button, Card, Col, Dropdown, Form, ListGroup, Row } from 'react-bootstrap';
 import PageHeader from '../components/common/PageHeader';
 import Loading from '../components/common/Loading';
 import ErrorMessage from '../components/common/ErrorMessage';
@@ -255,16 +255,32 @@ function TeacherQuestionsPage() {
                 <Col md={6}>
                   <Form.Group controlId="teacherCourseSelect">
                     <Form.Label className="fw-semibold">Chọn khóa học của bạn</Form.Label>
-                    <Form.Select
-                      value={selectedCourseId}
-                      onChange={(e) => setSelectedCourseId(Number(e.target.value))}
-                    >
-                      {courses.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          #{c.id} - {c.title}
-                        </option>
-                      ))}
-                    </Form.Select>
+                   <Dropdown
+                     className="w-100"
+                     onSelect={(value) => setSelectedCourseId(Number(value))}
+                   >
+                     <Dropdown.Toggle
+                       id="teacher-course-dropdown"
+                       variant="outline-secondary"
+                       className="w-100 text-start d-flex justify-content-between align-items-center"
+                     >
+                       {courses.find((c) => c.id === selectedCourseId)?.title || 'Chọn khóa học'}
+                     </Dropdown.Toggle>
+                     <Dropdown.Menu
+                       className="w-100"
+                       style={{ maxHeight: '240px', overflowY: 'auto' }}
+                     >
+                       {courses.map((c) => (
+                         <Dropdown.Item
+                           key={c.id}
+                           eventKey={c.id}
+                           active={c.id === selectedCourseId}
+                         >
+                           {c.title}
+                         </Dropdown.Item>
+                       ))}
+                     </Dropdown.Menu>
+                   </Dropdown>
                   </Form.Group>
                 </Col>
 
