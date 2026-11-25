@@ -1,4 +1,4 @@
-// AI-assisted [AI-13]
+// AI-assisted [AI-13] [AI-19]
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alert, Badge, Button, Card, Col, Dropdown, Form, ListGroup, Row } from 'react-bootstrap';
@@ -15,6 +15,7 @@ import {
 } from '../services/questionService';
 import { parseApiError } from '../utils/apiError';
 import { getProfile } from '../services/profileService';
+import '../styles/teacher.css';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 const EMPTY_FORM = {
@@ -257,7 +258,7 @@ function TeacherQuestionsPage() {
   if (loadingCourses) return <Loading />;
 
   return (
-    <>
+    <div className="ht-teacher">
       <PageHeader
         title="Quản lý câu hỏi trắc nghiệm"
         subtitle="Thiết lập thời gian làm bài và ngân hàng câu hỏi 4 lựa chọn cho khóa học của bạn."
@@ -330,8 +331,8 @@ function TeacherQuestionsPage() {
           </Card>
 
           <Row className="g-4">
-            {/* Cột trái: Form thêm / sửa câu hỏi */}
-            <Col lg={5}>
+            {/* Form thêm / sửa câu hỏi: cột phải trên máy tính (Figma "HT-11 · Quản lý câu hỏi") */}
+            <Col lg={5} className="order-lg-2">
               <Card>
                 <Card.Header className="fw-semibold">
                   {editingId ? `Sửa câu hỏi #${editingId}` : 'Thêm câu hỏi mới'}
@@ -354,7 +355,12 @@ function TeacherQuestionsPage() {
                       4 lựa chọn (tick chọn 1 đáp án đúng)
                     </Form.Label>
                     {LETTERS.map((letter, idx) => (
-                      <div key={letter} className="d-flex align-items-center gap-2 mb-2">
+                      <div
+                        key={letter}
+                        className={`ht-option d-flex align-items-center gap-2 mb-2${
+                          formData.correctIndex === idx ? ' is-correct' : ''
+                        }`}
+                      >
                         <Form.Check
                           type="radio"
                           name="correctOption"
@@ -402,8 +408,8 @@ function TeacherQuestionsPage() {
               </Card>
             </Col>
 
-            {/* Cột phải: Danh sách câu hỏi hiện có */}
-            <Col lg={7}>
+            {/* Danh sách câu hỏi hiện có: cột trái trên máy tính */}
+            <Col lg={7} className="order-lg-1">
               <Card>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                   <span className="fw-semibold">Danh sách câu hỏi ({questions.length} câu)</span>
@@ -463,7 +469,7 @@ function TeacherQuestionsPage() {
           </Row>
         </>
       )}
-    </>
+    </div>
   );
 }
 
