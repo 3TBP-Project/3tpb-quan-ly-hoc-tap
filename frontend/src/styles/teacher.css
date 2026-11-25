@@ -496,3 +496,30 @@
     transition: none;
   }
 }
+
+/* ---------- Chữ dài (tên khóa học, chương, bài, câu hỏi) xuống dòng trong khung, không tràn ---------- */
+.ht-teacher .dropdown-toggle {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.ht-teacher .dropdown-toggle::after { flex: none; margin-left: 8px; }
+
+.ht-teacher .dropdown-item {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.ht-teacher .card-header > span,
+.ht-teacher .list-group-item > span,
+.ht-teacher .list-group-item .d-flex > div:first-child,
+.ht-teacher .list-group-item .flex-grow-1,
+.ht-teacher .ht-option,
+.ht-teacher .modal-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ht-teacher .badge { white-space: normal; text-align: left; }

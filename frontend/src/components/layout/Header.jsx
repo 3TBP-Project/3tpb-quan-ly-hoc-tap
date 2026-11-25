@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
-import { getInitials } from '../../utils/categoryTheme';
-import { toAvatarUrl } from '../../utils/avatar';
+import UserAvatar from '../common/UserAvatar';
 import { applyTheme, getSavedTheme } from '../../utils/theme';
 import Logo from './Logo';
 import './layout.css';
@@ -121,15 +120,10 @@ function Header() {
             {user ? (
               <>
                 <div className="ht-user">
-                  {toAvatarUrl(user.avatar) ? (
-                    <img className="ht-user__avatar ht-user__avatar-img" src={toAvatarUrl(user.avatar)} alt="" />
-                  ) : (
-                    <span className="ht-user__avatar" aria-hidden="true">
-                      {getInitials(user.name)}
-                    </span>
-                  )}
+                  <UserAvatar avatar={user.avatar} name={user.name}
+                    className="ht-user__avatar" imgClassName="ht-user__avatar-img" />
                   <span className="ht-user__text">
-                    <span className="ht-user__name">{user.name}</span>
+                    <span className="ht-user__name" title={user.name}>{user.name}</span>
                     <span className="ht-user__role">{ROLE_LABEL[role] ?? ''}</span>
                   </span>
                 </div>

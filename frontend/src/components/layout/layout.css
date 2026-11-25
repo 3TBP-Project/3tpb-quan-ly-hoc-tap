@@ -103,6 +103,7 @@
 }
 
 .ht-user__avatar {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -123,10 +124,16 @@
 .ht-user__text {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   line-height: 1.2;
 }
 
+/* Tên dài trên thanh điều hướng: 1 dòng, cắt "…" (di chuột để xem đủ) */
 .ht-user__name {
+  max-width: 180px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-weight: 600;
   font-size: 15px;
   color: var(--ht-text-primary);

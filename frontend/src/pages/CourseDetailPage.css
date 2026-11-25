@@ -62,6 +62,8 @@
   overflow-wrap: anywhere;
 }
 
+.ht-detail__meta li { min-width: 0; overflow-wrap: anywhere; }
+
 .ht-detail__meta {
   display: flex;
   flex-wrap: wrap;
@@ -154,6 +156,7 @@
 }
 
 .ht-side-card__avatar {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -166,7 +169,16 @@
   font-size: 16px;
 }
 
+/* Ảnh đại diện thật của giảng viên (users.avatar) */
+.ht-side-card__avatar--img {
+  display: block;
+  object-fit: cover;
+  border: 1px solid var(--ht-border-default);
+}
+
 .ht-side-card__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-weight: 600;
   font-size: 17px;
   line-height: 28px;
@@ -224,6 +236,7 @@
 .ht-lesson-row__title {
   flex: 1 1 auto;
   min-width: 0;
+  overflow-wrap: anywhere;
   font-weight: 600;
   font-size: 17px;
   line-height: 28px;
@@ -255,6 +268,8 @@
   gap: 12px;
 }
 
+.ht-lesson-chapter__head > :last-child:not(:first-child) { flex: none; white-space: nowrap; }
+
 .ht-lesson-chapter__head {
   display: flex;
   align-items: baseline;
@@ -264,6 +279,8 @@
 }
 
 .ht-lesson-chapter__title {
+  min-width: 0;
+  overflow-wrap: anywhere;
   margin: 0;
   font-family: var(--ht-font-heading);
   font-weight: 700;

@@ -5,9 +5,10 @@ import { useFetch } from '../hooks/useFetch';
 import { useAuth } from '../context/useAuth';
 import { getCourseById, enrollCourse } from '../services/courseService';
 import { parseApiError } from '../utils/apiError';
-import { getCategoryTheme, getInitials } from '../utils/categoryTheme';
+import { getCategoryTheme } from '../utils/categoryTheme';
 import Loading from '../components/common/Loading';
 import ErrorMessage from '../components/common/ErrorMessage';
+import UserAvatar from '../components/common/UserAvatar';
 import LessonList from '../components/course/LessonList';
 import EnrollButton from '../components/course/EnrollButton';
 import NotFoundPage from './NotFoundPage';
@@ -98,7 +99,7 @@ function CourseDetailPage() {
               <span aria-hidden="true">⚠</span> {state.notice}
             </div>
           )}
-          {course.categoryName && <span className="ht-badge ht-caption">{course.categoryName}</span>}
+          {course.categoryName && <span className="ht-badge ht-caption" title={course.categoryName}>{course.categoryName}</span>}
           <h1 className="ht-detail__title">{course.title}</h1>
           {summary && <p className="ht-body">{summary}</p>}
           <ul className="ht-detail__meta">
@@ -151,9 +152,8 @@ function CourseDetailPage() {
           <section className="ht-side-card">
             <h2 className="ht-h3">Giảng viên</h2>
             <div className="ht-side-card__teacher">
-              <span className="ht-side-card__avatar" aria-hidden="true">
-                {getInitials(course.teacherName)}
-              </span>
+              <UserAvatar avatar={course.teacherAvatar} name={course.teacherName}
+                className="ht-side-card__avatar" imgClassName="ht-side-card__avatar--img" />
               <span className="ht-side-card__name">{course.teacherName}</span>
             </div>
           </section>

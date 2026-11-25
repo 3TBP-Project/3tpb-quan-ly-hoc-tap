@@ -1,7 +1,8 @@
 // AI-assisted [AI-03] [AI-08] [AI-16]
 import { Link } from 'react-router-dom';
-import { getCategoryTheme, getInitials } from '../../utils/categoryTheme';
-import { toAvatarUrl, toMediaUrl } from '../../utils/avatar';
+import { getCategoryTheme } from '../../utils/categoryTheme';
+import { toMediaUrl } from '../../utils/avatar';
+import UserAvatar from '../common/UserAvatar';
 import './course.css';
 
 const DEFAULT_COVER = '/images/course-default.jpg';
@@ -34,7 +35,7 @@ function CourseCard({ course, to = `/courses/${course.id}`, onClick, children })
       </div>
 
       <div className="ht-course-card__body">
-        {course.categoryName && <span className="ht-badge ht-caption">{course.categoryName}</span>}
+        {course.categoryName && <span className="ht-badge ht-caption" title={course.categoryName}>{course.categoryName}</span>}
 
         <h3 className="ht-h3 ht-course-card__title">
           <Link to={to} onClick={onClick} className="stretched-link" title={course.title}>
@@ -44,14 +45,9 @@ function CourseCard({ course, to = `/courses/${course.id}`, onClick, children })
 
         {course.teacherName && (
           <div className="ht-course-card__teacher">
-            {toAvatarUrl(course.teacherAvatar) ? (
-              <img className="ht-avatar ht-avatar-img" src={toAvatarUrl(course.teacherAvatar)} alt="" loading="lazy" />
-            ) : (
-              <span className="ht-avatar ht-caption" aria-hidden="true">
-                {getInitials(course.teacherName)}
-              </span>
-            )}
-            <span className="ht-caption">{course.teacherName}</span>
+            <UserAvatar avatar={course.teacherAvatar} name={course.teacherName}
+              className="ht-avatar ht-caption" imgClassName="ht-avatar-img" />
+            <span className="ht-caption" title={course.teacherName}>{course.teacherName}</span>
           </div>
         )}
 
