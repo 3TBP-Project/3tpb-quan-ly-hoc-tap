@@ -1,70 +1,62 @@
-// AI-assisted [AI-03] [AI-08]
-import { Badge, Card } from 'react-bootstrap';
+// AI-assisted [AI-03] [AI-08] [AI-16]
 import { Link } from 'react-router-dom';
+import { getCategoryTheme, getInitials } from '../../utils/categoryTheme';
+import './course.css';
 
 const DEFAULT_COVER = '/images/course-default.jpg';
 
 /**
- * Thẻ khóa học dùng chung (danh sách, "Khóa học của tôi", trang giảng viên...).
+ * Thẻ khóa học dùng chung (danh sách, "Khóa học của tôi"...). Figma: "Course card · Trang chủ".
  * - to: đường dẫn khi bấm vào thẻ (mặc định trang chi tiết khóa học)
- * - children: nội dung thêm ở cuối thẻ, ví dụ thanh tiến độ hoặc nút thao tác
+ * - onClick: tùy chọn, chặn điều hướng (ví dụ khách chưa đăng nhập)
+ * - children: phần thêm ở cuối thẻ, ví dụ thanh tiến độ hoặc nút thao tác
  */
-function CourseCard({
-  course,
-  to = `/courses/${course.id}`,
-  actionLabel = 'Xem khóa học',
-  onClick, // tùy chọn: chặn điều hướng, ví dụ khách chưa đăng nhập
-  children,
-}) {
+function CourseCard({ course, to = `/courses/${course.id}`, onClick, children }) {
+  const theme = getCategoryTheme(course.categoryName, course.categoryId);
+  // Khóa học chưa có ảnh bìa riêng thì vẽ ảnh bìa minh họa theo màu danh mục
+  const hasCover = course.coverImage && course.coverImage !== DEFAULT_COVER;
+
   return (
-    <Card className="course-card h-100 shadow-sm">
-      <div className="position-relative">
-        <Card.Img
-          variant="top"
-          src={course.coverImage || DEFAULT_COVER}
-          alt={course.title}
-          style={{ aspectRatio: '4 / 3', objectFit: 'cover' }}
-        />
-        <span className="course-card-cta btn btn-secondary btn-sm position-absolute bottom-0 start-0 m-2">
-          {actionLabel}
-        </span>
+    <article className={`ht-course-card ${theme.className}`}>
+      <div className="ht-course-card__cover">
+        {hasCover ? (
+          <img src={course.coverImage} alt="" loading="lazy" />
+        ) : (
+          <>
+            <span className="ht-course-card__blob" aria-hidden="true" />
+            <span className="ht-course-card__blob ht-course-card__blob--small" aria-hidden="true" />
+            <span className="ht-course-card__sticker" aria-hidden="true">
+              {theme.sticker}
+            </span>
+          </>
+        )}
       </div>
 
-      <Card.Body className="d-flex flex-column">
-        {course.categoryName && (
-          <div className="mb-2">
-            <Badge bg="light" text="dark" className="border fw-normal">
-              {course.categoryName}
-            </Badge>
-          </div>
-        )}
+      <div className="ht-course-card__body">
+        {course.categoryName && <span className="ht-badge ht-caption">{course.categoryName}</span>}
 
-        <Card.Title as="h3" className="h6">
-          <Link to={to} onClick={onClick} className="stretched-link text-decoration-none text-dark">
+        <h3 className="ht-h3 ht-course-card__title">
+          <Link to={to} onClick={onClick} className="stretched-link" title={course.title}>
             {course.title}
           </Link>
-        </Card.Title>
+        </h3>
 
-        <div className="d-flex align-items-center text-muted small mb-2">
-          <span
-            className="rounded-circle border bg-light d-inline-block me-2"
-            style={{ width: 24, height: 24 }}
-            aria-hidden="true"
-          />
-          {course.teacherName}
-        </div>
-
-        {course.lessonCount != null && (
-          <div className="small text-muted mt-auto">{course.lessonCount} bài học</div>
-        )}
-
-        {children && (
-          <div className="position-relative mt-2" style={{ zIndex: 1 }}>
-            {children}
+        {course.teacherName && (
+          <div className="ht-course-card__teacher">
+            <span className="ht-avatar ht-caption" aria-hidden="true">
+              {getInitials(course.teacherName)}
+            </span>
+            <span className="ht-caption">{course.teacherName}</span>
           </div>
         )}
-      </Card.Body>
-    </Card>
+
+        {course.lessonCount != null && (
+          <div className="ht-caption ht-course-card__meta">{course.lessonCount} bài học</div>
+        )}
+
+        {children && <div className="ht-course-card__extra">{children}</div>}
+      </div>
+    </article>
   );
 }
 

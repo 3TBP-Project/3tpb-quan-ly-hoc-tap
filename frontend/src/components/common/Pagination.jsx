@@ -1,38 +1,67 @@
-// AI-assisted [AI-08]
-import { Pagination as BsPagination } from 'react-bootstrap';
+// AI-assisted [AI-08] [AI-16]
 import { getPageItems } from '../../utils/pagination';
+import './pagination.css';
 
 /**
- * Phân trang dùng chung cho mọi danh sách (wireframe: ‹ Trước 1 2 3 … 6 Sau ›).
+ * Phân trang dùng chung (Figma "Pagination · Trang chủ": ‹ Trước 1 2 3 … 6 Sau ›).
+ * Điện thoại hiện gọn: ‹  Trang 1 / 6  ›.
  * Chỉ báo số trang mới qua onPageChange; việc lấy dữ liệu do trang cha làm.
  */
 function Pagination({ page, totalPages, onPageChange }) {
   if (!totalPages || totalPages <= 1) return null;
 
+  const isFirst = page <= 1;
+  const isLast = page >= totalPages;
+
   return (
-    <BsPagination className="justify-content-center flex-wrap mb-0">
-      <BsPagination.Prev disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
-        ‹ Trước
-      </BsPagination.Prev>
+    <nav className="ht-pagination" aria-label="Phân trang">
+      <button
+        type="button"
+        className="ht-page ht-page--nav"
+        disabled={isFirst}
+        onClick={() => onPageChange(page - 1)}
+        aria-label="Trang trước"
+      >
+        ‹<span className="ht-page__label"> Trước</span>
+      </button>
 
-      {getPageItems(page, totalPages).map((item) =>
-        typeof item === 'number' ? (
-          <BsPagination.Item
-            key={item}
-            active={item === page}
-            onClick={() => onPageChange(item)}
-          >
-            {item}
-          </BsPagination.Item>
-        ) : (
-          <BsPagination.Ellipsis key={item} disabled />
-        ),
-      )}
+      <ul className="ht-pagination__pages">
+        {getPageItems(page, totalPages).map((item) =>
+          typeof item === 'number' ? (
+            <li key={item}>
+              <button
+                type="button"
+                className={`ht-page${item === page ? ' ht-page--current' : ''}`}
+                aria-current={item === page ? 'page' : undefined}
+                onClick={() => onPageChange(item)}
+              >
+                {item}
+              </button>
+            </li>
+          ) : (
+            <li key={item}>
+              <span className="ht-page ht-page--ellipsis" aria-hidden="true">
+                …
+              </span>
+            </li>
+          ),
+        )}
+      </ul>
 
-      <BsPagination.Next disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
-        Sau ›
-      </BsPagination.Next>
-    </BsPagination>
+      <span className="ht-pagination__compact" aria-live="polite">
+        Trang {page} / {totalPages}
+      </span>
+
+      <button
+        type="button"
+        className="ht-page ht-page--nav"
+        disabled={isLast}
+        onClick={() => onPageChange(page + 1)}
+        aria-label="Trang sau"
+      >
+        <span className="ht-page__label">Sau </span>›
+      </button>
+    </nav>
   );
 }
 

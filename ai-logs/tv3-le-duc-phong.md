@@ -26,6 +26,7 @@
 | AI-13 | 18/11 | Lập trình | Trang học bài, đánh dấu hoàn thành và chặn khi chưa ghi danh (HT-05) | #38 |
 | AI-14 | 19/11 | Lập trình | Nút xem chi tiết, làm bài kiểm tra và thông báo đăng nhập trên thẻ khóa học (HT-01) | #44 |
 | AI-15 | 19/11 | Lập trình | Responsive trang học bài và trang làm bài ở 360 px ([FE] Responsive) | #48 |
+| AI-16 | 25/11 | Lập trình | Code lại giao diện trang chủ theo mockup Figma "Trang chủ – thiết kế" (HT-01) | #83 |
 
 ---
 
@@ -334,6 +335,26 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: `npm run lint` 0 lỗi, `npm run build`; Chrome DevTools 360 × 740: không tràn ngang, nút bài học và mục lục, trang làm bài với backend thật
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
 - Điều học được: Bootstrap có `order-*` và `d-*-none` để đổi vị trí, ẩn hiện theo kích thước màn hình; hook chỉ được gọi bên trong component
+
+### [AI-16] Code lại giao diện trang chủ theo mockup Figma "Trang chủ – thiết kế" (HT-01)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-01] Danh sách khóa học / f474f78bcfbad74c89f3a9f891d6511989af4c1b / #83
+- Mục đích: Đưa mockup "Trang chủ · Desktop/Mobile · Sáng/Tối" và các trạng thái (đang tải, trống, lỗi, cần đăng nhập) từ Figma vào code trên nhánh `feature/HT-01-giao-dien-trang-chu`.
+- Prompt chính (nguyên văn): "Bây giờ tôi muốn thiết kế lại giao diện (code) của trang chủ dựa theo Mockup Trang chủ - thiết kế trên nhánh develop"
+- Kết quả AI trả về (tóm tắt):
++ `styles/theme.css`: biến màu sáng/tối, màu từng danh mục, bo góc, chữ (Baloo 2, Be Vietnam Pro) lấy từ biến Figma; nút `ht-btn` (primary / secondary / ghost); khung nội dung 1206 px.
++ `utils/theme.js` + nút đổi giao diện sáng/tối trên Header (lưu localStorage, đồng bộ `data-bs-theme` của Bootstrap).
++ `Header`, `Footer`, `Logo` mới (ảnh logo nhóm 3TBP `assets/logo.png` + tên "Học Vui"); menu ☰ trên điện thoại.
++ `CourseCard`: ảnh bìa minh họa theo màu danh mục (khi chưa có ảnh riêng), nhãn danh mục, chữ viết tắt giảng viên, hover nhấc 4 px; `utils/categoryTheme.js` chọn màu và sticker theo tên danh mục.
++ `CourseFilter` có nhãn "Danh mục", "Giảng viên"; `Pagination` mới (điện thoại hiện "Trang x / y").
++ `CourseListPage`: khối giới thiệu, lưới 3 cột, khung chờ tải, trạng thái trống / lỗi có nút "Thử lại", modal "Cần đăng nhập" theo Figma.
+- Đánh giá: Đúng bố cục Figma (đo bằng trình duyệt: khung 1206 px, thẻ 386 × 426 px ở 1366 px; 328 × 482 px ở 360 px; không tràn ngang). Lệch có chủ ý: bỏ ô tìm kiếm trên Header (trùng với ô tìm trong bộ lọc), thêm nút đổi sáng/tối (Figma chưa vẽ). Trang khác (đăng nhập, quản trị…) vẫn giao diện Bootstrap cũ, chỉ đổi font, màu nền, Header/Footer.
+- Đã chỉnh sửa gì: Không có
+- Cách kiểm chứng: `npm run lint` (không lỗi mới; 5 lỗi có sẵn ở useFetch, MyCoursesPage, TeacherLessonsPage, TeacherQuestionsPage), `npm run build`; chạy `npm run dev` với dữ liệu giả: 1366 px và 360 px, sáng/tối, mở menu ☰, khách bấm "Làm bài kiểm tra" hiện modal.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): <bạn tự ước lượng>%
+- Điều học được: Đọc biến Figma thành biến CSS để đổi sáng/tối chỉ bằng 1 thuộc tính `data-theme`; dùng `stretched-link` + `z-index` để cả thẻ bấm được mà nút bên trong vẫn hoạt động.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
