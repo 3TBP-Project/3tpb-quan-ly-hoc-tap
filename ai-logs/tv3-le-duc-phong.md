@@ -28,6 +28,9 @@
 | AI-15 | 19/11 | Lập trình | Responsive trang học bài và trang làm bài ở 360 px ([FE] Responsive) | #48 |
 | AI-16 | 25/11 | Lập trình | Code lại giao diện trang chủ theo mockup Figma "Trang chủ – thiết kế" (HT-01) | #83 |
 | AI-17 | 25/11 | Lập trình | Code lại giao diện trang chi tiết khóa học theo mockup Figma (HT-02) | #84 |
+| AI-18 | 25/11 | Lập trình | Giao diện đăng nhập, đăng ký (HT-03) theo mockup Figma | #88 |
+| AI-19 | 25/11 | Lập trình | Giao diện trang giảng viên theo mockup Figma: hồ sơ, tạo / sửa khóa học, quản lý bài học, câu hỏi | #89 |
+| AI-20 | 25/11 | Lập trình | Hai nút trên thẻ khóa học ở trang chủ rộng bằng nhau ở mọi kích thước màn hình (HT-01) | #87 |
 
 ---
 
@@ -373,6 +376,54 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: `npm run lint` (không lỗi ở các file đã sửa), `npm run build`; `npm run dev` với dữ liệu giả: khách, học viên chưa ghi danh → bấm Ghi danh → thẻ đổi "Tiếp tục học", bài hết khóa, nút làm bài kiểm tra bấm được; F5 vẫn đã ghi danh; 1366 / 360 px, sáng / tối.
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Dùng `box-shadow` + `clip-path` để nền banner tràn hết chiều ngang mà không phải sửa Layout dùng chung và không làm trang cuộn ngang.
+
+### [AI-18] Giao diện đăng nhập, đăng ký (HT-03) theo mockup Figma
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-03] Giao diện đăng nhập, đăng ký / af729dabbb074dac8712570a23d26096f74183fe / #88
+- Mục đích: Đưa mockup "HT-03 · Đăng nhập / Đăng ký" vào code trên nhánh `feature/HT-03-giao-dien-dang-nhap-dang-ky` (tạo từ `feature/HT-02-giao-dien-chi-tiet`, không sửa file của PR #83 và #84).
+- Prompt chính (nguyên văn): "Tiếp tục thực hiện cho trang của giảng viên + đăng ký + đăng nhập dựa theo Mockup đã có trong Figma, thực hiện trên nhánh develop mà không gây xung đột với nhánh feature/HT-01-giao-dien-trang-chu và feature/HT-02-giao-dien-chi-tiet chưa được Review PR"
+- Kết quả AI trả về (tóm tắt):
++ `AuthLayout` + `auth.css`: khối minh họa gradient bên trái (ẩn trên điện thoại), thẻ form bên phải; hộp thông báo lỗi (✕), cảnh báo tài khoản bị khóa (⚠, khi server trả 403), thành công (✓).
++ `InputField` viết lại theo component "Input" của Figma: nhãn, gợi ý dưới ô, lỗi "✕ …" màu đỏ, `aria-describedby`.
++ `LoginPage`, `RegisterPage`: chữ và bố cục theo Figma ("Tạo tài khoản", "Chưa có tài khoản? Đăng ký ngay", ghi chú tài khoản Học viên); giữ nguyên react-hook-form, yup và luồng gọi API.
+- Đánh giá: Đăng nhập / đăng ký khớp Figma (thẻ 440 px, ô 360 × 54 px ở 1366 px; thẻ 328 px ở 360 px; không tràn ngang). Trang đăng nhập vẫn có Header / Footer (Figma vẽ toàn màn hình). Phần trang giảng viên tách sang nhánh riêng (AI-19) vì TV1 vừa sửa lớn `TeacherLessonsPage` trên develop.
+- Đã chỉnh sửa gì: Thay đổi giao diện trang đăng nhập và đăng ký
+- Cách kiểm chứng: `npm run lint` (không lỗi mới ở các file đã sửa), `npm run build`; `npm run dev`: đăng nhập sai định dạng / thiếu mật khẩu hiện lỗi dưới ô, không có server hiện hộp lỗi; đăng ký; 1366 / 360 px, sáng / tối.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Gom khung trang đăng nhập / đăng ký vào một component `AuthLayout` dùng chung, hai trang chỉ còn phần form.
+
+### [AI-19] Giao diện trang giảng viên theo mockup Figma (HT-07, HT-09, HT-10, HT-11)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-09] Tạo / sửa khóa học; [HT-10], [HT-11] trang giảng viên; [HT-07] hồ sơ / 9698bce444315f1120a58ceb0684fac67f92f0f9 / #89
+- Mục đích: Đưa mockup trang "02 – Giảng viên" (HT-07 · Hồ sơ giảng viên, HT-09 · Tạo / sửa khóa học, HT-10, HT-11) vào code sau khi TV1 thêm luồng sửa / xóa khóa học, ảnh bìa và đường dẫn `/profile?tab=courses` / `?tab=account`. Nhánh `feature/HT-09-HT-11-giao-dien-giang-vien` tạo từ `feature/HT-09-sua-khoa-hoc-giang-vien` của TV1 để không xung đột.
+- Prompt chính (nguyên văn): "Kiểm tra trang của Giảng viên, TV1 vừa thêm như sau trên nhánh develop: Thêm luồng xóa, sửa khóa học; Thêm hình ảnh khóa học; teacher/courses đã fix thành trang /profile?tab=courses ... Việc bây giờ của bạn là thiết kế lại giao diện web (code) dựa trên mockup đã có sẵn trên Figma"
+- Kết quả AI trả về (tóm tắt):
++ `ProfilePage` + `ProfilePage.css` (dùng chung cho học viên, giảng viên): thẻ hồ sơ 320 px có ảnh đại diện tròn + huy hiệu máy ảnh, ô thống kê; thanh tab dạng viên thuốc; tab "Thông tin & Mật khẩu" 2 cột, ô nhập có gợi ý / lỗi "✕ …"; tab "Khóa học phụ trách" là danh sách thẻ có nhãn trạng thái (✓ Công khai / ✎ Nháp / ◌ Đã ẩn), liên kết "Quản lý bài học", "Xem khóa học", phân trang 4 khóa / trang; trạng thái trống có nút tạo khóa học. Giữ nguyên đường dẫn `?tab=` của TV1 và các lời gọi API.
++ `TeacherLessonsPage`: hộp "Tạo / Sửa khóa học" làm lại theo Figma (thông tin bên trái, khung ảnh bìa 16:9 nét đứt bên phải có kéo thả, chọn trạng thái bằng 2 thẻ); giữ nguyên kiểm tra ảnh, tải / xóa ảnh bìa, xóa khóa học của TV1.
++ `styles/teacher.css`: bộ màu "Học Vui" cho trang giảng viên, chỉ áp trong `.ht-teacher` (thẻ, ô nhập, nút, nhãn, danh sách, menu, modal). `TeacherLessonsPage`, `TeacherQuestionsPage` chỉ sửa nhẹ JSX: bọc `.ht-teacher`, danh sách bên trái / form bên phải, mục đang sửa `is-editing`, đáp án đúng `is-correct`.
+- Đánh giá: Hồ sơ khớp Figma khi đo trên trình duyệt ở 1366 px (thẻ hồ sơ 320 × 468, thanh tab 400 × 58, vùng chính 854 px, 2 hộp form 415 px, ô nhập 357 × 54); không tràn ngang ở 360 px; sáng / tối. Chữ viết tắt ảnh đại diện lấy 2 chữ cuối của tên (giống Header) nên "Nguyễn Văn An" ra "VA", Figma vẽ "NA". Không có số bài / số học viên trong thẻ khóa học vì API `/api/courses/my-courses` chưa trả. Chưa làm bảng "Khóa học của tôi" riêng (Figma HT-09) vì nhóm đã chuyển danh sách khóa học vào tab hồ sơ.
+- Đã chỉnh sửa gì: Thay đổi giao diện cho trang Giảng viên
+- Cách kiểm chứng: `npm run lint` (không lỗi mới; lỗi có sẵn ở TeacherLessonsPage, TeacherQuestionsPage giữ nguyên số lượng), `npm run build`; `npm run dev` với dữ liệu giả lập trong trình duyệt: `/profile?tab=courses`, `?tab=account`, `/teacher/lessons`, mở hộp sửa / tạo khóa học; 1366 / 360 px, sáng / tối.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Tách giao diện ra khỏi logic bằng lớp bao `.ht-teacher` và biến CSS, nên khi bạn khác sửa logic trang (TV1) thì phần giao diện vẫn ghép vào được mà ít đụng code.
+
+### [AI-20] Hai nút trên thẻ khóa học rộng bằng nhau ở mọi kích thước màn hình (HT-01)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-01] Trang chủ / 487e194c0e9414308b640ec844078a0b53eed6a2 / #87
+- Mục đích: Ở 360 px nút "Xem chi tiết" xuống hàng và chỉ rộng theo chữ nên lệch hẳn sang trái, không cân với nút "Làm bài kiểm tra" rộng hết thẻ.
+- Prompt chính (nguyên văn): "Sửa lại giao diện ở trang chủ, khi đang Responsive ở 360 thì nút Xem chi tiết không được đẹp lắm vì nó nghiêng hẳn về phía bên trái, hãy mở rộng nút bằng với nút Làm bài kiểm tra khi Responsive ở mọi độ lớn"
+- Kết quả AI trả về (tóm tắt): `course.css`: khối nút đổi từ flex sang grid `repeat(auto-fit, minmax(min(100%, 162px), 1fr))`: đủ chỗ thì 2 cột bằng nhau, thẻ hẹp thì mỗi nút một hàng rộng hết thẻ, chỉ có 1 nút (giảng viên, quản trị viên) thì nút rộng hết thẻ. Lề ngang trong nút giảm 22 → 14 px để "Làm bài kiểm tra" (rộng tối thiểu 177 px) vừa nửa thẻ ở máy tính.
+- Đánh giá: Đúng. Đo trên trình duyệt: 1366 px hai nút 170 px nằm cạnh nhau như Figma; 1024 px và 768 px mỗi nút 255 / 294 px một hàng; 360 px mỗi nút 290 px; không tràn chữ, không cuộn ngang.
+- Đã chỉnh sửa gì: Sửa nút Xem chi tiết luôn bằng kích thước với nút Làm bài kiểm tra
+- Cách kiểm chứng: `npm run build`; `npm run dev`, xem trang chủ ở 360 / 768 / 1024 / 1366 px.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: `minmax(min(100%, Xpx), 1fr)` với `auto-fit` cho các nút luôn bằng nhau và tự xuống hàng mà không cần media query.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
