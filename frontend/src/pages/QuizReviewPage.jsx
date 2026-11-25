@@ -1,4 +1,5 @@
-// HT-07: Xem lai bai lam cu
+// AI-assisted [AI-26]
+// HT-07: Xem lại bài làm cũ. Giao diện theo bộ màu "Học Vui", cùng kiểu Figma "HT-06 · Kết quả bài kiểm tra"
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ErrorMessage from '../components/common/ErrorMessage';
@@ -18,7 +19,9 @@ const FILTERS = [
 const formatScore = (score) => Number(score).toFixed(1);
 const scoreClass = (score) => (score >= 8 ? 'high' : score >= 5 ? 'mid' : 'low');
 const questionState = (q) => (q.isCorrect ? 'correct' : q.isAnswered ? 'wrong' : 'unanswered');
-const STATE_LABEL = { correct: 'Dung', wrong: 'Sai', unanswered: 'Bo trong' };
+const STATE_LABEL = { correct: 'Đúng', wrong: 'Sai', unanswered: 'Bỏ trống' };
+// Nhãn trạng thái luôn có ký hiệu + chữ, không chỉ dùng màu
+const STATE_MARK = { correct: '✓', wrong: '✕', unanswered: '—' };
 
 const formatDateTime = (value) => {
   const date = new Date(value);
@@ -32,8 +35,8 @@ function QuestionCard({ question }) {
   return (
     <article id={`qr-question-${question.number}`} className={`qr-question ${state}`}>
       <header className="qr-question-head">
-        <span className="qr-question-number">Cau {question.number}</span>
-        <span className={`qr-pill ${state}`}>{STATE_LABEL[state]}</span>
+        <span className="qr-question-number">Câu {question.number}</span>
+        <span className={`qr-pill ${state}`}>{STATE_MARK[state]} {STATE_LABEL[state]}</span>
       </header>
       <p className="qr-question-content">{question.content}</p>
       {question.options.length > 0 ? (
@@ -43,7 +46,7 @@ function QuestionCard({ question }) {
             const isCorrect = option.label === question.correctLabel;
             return (
               <li key={option.label} className={`qr-option ${isCorrect ? 'is-correct' : ''} ${isSelected && !isCorrect ? 'is-wrong' : ''}`}>
-                <span className="qr-option-label">{option.label}.</span>
+                <span className="qr-option-label" aria-hidden="true">{option.label}</span>
                 <span className="qr-option-text">{option.text}</span>
                 {isSelected && !isCorrect && <span className="qr-option-tag wrong">✕ Bạn chọn</span>}
                 {isSelected && isCorrect && <span className="qr-option-tag correct">✓ Bạn chọn · Đáp án đúng</span>}
@@ -53,7 +56,7 @@ function QuestionCard({ question }) {
           })}
         </ol>
       ) : (
-        <p className="qr-muted">Khong con du lieu cac lua chon cua cau nay.</p>
+        <p className="qr-muted">Không còn dữ liệu các lựa chọn của câu này.</p>
       )}
       <footer className="qr-answer-bar">
         <span className="qr-answer-key">✓ Đáp án đúng: <b>{question.correctLabel ?? question.correctAnswer}</b></span>
@@ -85,7 +88,7 @@ function QuizReviewPage() {
   if (error) {
     return (
       <div className="quiz-review-page">
-        <Link to="/profile?tab=history" className="qr-back">← Lịch sử làm bài</Link>
+        <Link to="/profile?tab=history" className="qr-back">‹ Lịch sử làm bài</Link>
         <ErrorMessage message={error} />
       </div>
     );
@@ -110,7 +113,7 @@ function QuizReviewPage() {
 
   return (
     <div className="quiz-review-page">
-      <Link to="/profile?tab=history" className="qr-back">← Lịch sử làm bài</Link>
+      <Link to="/profile?tab=history" className="qr-back">‹ Lịch sử làm bài</Link>
       <h1 className="qr-title">Xem lại bài làm</h1>
       <p className="qr-sub">{data.courseTitle} · Lần {data.attemptNumber}/{data.maxAttempts}</p>
 
@@ -150,6 +153,7 @@ function QuizReviewPage() {
                     className={`qr-grid-cell ${questionState(q)}`}
                     onClick={() => jumpTo(q.number)}
                     title={`Câu ${q.number}: ${STATE_LABEL[questionState(q)]}`}
+                    aria-label={`Câu ${q.number}: ${STATE_LABEL[questionState(q)]}`}
                   >
                     {q.number}
                   </button>
@@ -159,7 +163,7 @@ function QuizReviewPage() {
           )}
         </aside>
 
-        <main className="qr-main">
+        <div className="qr-main">
           {data.snapshotAvailable === false && (
             <div className="qr-card qr-fallback-note">
               Nội dung câu hỏi và đáp án đúng được tải lại từ dữ liệu hiện tại.
@@ -178,6 +182,7 @@ function QuizReviewPage() {
                     key={f.key}
                     type="button"
                     className={`qr-filter ${filter === f.key ? 'active' : ''}`}
+                    aria-pressed={filter === f.key}
                     onClick={() => setFilter(f.key)}
                   >
                     <span className={`qr-filter-mark ${f.key}`} aria-hidden="true">{f.mark}</span>
@@ -190,7 +195,7 @@ function QuizReviewPage() {
               ) : visible.map((q) => <QuestionCard key={q.number} question={q} />)}
             </>
           )}
-        </main>
+        </div>
       </div>
     </div>
   );
