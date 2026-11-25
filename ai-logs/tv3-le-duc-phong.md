@@ -35,7 +35,22 @@
 | AI-22 | 25/11 | Lập trình | Phân trang mục lục "Nội dung khóa học" ở trang học (HT-05) | #91 |
 | AI-23 | 25/11 | Lập trình | Phân trang danh sách bài ở trang chi tiết; thẻ bài học ở trang học tối đa 2 hàng (HT-02, HT-05) | #91 |
 | AI-24 | 25/11 | Lập trình | Sửa mục lục trang học đè lên Footer; chuyển sang gọi API backend thật (HT-05) | #91 |
-
+| AI-25 | 25/11 | Lập trình | Code lại giao diện trang làm bài kiểm tra theo mockup Figma: giới thiệu, làm bài, xác nhận nộp bài, kết quả (HT-06) | #92 |
+| AI-26 | 25/11 | Lập trình | Giao diện trang Xem lại bài làm (HT-07) và trang 404 theo mockup Figma | #93 |
+| AI-27 | 25/11 | Lập trình | Giao diện trang Quản lý người dùng (quản trị) theo mockup Figma (HT-14) | #94 |
+| AI-28 | 25/11 | Lập trình | Giao diện trang Danh mục & duyệt khóa học (quản trị) theo mockup Figma (HT-15) | #95 |
+| AI-29 | 25/11 | Thiết kế | Cập nhật wireframe v2 trong docs/wireframes theo các màn đã đưa vào web | #104 |
+| AI-30 | 22/11 | Thiết kế | Figma: mockup trang học (HT-05) và design system "Hướng A" | Figma |
+| AI-31 | 22/11 | Thiết kế | Figma: khôi phục các wireframe cũ bị xóa nhầm | Figma |
+| AI-32 | 22/11 | Thiết kế | Figma: đổi giao diện sang phong cách sinh động, nhiều màu | Figma |
+| AI-33 | 22/11 | Thiết kế | Figma: thiết kế lại toàn bộ web (học viên, giảng viên, quản trị; sáng / tối; máy tính / điện thoại) | Figma |
+| AI-34 | 23/11 | Thiết kế | Figma: wireframe v2 cho 6 màn hình của TV3 | #104 |
+| AI-35 | 23/11 | Thiết kế | Figma: mockup trang chủ "Trang chủ – thiết kế" | Figma |
+| AI-36 | 24/11 | Thiết kế | Figma: bổ sung màn còn thiếu (chương học, bình luận, trạng thái đăng nhập / đăng ký) | Figma |
+| AI-37 | 24/11 | Thiết kế | Figma: hộp xác nhận nộp bài (HT-06) và hồ sơ giảng viên (HT-07), wireframe + mockup | #104 |
+| AI-38 | 25/11 | Thiết kế | Figma: wireframe 04–06 từ mockup và rà soát wireframe chưa đồng bộ | Figma |
+| AI-39 | 25/11 | Tài liệu | Báo cáo mục 5.4 "Thiết kế giao diện (wireframe → giao diện thật)" kèm 6 hình | #101 |
+| AI-40 | 25/11 | Lập trình | Sửa lỗi giao diện: tràn chữ ở mọi trang, giới hạn form tạo giảng viên, avatar giảng viên từ CSDL | #100 |
 ---
 
 ### [AI-01] Đọc và tổng hợp tài liệu đề tài, xác định phần việc Frontend
@@ -452,7 +467,7 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
 - Công cụ: Claude Code (Opus 5.5)
 - Giai đoạn: Lập trình
-- Task / Commit / PR: [HT-05] Trang học / 744bd1162ac053653408867aa9a1db37df44e2bd / #91
+- Task / Commit / PR: [HT-05] Trang học / 45d6e9c25345f1e9b4102dbf4bee7e7fc743761e / #91
 - Mục đích: Khóa học nhiều bài làm mục lục bên trái trang học quá dài, phải cuộn nhiều.
 - Prompt chính (nguyên văn): "Thêm Phân trang cho Nội dung khóa học - XX bài, khoảng 7-8 bài là phân trang"
 - Kết quả AI trả về (tóm tắt):
@@ -484,7 +499,7 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
 - Công cụ: Claude Code (Opus 5.5)
 - Giai đoạn: Lập trình / Kiểm thử
-- Task / Commit / PR: [HT-05] Trang học / 744bd1162ac053653408867aa9a1db37df44e2bd / #91
+- Task / Commit / PR: [HT-05] Trang học / 45d6e9c25345f1e9b4102dbf4bee7e7fc743761e / #91
 - Mục đích: Ở trang học, nền trắng của cột mục lục che mất một bên Footer; chạy thử với backend thật thay vì dữ liệu giả.
 - Prompt chính (nguyên văn): "Sửa giúp tôi thêm phần Trang bài học, khối nội dung khóa học chèn lên trên cả footer khiến footer bị che đi 1 bên. Và kết nối API đến Back End để test thay vì Mock Data"
 - Kết quả AI trả về (tóm tắt):
@@ -496,6 +511,254 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: `npm run lint`, `npm run build`; khởi động lại `npm run dev` sau khi sửa `.env`; xem Network thấy các request tới `localhost:5000` trả 200; trang học cuộn xuống cuối thấy Footer không bị che.
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Phần tử có `position` được vẽ sau (đè lên) phần tử thường đứng sau nó trong trang; Vite chỉ đọc lại `.env` khi khởi động lại server.
+
+### [AI-25] Code lại giao diện trang làm bài kiểm tra theo mockup Figma (HT-06)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-06] Làm bài kiểm tra / e89c32e4299d59a7a0b9945144bbe965b1a22c77 / #92
+- Mục đích: Đưa mockup HT-06 trên trang Figma "01 – Học viên" (Giới thiệu bài kiểm tra, Làm bài · Câu hỏi, Xác nhận nộp bài: đã làm hết / còn câu chưa làm / đang nộp / lỗi / hết giờ, Kết quả bài kiểm tra; Desktop 1366, Mobile 360, Sáng / Tối) vào code. Nhánh `feature/HT-06-giao-dien-lam-bai` tạo từ develop, không sửa file nào của PR #91.
+- Prompt chính (nguyên văn): "Thực hiện trang Làm bài kiểm tra (code) dựa vào Mockup Figma có sẵn, trên nhánh develop, thực hiện không gây xung đột với PR#91 hiện có"
+- Kết quả AI trả về (tóm tắt):
++ `QuizPage` – Giới thiệu: thẻ 640 px, biểu tượng "?", 4 ô số liệu (hình thức, chấm điểm, lượt làm còn lại, điểm cao nhất lấy từ `/api/users/my-quizzes`), hộp cảnh báo "Đồng hồ chạy ngay khi bắt đầu"; hết lượt thì khóa nút bắt đầu, có liên kết xem kết quả các lượt trước.
++ `QuizPage` – Làm bài: thanh tràn ngang dưới Header (tên bài + đồng hồ), mỗi lần 1 câu (thẻ 800 px, lựa chọn A–D có chữ cái tròn, đang chọn: viền tím + nền tím nhạt), nút "‹ Câu trước" / "Câu tiếp ›", bảng câu hỏi 374 px (ô 52 px: tím nhạt = đã trả lời, tím đậm = đang làm, viền = chưa làm), nút "Nộp bài".
++ `QuizPage` – Hộp xác nhận nộp bài thay cho `window.confirm`: chip "Đã trả lời x/n câu · Còn mm:ss · Lượt k/3", danh sách "Câu 7 ›" nhảy tới câu chưa làm, "Xem lại câu chưa làm" / "Vẫn nộp bài"; lỗi mạng → "Tiếp tục làm bài" / "Thử lại" (bài làm giữ nguyên); máy chủ từ chối (4xx) → "Không thể chấm bài này" + "Xem kết quả các lượt trước"; hết giờ → hộp "Đã hết giờ làm bài" không đóng được, thanh chạy, tự chuyển sang kết quả.
++ `QuizTimer`: viên thuốc "Còn 12:45" (≤ 2 phút đổi đỏ, ≤ 30 giây nhấp nháy), thêm kiểu `chip` dùng trong hộp xác nhận; giữ nguyên cách tính giờ và tự nộp.
++ `QuizResultView`: "Bạn đạt X/10 điểm", 4 ô (✓ số câu đúng, ✕ số câu sai, thời gian làm tính từ lúc bắt đầu tới lúc nộp, điểm cao nhất + "mới!" khi vượt điểm cũ), thông điệp đạt (≥ 5) / chưa đạt, "Xem lại câu sai" (dòng đỏ ✕ "Bạn chọn · Sai" + dòng xanh ✓ "Đáp án đúng", chữ cái đúng theo thứ tự đã hiện), "Về khóa học" / "Làm lại (còn n lượt)".
++ `QuizPage.css` viết lại bằng biến `--ht-*` (sáng / tối), bỏ màu cứng cũ.
+- Đánh giá: Khớp Figma khi đo trên trình duyệt ở 1366 px (thẻ giới thiệu / kết quả 640 px, thanh trên 72 px, thẻ câu hỏi 800 px, lựa chọn 736 × 67, bảng câu hỏi 374 px, ô 52 × 52); 360 px không cuộn ngang.
+- Đã chỉnh sửa gì: Cập nhật giao diện trang làm bài.
+- Cách kiểm chứng: `npm run lint` (không lỗi), `npm run build`; `npm run dev`, giả lập phản hồi API trong trình duyệt (không ghi vào CSDL): bắt đầu làm bài, trả lời 8/10, mở hộp nộp bài → bấm "Câu 7 ›", nộp khi mất mạng, khi máy chủ từ chối, nộp thành công (6/10, 11 phút 32 giây, 4 câu sai), làm lại với 2 giây còn lại để thử tự nộp khi hết giờ; 1366 / 360 px, sáng / tối.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Phân biệt lỗi mạng (không có mã HTTP) với lỗi máy chủ từ chối (4xx) để chỉ cho "Thử lại" khi thử lại có ích.
+
+### [AI-26] Giao diện trang Xem lại bài làm (HT-07) và trang 404 theo mockup Figma
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-07] Xem lại bài làm; trang 404 / b1416eca9cecff32a73fad882caecf05f8556981 / #93
+- Mục đích: Đưa trang Xem lại bài làm (`/profile/quiz-attempts/:attemptId`) và trang 404 sang giao diện "Học Vui". Nhánh `feature/HT-07-giao-dien-xem-lai-va-404` tạo từ develop, không sửa file nào của PR #91, #92.
+- Prompt chính (nguyên văn): "Thực hiện trang Xem lại bài làm và Trang 404 (code) dựa vào Mockup Figma có sẵn, trên nhánh develop, thực hiện không gây xung đột với PR#91 và PR#92 hiện có"
+- Kết quả AI trả về (tóm tắt):
++ `StatusPage` + `status.css` (mới) + `NotFoundPage`: theo Figma "404 · Không tìm thấy trang": mã "404" Baloo 2 ExtraBold 140px màu nhấn (nhẹ nhàng lên xuống, tắt khi người dùng chọn giảm chuyển động), "Ôi, trang này không tồn tại", câu giải thích, nút "Về danh sách khóa học"; vài mảnh trang trí màu danh mục; tiêu đề có "Lỗi 404:" ẩn cho trình đọc màn hình.
++ `QuizReviewPage` + `QuizReviewPage.css`: Figma chưa có frame riêng nên dùng cùng kiểu "HT-06 · Kết quả bài kiểm tra": cột tóm tắt 340px (điểm lớn đổi màu theo mức, ô số liệu tím nhạt), bảng câu hỏi (xanh = đúng, đỏ = sai, viền = bỏ trống), bộ lọc dạng viên thuốc, thẻ câu hỏi có viền trái theo trạng thái, đáp án đúng nền xanh ✓ / chọn sai nền đỏ ✕.
++ Sửa chữ thiếu dấu đang hiện ra màn hình ("Cau", "Dung", "Bo trong", "Khong con du lieu..."), nhãn trạng thái thêm ký hiệu ✓ / ✕ / —, thẻ `<main>` lồng trong `<main>` của Layout đổi thành `<div>`, thêm `aria-pressed` cho bộ lọc và `aria-label` cho ô bảng câu hỏi. Giữ nguyên logic lọc, nhảy tới câu, gọi API.
+- Đánh giá: Trang 404 khớp Figma khi đo ở 1366 px ("404" y 172 / 140px, tiêu đề x 478 cao 42, câu giải thích x 301, nút 229 × 48); 360 px không cuộn ngang.
+- Đã chỉnh sửa gì: Sửa lại trang giao diện trang Xem lại bài làm và trang 404.
+- Cách kiểm chứng: `npm run lint`, `npm run build`; `npm run dev`: mở một đường dẫn không tồn tại; giả lập phản hồi `/api/quizzes/attempts/70` (5 câu: 2 đúng, 2 sai, 1 bỏ trống) để xem trang, bấm bộ lọc "Sai" (còn câu 2, 5); 1366 / 360 px, sáng / tối.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Khi thiếu mockup cho một trang, dựng lại từ các thành phần đã có trong Figma (ô số liệu, dòng đáp án) để giao diện vẫn thống nhất.
+
+### [AI-27] Giao diện trang Quản lý người dùng theo mockup Figma (HT-14)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-14] Quản lý người dùng / 5cf510f1330e34c2147aad9ec5218c47465fe67a / #94
+- Mục đích: Đưa mockup trang "03 – Quản trị" ("HT-14 · Quản lý người dùng" Desktop / Mobile, Sáng / Tối; "HT-14 · Tạo tài khoản giảng viên (modal)"; "Trạng thái bảng · HT-14/15") vào code. Nhánh `feature/HT-14-giao-dien-quan-ly-nguoi-dung` tạo từ develop, không sửa file nào của PR #91, #92, #93.
+- Prompt chính (nguyên văn): "Thực hiện trang Quản lý người dùng (quản trị) dựa vào Mockup Figma có sẵn, trên nhánh develop, thực hiện không gây xung đột với PR#91, PR#92 và #93 hiện có"
+- Kết quả AI trả về (tóm tắt):
++ `UserManagementPage`: tiêu đề "Người dùng" + nút "+ Tạo tài khoản giảng viên"; ô tìm kiếm bo tròn + ô chọn "Vai trò" (kèm số lượng); bảng 5 cột Họ tên / Email / Vai trò / Trạng thái / Thao tác; nhãn trạng thái có ký hiệu + chữ (✓ Hoạt động, ◌ Đã khóa, ⏳ Chờ đổi mật khẩu); thao tác dạng chữ "Sửa", "Khóa" / "Mở khóa", "Xóa" (đỏ); bấm tên để xem hồ sơ (số khóa học, ngày đăng ký); phân trang "Hiển thị x–y trong n người dùng" + số trang.
++ Hộp "Tạo tài khoản giảng viên" theo Figma: nhãn, gợi ý dưới ô, lỗi "✕ …", mật khẩu tạm có nút Hiện / Ẩn; dùng lại cho "Sửa thông tin".
++ Hộp xác nhận xóa thay cho `window.confirm` (cảnh báo không khôi phục được, gợi ý dùng "Khóa").
++ Trạng thái bảng: khung đang tải, "Không có người dùng phù hợp" + "Xóa bộ lọc", "Không tải được dữ liệu" + "Thử lại".
++ Điện thoại: mỗi người dùng là một thẻ (tên / "Vai trò · email" / trạng thái + thao tác), nút tạo tài khoản rộng hết màn hình, phân trang "Trang x / y".
++ `UserManagementPage.css` viết lại bằng biến `--ht-*` (sáng / tối). Giữ nguyên logic: tìm kiếm chờ 300 ms, lọc vai trò, phân trang, tạo / sửa / khóa / xóa, chặn xóa giảng viên còn khóa học.
+- Đánh giá: Khớp Figma khi đo ở 1366 px (tiêu đề 184 × 42, nút 254 × 48, ô tìm 930 × 55, ô vai trò 260 × 55); 360 px không cuộn ngang. Khác Figma: thêm nút "Xóa" và bấm tên để xem hồ sơ (để giữ chức năng có sẵn).
+- Đã chỉnh sửa gì: Cập nhật giao diện của trang Quản lý người dùng.
+- Cách kiểm chứng: `npm run lint`, `npm run build`; `npm run dev`, giả lập API quản trị trong trình duyệt (không ghi vào CSDL): tìm "nam", lọc Giảng viên, tìm không có kết quả → "Xóa bộ lọc", sang trang 2, tạo tài khoản bỏ trống (hiện 3 lỗi), khóa / mở khóa, xóa giảng viên còn khóa học (bị chặn), xóa học viên qua hộp xác nhận, lỗi tải → "Thử lại"; 1366 / 360 px, sáng / tối.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Dùng `order` trong CSS để thẻ trên điện thoại hiện "Vai trò · email" dù thứ tự cột bảng trên máy tính là Email rồi mới Vai trò.
+
+### [AI-28] Giao diện trang Danh mục & duyệt khóa học theo mockup Figma (HT-15)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-15] Danh mục & duyệt khóa học / 9bc7613ba2a98d180ba21e19418c426136cb23d1 / #95
+- Mục đích: Đưa mockup trang "03 – Quản trị" ("HT-15 · Danh mục & duyệt khóa học" Desktop / Mobile, Sáng / Tối; "Trạng thái bảng · HT-14/15") vào code. Nhánh `feature/HT-15-giao-dien-danh-muc-duyet-khoa-hoc` tạo từ develop, không sửa file nào của PR #91–#94.
+- Prompt chính (nguyên văn): "Thực hiện trang Danh mục & duyệt khóa học (quản trị) dựa vào Mockup Figma có sẵn, trên nhánh develop, thực hiện không gây xung đột với PR#91, PR#92, #93 và #94 hiện có"
+- Kết quả AI trả về (tóm tắt):
++ `/admin/categories`: tiêu đề + nút "+ Thêm danh mục"; mỗi danh mục là một thẻ (5 thẻ / hàng ở 1366 px, 2 thẻ / hàng trên điện thoại) với chip mang màu riêng của danh mục (dùng chung bộ màu `.ht-cat--*` với thẻ khóa học ở trang chủ), số khóa học, nút "Sửa" / "Xóa"; dòng tổng "x danh mục · y khóa học".
++ Hộp "Thêm / Sửa danh mục" có gợi ý và lỗi "✕ …"; hộp xác nhận xóa thay cho `window.confirm` (danh mục còn khóa học vẫn bị chặn như cũ).
++ `/admin/courses`: ô tìm kiếm (tên khóa học, giảng viên, danh mục; gõ không dấu vẫn tìm được), bảng Khóa học / Giảng viên / Danh mục (chip màu) / Trạng thái (✓ Công khai, ✎ Nháp, ◌ Đã ẩn) / Thao tác ("Xem" mở trang chi tiết, "Ẩn" / "Hiện lại"); dòng tổng "x công khai · y nháp · z đang bị ẩn"; điện thoại mỗi khóa học là một thẻ.
++ Trạng thái chung: khung đang tải, trống (kèm "Xóa tìm kiếm" / "+ Thêm danh mục"), lỗi (kèm "Thử lại").
++ `CategoryCoursePage.css` viết lại bằng biến `--ht-*` (sáng / tối). Giữ nguyên logic gọi API và 2 đường dẫn riêng trên menu.
+- Đánh giá: Khớp Figma khi đo ở 1366 px (thẻ danh mục 228 × 142, nút "+ Thêm danh mục" 184 × 48, bảng rộng 1206 px); 360 px không cuộn ngang. Khác Figma: vẫn tách 2 trang theo menu hiện có thay vì gộp 1 trang (gộp phải sửa `App.jsx`, `Header.jsx` dùng chung).
+- Đã chỉnh sửa gì: Cập nhật giao diện trang Danh mục & duyệt khóa học.
+- Cách kiểm chứng: `npm run lint`, `npm run build`; `npm run dev`, giả lập API quản trị trong trình duyệt (không ghi vào CSDL): thêm danh mục để trống (báo lỗi) rồi thêm "Marketing", xóa danh mục còn khóa học (bị chặn), xóa danh mục trống qua hộp xác nhận, ẩn / hiện lại khóa học, tìm "du lieu", tìm không ra → "Xóa tìm kiếm", lỗi tải → "Thử lại"; 1366 / 360 px, sáng / tối.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Dùng lại hàm `getCategoryTheme` của trang chủ để chip danh mục ở trang quản trị có cùng màu với thẻ khóa học, người dùng nhận ra danh mục ở mọi trang.
+
+### [AI-29] Cập nhật wireframe v2 trong `docs/wireframes`
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: Tài liệu wireframe / 601cf022fa1e1852ae046dfab755e5f4d52ed140 / #104
+- Mục đích: Thay ảnh wireframe cũ bằng wireframe v2 của các màn đã được đưa vào web qua mockup. Nhánh `docs/cap-nhat-wireframe-v2` tạo từ develop.
+- Prompt chính (nguyên văn): "Hãy thực hiện giúp tôi xuất các Wireframe mà đã được đưa vào trang web chính thông qua Mockup vào \"D:\nopbai\HocKy6\DoAnWeb\GIT\3tpb-quan-ly-hoc-tap\docs\wireframes\", đồng thời xóa các Wireframe cũ để tôi tạo 1 PR cập nhật Wireframe giao diện"
+- Kết quả AI trả về (tóm tắt):
++ Xuất 36 ảnh PNG (1x) từ Figma trang "Wireframe v2 – TV3" (trang chủ, chi tiết khóa học, bình luận, trang học, đăng nhập, đăng ký: máy tính, điện thoại và các trạng thái) và "Wireframe v2 – Bổ sung (HT-06, HT-07)" (xác nhận nộp bài 5 trạng thái, hồ sơ học viên / giảng viên).
++ Xóa 7 ảnh cũ đã có bản v2 thay thế: 01, 02, 02b, 03, M01, M02, M03. Giữ 04, 05, 06, M04, M05, M06 vì Figma chưa có wireframe v2 cho trang làm bài, giảng viên, quản trị.
++ Lần rà soát sau (prompt: "Kiểm tra nhánh docs/cap-nhat-wireframe-v2 còn thiếu file .png nào không") phát hiện thiếu 2 frame "Tất cả bình luận (chưa có câu hỏi)" nên xuất thêm `02c` và `M02c`.
++ Đặt tên theo kiểu cũ `NN – Tên.png`; trạng thái thêm chữ cái (01a, 01b...), điện thoại thêm "M".
+- Đánh giá: Đúng. Thư mục còn 42 ảnh; các tài liệu khác chỉ trỏ tới thư mục `docs/wireframes/` nên không có liên kết nào bị đứt.
+- Đã chỉnh sửa gì: Thay 7 ảnh wireframe cũ, thêm 27 ảnh wireframe v2.
+- Cách kiểm chứng: Mở từng ảnh trong `docs/wireframes/` đối chiếu với frame tương ứng trên Figma; `git status` thấy 7 ảnh thay thế + 29 ảnh mới.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Xuất ảnh bằng Figwright `save_screenshots` theo node id rồi đổi tên hàng loạt giúp thư mục wireframe khớp tên màn hình và dễ cập nhật lại.
+
+### [AI-30] Figma: mockup trang học (HT-05) và design system "Hướng A"
+- Ngày / Người dùng: 2026-11-22 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: [HT-05] Trang học / thiết kế trên Figma, không có commit / —
+- Mục đích: Làm lại giao diện trang học đẹp và đủ theo đặc tả đề bài, có bộ quy chuẩn màu, chữ, thành phần dùng chung.
+- Prompt chính: Đề xuất 2 hướng giao diện, dựng design system (màu sáng / tối, chữ, component) và trang học HT-05 trên Figma.
+
+### [AI-31] Figma: khôi phục các wireframe cũ bị xóa nhầm
+- Ngày / Người dùng: 2026-11-22 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: Wireframe / thiết kế trên Figma, không có commit / —
+- Mục đích: Prompt AI-30 vô tình xóa các wireframe cũ trên trang "01"; cần vẽ lại để giữ tài liệu thiết kế ban đầu.
+- Prompt chính: Vẽ lại các wireframe cũ bị xóa theo 13 ảnh PNG, không đụng trang khác.
+
+### [AI-32] Figma: đổi giao diện sang phong cách sinh động, nhiều màu
+- Ngày / Người dùng: 2026-11-22 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: Design system / thiết kế trên Figma, không có commit / —
+- Mục đích: Nhóm muốn giao diện vui, nhiều màu kiểu Duolingo / Brilliant thay vì tối giản.
+- Prompt chính: Đổi sang phong cách sinh động, nhiều màu, mỗi danh mục một màu, có chế độ tối.
+- Kết quả AI trả về (tóm tắt): Bộ biến màu "HT · Màu (Sáng)" / "HT · Màu (Tối)", màu riêng 6 danh mục, chữ Baloo 2 + Be Vietnam Pro, bo góc, bóng đổ (trang "00 – Design system").
+- Đánh giá: Đúng hướng nhóm muốn; các biến màu sau này dùng thẳng vào `frontend/src/styles/theme.css`.
+- Đã chỉnh sửa gì: Đổi giao diện sang phong cách sinh động, nhiều màu.
+- Cách kiểm chứng: `get_variable_defs` xem đủ biến sáng / tối; kiểm tra độ tương phản chữ trên nền màu.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Dùng biến (variables) theo cặp sáng / tối giúp code đổi giao diện tối chỉ bằng một thuộc tính.
+
+### [AI-33] Figma: thiết kế lại toàn bộ web
+- Ngày / Người dùng: 2026-11-22 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: HT-01 → HT-15 / thiết kế trên Figma, không có commit / —
+- Mục đích: Có mockup thống nhất cho mọi màn hình trước khi code lại giao diện.
+- Prompt chính (tóm tắt, cùng prompt với AI-32, nguyên văn ở mục AI-32): Thiết kế lại toàn bộ web cho 3 vai trò, máy tính 1366 / điện thoại 360, sáng / tối.
+- Kết quả AI trả về (tóm tắt): Trang "01 – Học viên", "02 – Giảng viên", "03 – Quản trị" với các màn chính, bản điện thoại, bản tối và frame "Trạng thái bảng".
+- Đánh giá: Đủ màn theo đặc tả; một số màn còn thiếu trạng thái được bổ sung ở AI-36, AI-37.
+- Đã chỉnh sửa gì: Cập nhật lại toàn bộ giao diện
+- Cách kiểm chứng: Đối chiếu danh sách frame với 15 chức năng HT-01…HT-15 trong đặc tả; `get_screenshot` từng frame.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Tách trang Figma theo vai trò giúp chia việc code cho từng thành viên dễ hơn.
+
+### [AI-34] Figma: wireframe v2 cho 6 màn hình của TV3
+- Ngày / Người dùng: 2026-11-23 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: HT-01, HT-02, HT-03, HT-05 / ảnh xuất vào `docs/wireframes` / 601cf022fa1e1852ae046dfab755e5f4d52ed140 / #104
+- Mục đích: Cập nhật wireframe trắng đen theo giao diện mới, mở rộng đúng 1366 / 360, chỉ cho 6 màn TV3 phụ trách.
+- Prompt chính: Vẽ wireframe trắng đen v2 cho 6 màn của TV3 trên trang mới, kèm các trạng thái.
+- Kết quả AI trả về (tóm tắt): Trang "Wireframe v2 – TV3": 01, 02, 02b, 03, 07, 08 (máy tính + điện thoại) và các trạng thái (cần đăng nhập, không có kết quả, đã ghi danh, chưa ghi danh, chế độ tập trung, sai thông tin, tài khoản bị khóa, lỗi nhập liệu).
+- Đánh giá: Đúng phạm vi 6 màn; sau đó được thêm bản "v2 (chương học)" / "v2 (sửa)" ở AI-36.
+- Đã chỉnh sửa gì: Wireframe cho 6 màn hình
+- Cách kiểm chứng: Xuất PNG vào `docs/wireframes` và so với mockup tương ứng.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Giới hạn rõ phạm vi (chỉ màn của mình) để không đụng phần việc của thành viên khác.
+
+### [AI-35] Figma: mockup trang chủ "Trang chủ – thiết kế"
+- Ngày / Người dùng: 2026-11-23 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: [HT-01] Trang chủ / thiết kế trên Figma; code ở AI-16 (#83) / —
+- Mục đích: Có mockup chi tiết cho trang chủ dựa trên wireframe v2 để code lại giao diện.
+- Prompt chính: Thiết kế mockup trang chủ (HT-01) từ wireframe 01 / M01.
+- Kết quả AI trả về (tóm tắt): Trang "Trang chủ – thiết kế" với thẻ khóa học theo màu danh mục, bộ lọc, phân trang, modal cần đăng nhập, bản điện thoại và bản tối.
+- Đánh giá: Đủ để code; đã code theo mockup này ở AI-16.
+- Đã chỉnh sửa gì: Thêm mockup trang chủ.
+- Cách kiểm chứng: Đo kích thước trên trình duyệt sau khi code (AI-16) khớp `get_design_context` của mockup.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Mockup có số đo cụ thể giúp code khớp thiết kế mà không phải đoán.
+
+### [AI-36] Figma: bổ sung màn còn thiếu
+- Ngày / Người dùng: 2026-11-24 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: HT-01, HT-02, HT-03, HT-05, HT-08 / thiết kế trên Figma / —
+- Mục đích: Bổ sung các màn và trạng thái còn thiếu sau khi đối chiếu Figma với tiến độ nhánh develop (chương học, bình luận, đăng nhập / đăng ký).
+- Prompt chính: Bổ sung màn còn thiếu so với develop (chương học, bình luận, đăng nhập / đăng ký), cả wireframe và mockup.
+- Kết quả AI trả về (tóm tắt): Thêm các frame "… · v2 (chương học)", "… · v2 (sửa)", "HT-08 · Tất cả bình luận", "HT-03 · Đăng nhập (mặc định / tài khoản bị khóa)", "HT-03 · Đăng ký (mặc định)" trên trang "01 – Học viên" và wireframe tương ứng trên "Wireframe v2 – TV3".
+- Đánh giá: Khớp chức năng mới trên develop (chương học, học tuần tự); trang bình luận chưa có code.
+- Đã chỉnh sửa gì: Bổ sung các màn còn thiếu trên Figma.
+- Cách kiểm chứng: So frame mới với chức năng đang có trên develop; `get_screenshot` từng frame.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Định kỳ đối chiếu Figma với code để thiết kế không bị tụt sau tính năng.
+
+### [AI-37] Figma: hộp xác nhận nộp bài (HT-06) và hồ sơ giảng viên (HT-07)
+- Ngày / Người dùng: 2026-11-24 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: [HT-06], [HT-07] / thiết kế trên Figma; wireframe xuất ở AI-29 / 601cf022fa1e1852ae046dfab755e5f4d52ed140 / #104
+- Mục đích: Thay hộp `window.confirm` khi nộp bài bằng hộp xác nhận đầy đủ trạng thái; thiết kế hồ sơ giảng viên giống bản đang có trên nhánh Test.
+- Prompt chính: Thêm wireframe + mockup hộp xác nhận nộp bài (HT-06) và hồ sơ học viên / giảng viên (HT-07).
+- Kết quả AI trả về (tóm tắt): Trang "Wireframe v2 – Bổ sung (HT-06, HT-07)" và các mockup "HT-06 · Xác nhận nộp bài (…)" (5 trạng thái), "HT-07 · Hồ sơ học viên / giảng viên (…)" trên trang "01 – Học viên", "02 – Giảng viên".
+- Đánh giá: Đủ trạng thái; đã code theo mockup ở AI-19 (hồ sơ) và AI-25 (làm bài kiểm tra).
+- Đã chỉnh sửa gì: Thêm wireframe và mockup hộp xác nhận nộp bài, hồ sơ học viên / giảng viên.
+- Cách kiểm chứng: `get_screenshot` từng frame; đối chiếu với giao diện đã code.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Vẽ đủ trạng thái lỗi / đang tải / hết giờ từ đầu giúp code không bỏ sót trường hợp.
+
+### [AI-38] Figma: wireframe 04–06 từ mockup và rà soát wireframe chưa đồng bộ
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Thiết kế
+- Task / Commit / PR: HT-06, HT-09–11, HT-14–15 / thiết kế trên Figma, chưa xuất ảnh / —
+- Mục đích: Thay wireframe cũ 04–06, M04–M06 bằng wireframe vẽ từ mockup; tìm các wireframe v2 còn lệch so với mockup.
+- Prompt chính: Vẽ wireframe 04–06 từ mockup, rà soát wireframe v2 lệch mockup rồi chờ duyệt.
+- Kết quả AI trả về (tóm tắt):
++ Phần A: trang mới "Wireframe v2 – Bổ sung 2 (HT-06, HT-09–11, HT-14–15)" với 21 frame: 04, 04f, 04g, M04, M04f, M04g (làm bài, giới thiệu, kết quả); 05, 05a–05d, M05, M05a–M05c (giảng viên: tạo / sửa khóa học, bài học, câu hỏi, danh sách khóa học, trạng thái bảng); 06, 06a–06c, M06, M06a (quản trị: người dùng, modal tạo giảng viên, danh mục & duyệt khóa học, trạng thái bảng). Mỗi frame nhân bản từ mockup rồi chuyển sang xám, kèm 14 component "· WF" xám dùng chung.
++ M04f, M04g không có mockup điện thoại nên được suy ra từ bản máy tính; bỏ sticker, confetti, hình minh họa; ô chưa làm và vùng tải ảnh dùng nét đứt.
++ Phần B: bảng đối chiếu từng wireframe v2 với mockup (đồng bộ / lệch nhỏ / lệch lớn), ví dụ 01: chữ hero, tiêu đề danh sách, nhãn bộ lọc, "Xóa bộ lọc", avatar giảng viên trên thẻ khác mockup; Header và Footer của mọi frame còn dùng tên mẫu cũ.
++ Dừng chờ duyệt, chưa sửa wireframe cũ và chưa xuất PNG (Phần D).
+- Đánh giá: Đúng yêu cầu "không xóa frame có sẵn"; các frame mới đã được chụp và so với mockup. Chưa xong: sửa các wireframe lệch và xuất PNG thay 04–06, M04–M06 trong `docs/wireframes`.
+- Đã chỉnh sửa gì: Thêm 21 frame wireframe từ mockup và bảng rà soát.
+- Cách kiểm chứng: `get_screenshot` từng frame mới so với mockup nguồn (node id ghi trong bảng kết quả); kiểm tra các trang Figma cũ không bị đổi.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Nhân bản mockup rồi chuyển sang xám giữ đúng nội dung và thứ tự khối hơn là vẽ wireframe lại từ đầu; yêu cầu AI dừng chờ duyệt trước khi sửa frame cũ giúp tránh mất dữ liệu.
+
+### [AI-39] Báo cáo mục 5.4 "Thiết kế giao diện (wireframe → giao diện thật)"
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5)
+- Giai đoạn: Tài liệu
+- Task / Commit / PR: Báo cáo chương 5 – phần giao diện / 815a4f1139955f60da44f9eee6b7af3bb49801be / #101 (dòng `AI-assisted` của commit ghi nhầm `[AI-41]`, đúng là `[AI-39]`; PR đã merge nên không sửa lại commit)
+- Mục đích: Viết phần giao diện của chương 5 (TV3 phụ trách theo mẫu cấu trúc báo cáo đề tài 05), có 4–6 ảnh màn hình đối chiếu wireframe với giao diện thật. Nhánh `docs/bao-cao-giao-dien` tạo từ develop, chỉ thêm tệp mới trong `docs/bao-cao/`.
+- Prompt chính (nguyên văn): "Chương 5 giao diện"
+- Kết quả AI trả về (tóm tắt):
++ `docs/bao-cao/chuong-05-giao-dien.md` viết cùng kiểu với mục 5.1–5.2 của TV2: 5.4.1 quy trình wireframe → mockup → code; 5.4.2 hệ thống thiết kế "Học Vui" (màu chủ đạo, màu theo danh mục, Baloo 2 + Be Vietnam Pro, sáng / tối); 5.4.3 giao diện theo 3 vai trò; 5.4.4 responsive 1366 / 360 px và khả năng truy cập (WCAG AA, trạng thái luôn có biểu tượng + chữ); 5.4.5 sáu hình có chú thích.
++ 6 hình trong `docs/bao-cao/images/`, mỗi hình đặt wireframe cạnh giao diện thật: trang chủ, trang học, làm bài kiểm tra, giảng viên quản lý bài học, quản trị người dùng, điện thoại 360 px + chế độ tối.
++ Ảnh giao diện thật chụp bằng Chrome headless từ ứng dụng chạy với backend và CSDL local, đăng nhập bằng tài khoản mẫu trong tệp seed; ở trang làm bài, yêu cầu bắt đầu lượt thi bị chặn và trả về câu hỏi thật của khóa nên không tạo lượt thi trong CSDL; cột email ở hình quản trị được làm mờ.
+- Đánh giá: Đủ nội dung và số hình theo mẫu báo cáo. Hình đánh số 5.4.1–5.4.6 để không trùng hình của TV2, khi ghép bản Word cần đánh lại số cho liền mạch. Khi tự xem lại hình thấy 2 lỗi giao diện (ảnh đại diện giảng viên bị vỡ, 2 danh mục "Lập trình" cùng màu), lỗi ảnh đại diện đã sửa ở AI-40.
+- Đã chỉnh sửa gì: Viết mục 5.4 và 6 hình báo cáo.
+- Cách kiểm chứng: Đối chiếu mục lục với mẫu `Cau_truc_bao_cao_va_slide_05_QuanLyHocTap.pdf`; kiểm tra từng nhận xét trong bài với code (`theme.css`, `QuizTimer`, `UserManagementPage`); mở 6 hình xem đúng trang, đúng dữ liệu.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 100%
+- Điều học được: Chụp màn hình bằng giao thức DevTools (CDP) cho phép chặn đúng một API ghi dữ liệu mà vẫn dùng dữ liệu thật cho phần còn lại.
+
+### [AI-40] Sửa lỗi giao diện: tràn chữ, giới hạn form tạo giảng viên, avatar giảng viên
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5)
+- Giai đoạn: Lập trình / Kiểm thử
+- Task / Commit / PR: [FE] Sửa lỗi giao diện (HT-01, HT-02, HT-14, HT-15) / 79a54495ad441b97193f2be9b0783604313d1bc1 / #100
+- Mục đích: Sửa các lỗi vặt phát hiện khi test: tên dài tràn khỏi bảng / thẻ, form tạo giảng viên chưa giới hạn ký tự, trang chi tiết khóa học không hiện avatar giảng viên lưu trong CSDL. Nhánh `fix/giao-dien-tran-chu` tạo từ develop.
+- Prompt chính (nguyên văn): "Về giao diện, có những lỗi vặt như sau: 1. Ở http://localhost:5173/admin/users, cột Họ tên bị tràn ký tự và lấn hết phần bảng luôn, nên giới hạn lại số ký tự và cho xuống dòng nếu như bị tràn, tương tự kiểm tra cho các cột khác 2. Giới hạn ký tự phần form tạo tài khoản giảng viên: Họ và tên giảng viên 50 ký tự, Email 50 ký tự, Mật khẩu 20 ký tự 3. Ở http://localhost:5173/admin/categories, tên danh mục bị tràn ra khỏi thẻ khi tên quá dài, cũng cắt xuống dòng nếu tới giới hạn của thẻ. Đồng thời kiểm tra giới hạn để xuống dòng cho các mục khác 4. Ở các trang chi tiết khóa học (Ví dụ: http://localhost:5173/courses/5) phần giảng viên thì Avatar chưa được cập nhật chung với Database khi test 5. Kiểm tra lại chủ yếu là phần giới hạn ký tự trong box không cho bị tràn cho tất cả các trang"
+- Kết quả AI trả về (tóm tắt):
++ `UserManagementPage`: bảng dùng `table-layout: fixed` với độ rộng cột cố định; họ tên, email xuống dòng, tối đa 2 dòng rồi "…" (di chuột xem đủ); tên / email dài trong hộp hồ sơ, xác nhận xóa, thông báo cũng xuống dòng.
++ Form tạo giảng viên: `maxLength` và kiểm tra lỗi họ tên ≤ 50, email ≤ 50, mật khẩu 6–20 ký tự; bộ đếm "x/50 ký tự" dưới ô họ tên.
++ `CategoryCoursePage`: chip danh mục xuống dòng trong thẻ (tối đa 2 dòng); bảng duyệt khóa học cột cố định, tên khóa học / giảng viên tự cắt; trên điện thoại tên giảng viên 1 dòng.
++ `UserAvatar` (mới): hiện ảnh `users.avatar`, ảnh lỗi hoặc tệp không tồn tại thì hiện chữ viết tắt; dùng ở trang chi tiết khóa học, thẻ khóa học và Header.
++ Rà toàn bộ trang: thêm `overflow-wrap: break-word` cho `body` làm lưới an toàn; sửa riêng thẻ khóa học, trang chi tiết, trang học, làm bài, hồ sơ, 2 trang giảng viên và tên người dùng trên Header.
+- Đánh giá: Đúng 5 yêu cầu. Backend vẫn cho phép tên / email tới 255 ký tự (phần của TV2, chưa sửa). Avatar giảng viên id 3 và 29 vẫn hiện chữ viết tắt vì tệp ảnh không có trong `backend/uploads` trên máy (thư mục này không nằm trong Git).
+- Đã chỉnh sửa gì: Sửa tràn chữ, giới hạn form, avatar giảng viên.
+- Cách kiểm chứng: `npx eslint` các tệp đã sửa, `vite build`; script Chrome headless thay chuỗi trong phản hồi API bằng tên / tiêu đề / email rất dài (chỉ trong trình duyệt, không ghi CSDL), đo phần tử tràn khỏi khung và chụp 13 trang ở 1366 px và 360 px; avatar thử với một ảnh tồn tại (hiện ảnh) và một ảnh mất tệp (hiện chữ viết tắt).
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: `overflow-wrap: anywhere` khác `break-word` ở chỗ làm nhỏ độ rộng tối thiểu của phần tử, nên mới cứu được ô bảng và phần tử flex; bảng cần `table-layout: fixed` thì độ rộng cột mới không bị nội dung kéo giãn.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
