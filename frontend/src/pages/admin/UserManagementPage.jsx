@@ -1,8 +1,9 @@
-// AI-assisted [AI-08]
+// AI-assisted [AI-08] [AI-27]
 // HT-14: Quản lý người dùng (quản trị viên)
+// Giao diện theo Figma trang "03 – Quản trị": "HT-14 · Quản lý người dùng", "HT-14 · Tạo tài khoản giảng viên (modal)",
+// "Trạng thái bảng · HT-14/15 (đang tải / trống / lỗi)", bản Mobile (mỗi người dùng là một thẻ).
 import { useEffect, useState } from 'react';
-import { Dropdown, Modal, Toast, ToastContainer } from 'react-bootstrap';
-import ErrorMessage from '../../components/common/ErrorMessage';
+import { Modal, Toast, ToastContainer } from 'react-bootstrap';
 import { useFetch } from '../../hooks/useFetch';
 import {
   createTeacher,
@@ -14,19 +15,15 @@ import {
 import { parseApiError } from '../../utils/apiError';
 import { getPageItems } from '../../utils/pagination';
 import { toAvatarUrl } from '../../utils/avatar';
+import { getInitials } from '../../utils/categoryTheme';
 import './UserManagementPage.css';
 
-const ROLE_LABEL = { all: 'Tất cả người dùng', student: 'Học viên', teacher: 'Giảng viên' };
-const SEARCH_HINT = {
-  all: 'Tìm tất cả người dùng theo tên hoặc email...',
-  student: 'Tìm học viên theo tên hoặc email...',
-  teacher: 'Tìm giảng viên theo tên hoặc email...',
-};
+const ROLE_LABEL = { all: 'Tất cả vai trò', student: 'Học viên', teacher: 'Giảng viên' };
+const ROLE_NOUN = { all: 'người dùng', student: 'học viên', teacher: 'giảng viên' };
 const PAGE_SIZES = [5, 10, 20, 50];
 const EMAIL_REGEX = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 const fmt = (n) => Number(n ?? 0).toLocaleString('vi-VN');
-const initial = (name = '') => name.trim().split(/\s+/).at(-1)?.charAt(0).toUpperCase() || '?';
 
 // Ngày giờ -> { date: "14/11/2026", time: "21:03" }
 const fmtDateTime = (value) => {
@@ -36,59 +33,51 @@ const fmtDateTime = (value) => {
   return { date: `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}` };
 };
 
-const ICON = {
-  edit: <><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></>,
-  view: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>,
-  lock: <><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></>,
-  unlock: <><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.8-1.2" /></>,
-  trash: <><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /></>,
-  search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>,
-};
-const Icon = ({ name }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {ICON[name]}
-  </svg>
-);
-
-function IconButton({ icon, label, danger, onClick, disabled }) {
-  return (
-    <button type="button" className={`um-icon-btn ${danger ? 'danger' : ''}`} title={label} aria-label={label}
-      onClick={onClick} disabled={disabled}>
-      <Icon name={icon} />
-    </button>
-  );
-}
-
 const Avatar = ({ user }) => {
   const [broken, setBroken] = useState(false);
   const src = broken ? '' : toAvatarUrl(user.avatar);
   return src ? (
     <img className={`um-avatar um-avatar-img ${user.role}`} src={src} alt="" onError={() => setBroken(true)} />
   ) : (
-    <div className={`um-avatar ${user.role}`} aria-hidden="true">{initial(user.name)}</div>
+    <span className={`um-avatar ${user.role}`} aria-hidden="true">{getInitials(user.name) || '?'}</span>
   );
 };
 
-const RoleBadge = ({ role }) => (
-  <span className={`um-badge ${role === 'teacher' ? 'teacher' : 'student'}`}>{role === 'teacher' ? 'Giảng viên' : 'Học viên'}</span>
-);
+const roleText = (role) => (role === 'teacher' ? 'Giảng viên' : 'Học viên');
 
-const STATUS_LABEL = { locked: 'Bị chặn', pending: 'Chờ xử lý', active: 'Hoạt động' };
-
-const StatusBadge = ({ status }) => (
-  <span className={`um-badge ${status === 'locked' ? 'locked' : status === 'pending' ? 'pending' : 'active'}`}>
-    {STATUS_LABEL[status] ?? 'Hoạt động'}
-  </span>
-);
+// Trạng thái luôn có ký hiệu + chữ (Figma Badge): ✓ Hoạt động, ◌ Đã khóa, ⏳ Chờ đổi mật khẩu
+const STATUS = {
+  active: { mark: '✓', label: 'Hoạt động' },
+  locked: { mark: '◌', label: 'Đã khóa' },
+  pending: { mark: '⏳', label: 'Chờ đổi mật khẩu' },
+};
+const StatusBadge = ({ status }) => {
+  const s = STATUS[status] ?? STATUS.active;
+  return <span className={`um-badge ${STATUS[status] ? status : 'active'}`}>{s.mark} {s.label}</span>;
+};
 
 const coursesText = (u) => `${fmt(u.courses)} khóa ${u.role === 'teacher' ? 'giảng dạy' : 'ghi danh'}`;
 
-// Thêm giảng viên (user = null) hoặc sửa họ tên người dùng
+// Ô nhập theo component "Input" của Figma: nhãn, ô, gợi ý hoặc lỗi "✕ …"
+function Field({ id, label, hint, error, children }) {
+  return (
+    <div className={`um-field${error ? ' has-error' : ''}`}>
+      <label htmlFor={id}>{label}</label>
+      {children}
+      <div id={`${id}-note`} className={error ? 'um-err' : 'um-hint'}>
+        {error ? `✕ ${error}` : hint}
+      </div>
+    </div>
+  );
+}
+
+// Tạo tài khoản giảng viên (user = null) hoặc sửa họ tên người dùng
 function UserFormModal({ user, onClose, onSaved }) {
   const isEdit = Boolean(user);
   const [values, setValues] = useState({ name: user?.name ?? '', email: user?.email ?? '', password: '' });
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const setField = (field) => (e) => setValues((v) => ({ ...v, [field]: e.target.value }));
 
   const handleSubmit = async (event) => {
@@ -118,42 +107,42 @@ function UserFormModal({ user, onClose, onSaved }) {
     }
   };
 
+  const title = isEdit ? (user.role === 'teacher' ? 'Sửa thông tin giảng viên' : 'Sửa thông tin học viên') : 'Tạo tài khoản giảng viên';
+  const aria = (field) => ({ 'aria-invalid': errors[field] ? true : undefined, 'aria-describedby': `um-${field}-note` });
+
   return (
-    <Modal show onHide={onClose} centered className="um-modal">
-      <form onSubmit={handleSubmit} noValidate>
-        <Modal.Header closeButton>
-          <Modal.Title as="h2" className="um-modal-title">
-            {isEdit ? (user.role === 'teacher' ? 'Sửa thông tin giảng viên' : 'Sửa thông tin học viên') : 'Thêm giảng viên'}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="um-field">
-            <label htmlFor="um-name">Họ và tên</label>
-            <input id="um-name" type="text" autoFocus maxLength={255} placeholder="Ví dụ: Nguyễn Văn A"
-              value={values.name} onChange={setField('name')} />
-            {errors.name && <div className="um-err">{errors.name}</div>}
-          </div>
-          <div className="um-field">
-            <label htmlFor="um-email">Email</label>
-            <input id="um-email" type="email" maxLength={255} placeholder="giangvien@email.com"
-              value={values.email} onChange={setField('email')} disabled={isEdit} />
-            {errors.email && <div className="um-err">{errors.email}</div>}
-            {isEdit && <div className="um-hint">Email là định danh đăng nhập nên không sửa được.</div>}
-          </div>
-          {!isEdit && (
-            <div className="um-field">
-              <label htmlFor="um-pw">Mật khẩu tạm</label>
-              <input id="um-pw" type="text" autoComplete="off" placeholder="Giảng viên đổi lại sau khi đăng nhập"
-                value={values.password} onChange={setField('password')} />
-              {errors.password && <div className="um-err">{errors.password}</div>}
-              <div className="um-hint">Tài khoản được tạo với vai trò Giảng viên và trạng thái Hoạt động.</div>
+    <Modal show onHide={onClose} centered dialogClassName="um-modal-dialog" contentClassName="um-modal" aria-labelledby="um-form-title">
+      <form onSubmit={handleSubmit} noValidate className="um-modal-body">
+        <h2 id="um-form-title" className="um-modal-title">{title}</h2>
+        <Field id="um-name" label={isEdit ? 'Họ và tên' : 'Họ và tên giảng viên'} error={errors.name}
+          hint={isEdit ? 'Tên hiển thị trên hồ sơ và khóa học' : 'Hiển thị trên các khóa học do giảng viên phụ trách'}>
+          <input id="um-name" type="text" autoFocus maxLength={255} placeholder="Ví dụ: Nguyễn Văn A"
+            value={values.name} onChange={setField('name')} {...aria('name')} />
+        </Field>
+        <Field id="um-email" label="Email" error={errors.email}
+          hint={isEdit ? 'Email là định danh đăng nhập nên không sửa được' : 'Dùng để đăng nhập, không sửa được sau khi tạo'}>
+          <input id="um-email" type="email" maxLength={255} placeholder="giangvien@email.com"
+            value={values.email} onChange={setField('email')} disabled={isEdit} {...aria('email')} />
+        </Field>
+        {!isEdit && (
+          <Field id="um-password" label="Mật khẩu tạm thời" error={errors.password}
+            hint="Giảng viên phải đổi mật khẩu ở lần đăng nhập đầu">
+            <div className="um-password">
+              <input id="um-password" type={showPassword ? 'text' : 'password'} autoComplete="new-password"
+                placeholder="Ít nhất 6 ký tự" value={values.password} onChange={setField('password')} {...aria('password')} />
+              <button type="button" className="um-link-btn" onClick={() => setShowPassword((v) => !v)}
+                aria-pressed={showPassword} aria-controls="um-password">
+                {showPassword ? 'Ẩn' : 'Hiện'}
+              </button>
             </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <button type="button" className="um-btn" onClick={onClose}>Hủy</button>
-          <button type="submit" className="um-btn um-btn-primary" disabled={saving}>{saving ? 'Đang lưu...' : 'Lưu'}</button>
-        </Modal.Footer>
+          </Field>
+        )}
+        <div className="um-modal-actions">
+          <button type="button" className="ht-btn ht-btn--ghost" onClick={onClose} disabled={saving}>Hủy</button>
+          <button type="submit" className="ht-btn ht-btn--primary" disabled={saving}>
+            {saving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo tài khoản'}
+          </button>
+        </div>
       </form>
     </Modal>
   );
@@ -162,11 +151,9 @@ function UserFormModal({ user, onClose, onSaved }) {
 function UserProfileModal({ user, onClose }) {
   const { date, time } = fmtDateTime(user.createdAt);
   return (
-    <Modal show onHide={onClose} centered className="um-modal">
-      <Modal.Header closeButton>
-        <Modal.Title as="h2" className="um-modal-title">Hồ sơ người dùng</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
+    <Modal show onHide={onClose} centered dialogClassName="um-modal-dialog" contentClassName="um-modal" aria-labelledby="um-profile-title">
+      <div className="um-modal-body">
+        <h2 id="um-profile-title" className="um-modal-title">Hồ sơ người dùng</h2>
         <div className="um-profile">
           <Avatar user={user} />
           <div>
@@ -175,16 +162,55 @@ function UserProfileModal({ user, onClose }) {
           </div>
         </div>
         <dl className="um-profile-list">
-          <dt>Vai trò</dt><dd><RoleBadge role={user.role} /></dd>
-          <dt>Trạng thái</dt><dd><StatusBadge status={user.status} /></dd>
-          <dt>{user.role === 'teacher' ? 'Giảng dạy' : 'Ghi danh'}</dt><dd>{coursesText(user)}</dd>
-          <dt>Ngày đăng ký</dt><dd>{date} <span className="um-muted">{time}</span></dd>
+          <div><dt>Vai trò</dt><dd>{roleText(user.role)}</dd></div>
+          <div><dt>Trạng thái</dt><dd><StatusBadge status={user.status} /></dd></div>
+          <div><dt>{user.role === 'teacher' ? 'Giảng dạy' : 'Ghi danh'}</dt><dd>{coursesText(user)}</dd></div>
+          <div><dt>Ngày đăng ký</dt><dd>{date} <span className="um-muted">{time}</span></dd></div>
         </dl>
-      </Modal.Body>
-      <Modal.Footer>
-        <button type="button" className="um-btn" onClick={onClose}>Đóng</button>
-      </Modal.Footer>
+        <div className="um-modal-actions">
+          <button type="button" className="ht-btn ht-btn--secondary" onClick={onClose}>Đóng</button>
+        </div>
+      </div>
     </Modal>
+  );
+}
+
+// Xác nhận xóa (thay cho window.confirm)
+function ConfirmDeleteModal({ user, busy, onCancel, onConfirm }) {
+  const isTeacher = user.role === 'teacher';
+  return (
+    <Modal show onHide={busy ? undefined : onCancel} centered backdrop={busy ? 'static' : true}
+      dialogClassName="um-modal-dialog" contentClassName="um-modal" aria-labelledby="um-delete-title">
+      <div className="um-modal-body">
+        <h2 id="um-delete-title" className="um-modal-title">Xóa tài khoản {isTeacher ? 'giảng viên' : 'học viên'}?</h2>
+        <p className="um-note is-error">
+          <span className="um-note-icon" aria-hidden="true">!</span>
+          <span>
+            <strong>{user.name}</strong> ({user.email}) sẽ bị xóa khỏi hệ thống và không khôi phục được.
+            {!isTeacher && ' Toàn bộ ghi danh, kết quả làm bài và tiến độ học của học viên này cũng bị xóa.'}
+          </span>
+        </p>
+        <p className="um-muted">Nếu chỉ muốn tạm ngừng, hãy dùng “Khóa” thay vì xóa.</p>
+        <div className="um-modal-actions">
+          <button type="button" className="ht-btn ht-btn--secondary" onClick={onCancel} disabled={busy}>Hủy</button>
+          <button type="button" className="ht-btn um-btn-danger" onClick={onConfirm} disabled={busy}>
+            {busy ? 'Đang xóa...' : 'Xóa tài khoản'}
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// Trạng thái bảng theo Figma "Trạng thái bảng · HT-14/15"
+function TableState({ tone, title, message, action }) {
+  return (
+    <div className="um-state" role={tone === 'error' ? 'alert' : 'status'}>
+      <span className={`um-state-icon ${tone}`} aria-hidden="true">{tone === 'error' ? '!' : '≡'}</span>
+      <h2 className="um-state-title">{title}</h2>
+      <p className="um-muted">{message}</p>
+      {action}
+    </div>
   );
 }
 
@@ -195,7 +221,7 @@ function UserManagementPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [version, setVersion] = useState(0);
-  const [modal, setModal] = useState(null); // { type: 'form' | 'view', user }
+  const [modal, setModal] = useState(null); // { type: 'form' | 'view' | 'delete', user }
   const [busyId, setBusyId] = useState(null);
   const [toasts, setToasts] = useState([]);
 
@@ -226,40 +252,46 @@ function UserManagementPage() {
     setPage(1);
   };
 
+  const clearFilters = () => {
+    setKeyword('');
+    setSearch('');
+    changeRole('all');
+  };
+
   const toggleLock = async (u) => {
     const lock = u.status !== 'locked';
     setBusyId(u.id);
     try {
       await setUserLocked(u.id, lock);
-      if (lock) notify('Đã chặn tài khoản', `${u.name} sẽ không đăng nhập được nữa.`, 'warn');
-      else notify('Đã bỏ chặn tài khoản', `${u.name} đã có thể đăng nhập lại.`, 'info');
+      if (lock) notify('Đã khóa tài khoản', `${u.name} sẽ không đăng nhập được nữa.`, 'warn');
+      else notify('Đã mở khóa tài khoản', `${u.name} đã có thể đăng nhập lại.`, 'info');
     } catch (err) {
-      notify('Thao tác thất bại', parseApiError(err).message, 'warn');
+      notify('Thao tác thất bại', parseApiError(err).message, 'error');
     } finally {
       setBusyId(null);
       reload();
     }
   };
 
-  const handleDelete = async (u) => {
-    const isTeacher = u.role === 'teacher';
-    if (isTeacher && u.courses > 0) {
-      notify('Không thể xóa', `${u.name} đang có ${u.courses} khóa học giảng dạy. Hãy chặn tài khoản thay vì xóa.`, 'warn');
+  const askDelete = (u) => {
+    if (u.role === 'teacher' && u.courses > 0) {
+      notify('Không thể xóa', `${u.name} đang có ${u.courses} khóa học giảng dạy. Hãy khóa tài khoản thay vì xóa.`, 'warn');
       return;
     }
-    const question = isTeacher
-      ? `Xóa tài khoản giảng viên ${u.name}?`
-      : `Xóa tài khoản học viên ${u.name}?
-Toàn bộ ghi danh, kết quả làm bài và tiến độ học của học viên này cũng sẽ bị xóa.`;
-    if (!window.confirm(question)) return;
+    setModal({ type: 'delete', user: u });
+  };
+
+  const handleDelete = async (u) => {
+    const isTeacher = u.role === 'teacher';
     setBusyId(u.id);
     try {
       await deleteUser(u.id);
       notify(isTeacher ? 'Đã xóa giảng viên' : 'Đã xóa học viên', `${u.name} đã bị xóa khỏi hệ thống.`, 'warn');
     } catch (err) {
-      notify('Không thể xóa', parseApiError(err).message, 'warn');
+      notify('Không thể xóa', parseApiError(err).message, 'error');
     } finally {
       setBusyId(null);
+      setModal(null);
       reload();
     }
   };
@@ -269,7 +301,7 @@ Toàn bộ ghi danh, kết quả làm bài và tiến độ học của học vi
     if (isEdit) {
       notify('Đã cập nhật', `Đã lưu thông tin của ${name}.`);
     } else {
-      notify('Đã thêm giảng viên', `${name} đã có thể đăng nhập và tạo khóa học.`);
+      notify('Đã tạo tài khoản giảng viên', `${name} đã có thể đăng nhập và tạo khóa học.`);
       // Người mới tạo xếp đầu danh sách
       setRole((r) => (r === 'student' ? 'all' : r));
       setPage(1);
@@ -281,122 +313,131 @@ Toàn bộ ghi danh, kết quả làm bài và tiến độ học của học vi
   const to = (page - 1) * pageSize + users.length;
   const openAdd = () => setModal({ type: 'form', user: null });
 
+  const renderBody = () => {
+    if (error) {
+      return (
+        <TableState tone="error" title="Không tải được dữ liệu" message={`${error} Kiểm tra mạng rồi bấm “Thử lại”.`}
+          action={<button type="button" className="ht-btn ht-btn--secondary" onClick={reload}>Thử lại</button>} />
+      );
+    }
+    if (loading && !data) {
+      return (
+        <div className="um-skeleton" aria-hidden="true">
+          {Array.from({ length: 5 }, (_, i) => <span key={i} />)}
+        </div>
+      );
+    }
+    if (users.length === 0) {
+      return (
+        <TableState tone="empty" title={`Không có ${ROLE_NOUN[role]} phù hợp`}
+          message={search ? `Không tìm thấy tài khoản nào khớp “${search}”. Kiểm tra lại tên, email hoặc đổi bộ lọc vai trò.` : `Chưa có ${ROLE_NOUN[role]} nào.`}
+          action={(search || role !== 'all') && <button type="button" className="ht-btn ht-btn--primary" onClick={clearFilters}>Xóa bộ lọc</button>} />
+      );
+    }
+    return (
+      <table className="um-table">
+        <thead>
+          <tr>
+            <th scope="col">Họ tên</th>
+            <th scope="col">Email</th>
+            <th scope="col">Vai trò</th>
+            <th scope="col">Trạng thái</th>
+            <th scope="col" className="c-actions">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((u) => {
+            const busy = busyId === u.id;
+            const locked = u.status === 'locked';
+            return (
+              <tr key={u.id}>
+                <td className="c-user">
+                  {/* Bấm tên để xem hồ sơ (số khóa học, ngày đăng ký) */}
+                  <button type="button" className="um-user-cell" onClick={() => setModal({ type: 'view', user: u })}
+                    title="Xem hồ sơ">
+                    <Avatar user={u} />
+                    <span className="um-user-name">{u.name}</span>
+                  </button>
+                </td>
+                <td className="c-email">{u.email}</td>
+                <td className="c-role">{roleText(u.role)}</td>
+                <td className="c-status"><StatusBadge status={u.status} /></td>
+                <td className="c-actions">
+                  <div className="um-actions">
+                    <button type="button" className="um-link-btn" onClick={() => setModal({ type: 'form', user: u })}
+                      aria-label={`Sửa ${u.name}`}>Sửa</button>
+                    <button type="button" className="um-link-btn" disabled={busy} onClick={() => toggleLock(u)}
+                      aria-label={`${locked ? 'Mở khóa' : 'Khóa'} ${u.name}`}>{locked ? 'Mở khóa' : 'Khóa'}</button>
+                    <button type="button" className="um-link-btn danger" disabled={busy} onClick={() => askDelete(u)}
+                      aria-label={`Xóa ${u.name}`}>Xóa</button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  };
+
   return (
     <div className="user-management-page">
       <div className="um-page-head">
-        <h1>Quản lý người dùng</h1>
-        <button type="button" className="um-btn um-btn-primary um-add-btn" onClick={openAdd}>＋ Thêm giảng viên</button>
+        <h1>Người dùng</h1>
+        <button type="button" className="ht-btn ht-btn--primary" onClick={openAdd}>+ Tạo tài khoản giảng viên</button>
       </div>
 
       <div className="um-toolbar">
-        <Dropdown className="um-role-filter" onSelect={(key) => changeRole(key)}>
-          <Dropdown.Toggle className="um-role-toggle" variant="light">
-            {ROLE_LABEL[role]} ({fmt(counts[role])})
-          </Dropdown.Toggle>
-          <Dropdown.Menu className="um-role-menu">
-            {Object.keys(ROLE_LABEL).map((key) => (
-              <Dropdown.Item key={key} eventKey={key} active={key === role}>
-                <span>{ROLE_LABEL[key]}</span>
-                <span className="um-count">{fmt(counts[key])}</span>
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
-
         <label className="um-search">
-          <Icon name="search" />
-          <input type="search" placeholder={SEARCH_HINT[role]} aria-label="Tìm người dùng theo tên hoặc email"
+          <span className="um-search-icon" aria-hidden="true" />
+          <input type="search" placeholder="Tìm theo tên hoặc email..." aria-label="Tìm người dùng theo tên hoặc email"
             value={keyword} onChange={(e) => setKeyword(e.target.value)} />
         </label>
-      </div>
-
-      {error && <ErrorMessage message={error} />}
-
-      <div className={`um-table-card ${loading ? 'is-loading' : ''}`}>
-        <table>
-          <thead>
-            <tr>
-              <th>Người dùng</th>
-              <th>Vai trò</th>
-              <th>Ghi danh / Giảng dạy</th>
-              <th>Trạng thái</th>
-              <th>Ngày đăng ký</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {!loading && users.length === 0 ? (
-              <tr className="um-empty-row">
-                <td colSpan={6}>
-                  {search
-                    ? `Không tìm thấy ${ROLE_LABEL[role].toLowerCase()} nào khớp với "${search}".`
-                    : `Chưa có ${ROLE_LABEL[role].toLowerCase()} nào.`}
-                </td>
-              </tr>
-            ) : users.map((u) => {
-              const { date, time } = fmtDateTime(u.createdAt);
-              const busy = busyId === u.id;
-              return (
-                <tr key={u.id}>
-                  <td className="c-user">
-                    <div className="um-user-cell">
-                      <Avatar user={u} />
-                      <div>
-                        <div className="um-user-name">{u.name}</div>
-                        <div className="um-user-email">{u.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="c-role"><RoleBadge role={u.role} /></td>
-                  <td className="c-courses" data-label={u.role === 'teacher' ? 'Giảng dạy' : 'Ghi danh'}>{coursesText(u)}</td>
-                  <td className="c-status"><StatusBadge status={u.status} /></td>
-                  <td className="c-date" data-label="Ngày đăng ký">
-                    <span className="um-date">{date} <span className="um-muted">{time}</span></span>
-                  </td>
-                  <td className="c-actions">
-                    <div className="um-actions">
-                      <IconButton icon="edit" label="Sửa" onClick={() => setModal({ type: 'form', user: u })} />
-                      <IconButton icon="view" label="Xem hồ sơ" onClick={() => setModal({ type: 'view', user: u })} />
-                      {u.status === 'locked'
-                        ? <IconButton icon="unlock" label="Bỏ chặn" disabled={busy} onClick={() => toggleLock(u)} />
-                        : <IconButton icon="lock" label="Chặn" danger disabled={busy} onClick={() => toggleLock(u)} />}
-                      <IconButton icon="trash" label="Xóa" danger disabled={busy} onClick={() => handleDelete(u)} />
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="um-pagination-bar">
-        <div className="um-page-size">
-          <label htmlFor="um-page-size">Hiển thị</label>
-          <select id="um-page-size" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}>
-            {PAGE_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
+        <div className="um-role-filter">
+          <label htmlFor="um-role">Vai trò</label>
+          <select id="um-role" value={role} onChange={(e) => changeRole(e.target.value)}>
+            {Object.keys(ROLE_LABEL).map((key) => (
+              <option key={key} value={key}>{ROLE_LABEL[key]} ({fmt(counts[key])})</option>
+            ))}
           </select>
-          <span>dòng mỗi trang · {fmt(from)}–{fmt(to)} trên tổng {fmt(total)} người dùng</span>
-        </div>
-        <div className="um-pagination">
-          <button type="button" className="um-page-btn" disabled={page <= 1} onClick={() => setPage(page - 1)}>‹ Trước</button>
-          {getPageItems(page, totalPages).map((item) => (typeof item === 'number' ? (
-            <button type="button" key={item} className={`um-page-btn num ${item === page ? 'active' : ''}`}
-              aria-current={item === page ? 'page' : undefined} onClick={() => setPage(item)}>
-              {item}
-            </button>
-          ) : <span key={item} className="um-page-gap num">…</span>))}
-          <span className="um-page-mobile">Trang {page} / {totalPages}</span>
-          <button type="button" className="um-page-btn" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Sau ›</button>
         </div>
       </div>
 
-      <button type="button" className="um-fab" title="Thêm giảng viên" aria-label="Thêm giảng viên" onClick={openAdd}>＋</button>
+      <div className={`um-table-card${loading && data ? ' is-loading' : ''}`}>{renderBody()}</div>
+
+      {!error && total > 0 && (
+        <div className="um-pagination-bar">
+          <div className="um-page-size">
+            <span aria-live="polite">Hiển thị {fmt(from)}–{fmt(to)} trong {fmt(total)} {ROLE_NOUN[role]}</span>
+            <label htmlFor="um-page-size">· Mỗi trang</label>
+            <select id="um-page-size" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}>
+              {PAGE_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </div>
+          {totalPages > 1 && (
+            <nav className="um-pagination" aria-label="Phân trang người dùng">
+              <button type="button" className="um-page-btn" disabled={page <= 1} onClick={() => setPage(page - 1)}>‹ Trước</button>
+              {getPageItems(page, totalPages).map((item) => (typeof item === 'number' ? (
+                <button type="button" key={item} className={`um-page-btn num${item === page ? ' active' : ''}`}
+                  aria-current={item === page ? 'page' : undefined} onClick={() => setPage(item)}>
+                  {item}
+                </button>
+              ) : <span key={item} className="um-page-gap num">…</span>))}
+              <span className="um-page-mobile">Trang {page} / {totalPages}</span>
+              <button type="button" className="um-page-btn" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Sau ›</button>
+            </nav>
+          )}
+        </div>
+      )}
 
       {modal?.type === 'form' && (
         <UserFormModal key={modal.user?.id ?? 'new'} user={modal.user} onClose={() => setModal(null)} onSaved={handleSaved} />
       )}
       {modal?.type === 'view' && <UserProfileModal user={modal.user} onClose={() => setModal(null)} />}
+      {modal?.type === 'delete' && (
+        <ConfirmDeleteModal user={modal.user} busy={busyId === modal.user.id}
+          onCancel={() => setModal(null)} onConfirm={() => handleDelete(modal.user)} />
+      )}
 
       <ToastContainer position="top-end" className="p-3 um-toasts" containerPosition="fixed">
         {toasts.map((t) => (
