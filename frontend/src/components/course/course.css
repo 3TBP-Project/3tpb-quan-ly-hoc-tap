@@ -1,4 +1,4 @@
-/* AI-assisted [AI-16] — Thẻ khóa học và bộ lọc theo Figma "Course card · Trang chủ", "Bộ lọc" */
+/* AI-assisted [AI-16] [AI-20] — Thẻ khóa học và bộ lọc theo Figma "Course card · Trang chủ", "Bộ lọc" */
 
 /* ---------- Thẻ khóa học ---------- */
 .ht-course-card {
@@ -157,16 +157,21 @@
   padding-top: 4px;
 }
 
+/* Hai nút luôn rộng bằng nhau: đủ chỗ thì 2 cột chia đôi, thẻ hẹp (vd. 360 px) thì mỗi nút 1 hàng rộng hết thẻ.
+   Chỉ có 1 nút (giảng viên, quản trị viên) thì nút đó rộng hết thẻ. */
 .ht-course-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 162px), 1fr));
+  align-items: start; /* nút chính 48px + bóng 4px, không kéo giãn bằng nút viền 52px */
   gap: 8px;
 }
 
-.ht-course-card__actions .ht-btn--primary {
-  flex: 1 1 0;
-  min-width: 176px;
+/* Lề ngang 14px (thay vì 22px) để "Làm bài kiểm tra" vừa nửa thẻ ở máy tính (thẻ 386 px) */
+.ht-course-card__actions .ht-btn {
+  width: 100%;
+  min-width: 0;
+  padding-left: 14px;
+  padding-right: 14px;
 }
 
 @media (prefers-reduced-motion: reduce) {
