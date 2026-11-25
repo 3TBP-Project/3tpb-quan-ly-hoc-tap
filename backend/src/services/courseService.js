@@ -3,7 +3,9 @@
  * Đảm bảo kiểm tra quyền sở hữu của giảng viên (HT-NFR3) và validate dữ liệu an toàn
  */
 const courseRepository = require('../repositories/courseRepository');
+const userRepository = require('../repositories/userRepository');
 const chapterRepository = require('../repositories/chapterRepository');
+const { removeCourseThumbnailFile } = require('../middlewares/courseThumbnailUploadMiddleware');
 
 const createCourseError = (message, statusCode) => {
   const error = new Error(message);
@@ -93,6 +95,11 @@ class CourseService {
   async createCourse(userId, courseData) {
     if (!isPlainObject(courseData)) {
       throw createCourseError('Dữ liệu khóa học không hợp lệ.', 400);
+    }
+
+    const creator = await userRepository.findProfileById(userId);
+    if (creator?.mustChangePassword) {
+      throw createCourseError('Bạn phải đổi mật khẩu tạm trước khi tạo khóa học.', 403);
     }
 
     const validated = validateCoursePayload(courseData, { allowHidden: false });
@@ -212,7 +219,58 @@ class CourseService {
       throw error;
     }
 
+    // Đổi / bỏ ảnh bìa qua PUT thì dọn tệp ảnh cũ đã tải lên
+    if (course.thumbnail && course.thumbnail !== validated.thumbnail) {
+      removeCourseThumbnailFile(course.thumbnail, courseId);
+    }
+
     return await courseRepository.findById(courseId);
+  }
+
+  // Kiểm tra khóa học tồn tại và người dùng có quyền chỉnh sửa
+  async findManagedCourse(userId, courseId, userRole = 'teacher') {
+    const course = await courseRepository.findById(courseId);
+    if (!course) {
+      throw createCourseError('Không tìm thấy khóa học!', 404);
+    }
+    if (Number(course.user_id) !== Number(userId) && userRole !== 'admin') {
+      throw createCourseError('Bạn không có quyền chỉnh sửa khóa học này!', 403);
+    }
+    return course;
+  }
+
+  // ==========================================
+  // 4b. UPDATE - Tải lên / thay ảnh bìa khóa học
+  // ==========================================
+  async updateThumbnail(userId, courseId, thumbnailUrl, userRole = 'teacher') {
+    let course;
+    try {
+      course = await this.findManagedCourse(userId, courseId, userRole);
+      await courseRepository.updateThumbnail(courseId, thumbnailUrl);
+    } catch (error) {
+      // Không lưu được vào CSDL thì xóa tệp vừa tải lên để không bị rác
+      removeCourseThumbnailFile(thumbnailUrl, courseId);
+      throw error;
+    }
+
+    if (course.thumbnail && course.thumbnail !== thumbnailUrl) {
+      removeCourseThumbnailFile(course.thumbnail, courseId);
+    }
+    return { ...course, thumbnail: thumbnailUrl };
+  }
+
+  // ==========================================
+  // 4c. DELETE - Xóa ảnh bìa khóa học (quay về ảnh mặc định)
+  // ==========================================
+  async removeThumbnail(userId, courseId, userRole = 'teacher') {
+    const course = await this.findManagedCourse(userId, courseId, userRole);
+    if (!course.thumbnail) {
+      throw createCourseError('Khóa học chưa có ảnh bìa.', 400);
+    }
+
+    await courseRepository.updateThumbnail(courseId, null);
+    removeCourseThumbnailFile(course.thumbnail, courseId);
+    return { ...course, thumbnail: null };
   }
 
   // ==========================================
@@ -229,6 +287,9 @@ class CourseService {
     }
 
     const affectedRows = await courseRepository.remove(courseId);
+    if (affectedRows > 0 && course.thumbnail) {
+      removeCourseThumbnailFile(course.thumbnail, courseId);
+    }
     return affectedRows > 0;
   }
 }

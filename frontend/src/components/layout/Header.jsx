@@ -4,6 +4,7 @@ import { Container, Nav, Navbar } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth';
 import { getInitials } from '../../utils/categoryTheme';
+import { toAvatarUrl } from '../../utils/avatar';
 import { applyTheme, getSavedTheme } from '../../utils/theme';
 import Logo from './Logo';
 import './layout.css';
@@ -19,11 +20,13 @@ const MENU_BY_ROLE = {
     { to: '/', label: 'Khóa học' },
     { to: '/teacher/lessons', label: 'Quản lý bài học' },
     { to: '/teacher/questions', label: 'Quản lý câu hỏi' },
+    { to: '/profile', label: 'Hồ sơ' },
   ],
   admin: [
     { to: '/admin/users', label: 'Người dùng' },
     { to: '/admin/categories', label: 'Danh mục' },
     { to: '/admin/courses', label: 'Duyệt khóa học' },
+    { to: '/profile', label: 'Hồ sơ' },
   ],
 };
 
@@ -118,9 +121,13 @@ function Header() {
             {user ? (
               <>
                 <div className="ht-user">
-                  <span className="ht-user__avatar" aria-hidden="true">
-                    {getInitials(user.name)}
-                  </span>
+                  {toAvatarUrl(user.avatar) ? (
+                    <img className="ht-user__avatar ht-user__avatar-img" src={toAvatarUrl(user.avatar)} alt="" />
+                  ) : (
+                    <span className="ht-user__avatar" aria-hidden="true">
+                      {getInitials(user.name)}
+                    </span>
+                  )}
                   <span className="ht-user__text">
                     <span className="ht-user__name">{user.name}</span>
                     <span className="ht-user__role">{ROLE_LABEL[role] ?? ''}</span>

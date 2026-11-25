@@ -1,6 +1,6 @@
 // AI-assisted [AI-13]
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Alert, Badge, Button, Card, Col, Dropdown, Form, ListGroup, Row } from 'react-bootstrap';
 import PageHeader from '../components/common/PageHeader';
 import Loading from '../components/common/Loading';
@@ -14,6 +14,7 @@ import {
   updateCourseQuizDuration,
 } from '../services/questionService';
 import { parseApiError } from '../utils/apiError';
+import { getProfile } from '../services/profileService';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 const EMPTY_FORM = {
@@ -77,6 +78,7 @@ const applySavedOptionOrder = (q) => {
 
 function TeacherQuestionsPage() {
   const { courseId: routeCourseId } = useParams();
+  const navigate = useNavigate();
 
   const [courses, setCourses] = useState([]);
   const [selectedCourseId, setSelectedCourseId] = useState(routeCourseId ? Number(routeCourseId) : '');
@@ -92,6 +94,19 @@ function TeacherQuestionsPage() {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+
+  useEffect(() => {
+    let ignore = false;
+    getProfile()
+      .then((res) => {
+        if (!ignore) setMustChangePassword(Boolean(res?.data?.mustChangePassword));
+      })
+      .catch(() => {});
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   // 1. Tải danh sách khóa học của giảng viên đang đăng nhập
   useEffect(() => {
@@ -144,6 +159,13 @@ function TeacherQuestionsPage() {
       loadQuestions(selectedCourseId);
     }
   }, [selectedCourseId, loadQuestions]);
+
+  useEffect(() => {
+    if (mustChangePassword) {
+      setNotice('');
+      setError('Tài khoản đang chờ xử lý. Hãy đổi mật khẩu tạm trong Hồ sơ trước khi quản lý câu hỏi.');
+    }
+  }, [mustChangePassword]);
 
   // 3. Lưu thời gian làm bài (phút)
   const handleSaveDuration = async (e) => {
