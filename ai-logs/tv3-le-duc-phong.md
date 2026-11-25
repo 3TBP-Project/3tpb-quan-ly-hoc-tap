@@ -31,6 +31,10 @@
 | AI-18 | 25/11 | Lập trình | Giao diện đăng nhập, đăng ký (HT-03) theo mockup Figma | #88 |
 | AI-19 | 25/11 | Lập trình | Giao diện trang giảng viên theo mockup Figma: hồ sơ, tạo / sửa khóa học, quản lý bài học, câu hỏi | #89 |
 | AI-20 | 25/11 | Lập trình | Hai nút trên thẻ khóa học ở trang chủ rộng bằng nhau ở mọi kích thước màn hình (HT-01) | #87 |
+| AI-21 | 25/11 | Lập trình | Code lại giao diện trang học theo mockup Figma "HT-05 · Trang học · v2 (chương học)" (HT-05) | #91 |
+| AI-22 | 25/11 | Lập trình | Phân trang mục lục "Nội dung khóa học" ở trang học (HT-05) | #91 |
+| AI-23 | 25/11 | Lập trình | Phân trang danh sách bài ở trang chi tiết; thẻ bài học ở trang học tối đa 2 hàng (HT-02, HT-05) | #91 |
+| AI-24 | 25/11 | Lập trình | Sửa mục lục trang học đè lên Footer; chuyển sang gọi API backend thật (HT-05) | #91 |
 
 ---
 
@@ -424,6 +428,74 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: `npm run build`; `npm run dev`, xem trang chủ ở 360 / 768 / 1024 / 1366 px.
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: `minmax(min(100%, Xpx), 1fr)` với `auto-fit` cho các nút luôn bằng nhau và tự xuống hàng mà không cần media query.
+
+### [AI-21] Code lại giao diện trang học theo mockup Figma (HT-05)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-05] Trang học / 45d6e9c25345f1e9b4102dbf4bee7e7fc743761e / #91
+- Mục đích: Đưa mockup "HT-05 · Trang học · v2 (chương học)" (Desktop 1366, Mobile 360, Sáng / Tối) vào code, nhánh `feature/HT-05-giao-dien-trang-hoc` tạo từ develop.
+- Prompt chính (nguyên văn): "Trang học HT-05"
+- Kết quả AI trả về (tóm tắt):
++ `LearnPage`: thanh tiến độ tràn ngang dưới Header (đường dẫn khóa học › bài, "Tiến độ khóa học x/y bài · %", nút "Chế độ tập trung" ẩn mục lục, nhớ lựa chọn trên máy); bố cục mục lục 300 px + vùng đọc 720 px; thông báo bài khóa / lỗi có ký hiệu ⚠ / ✕.
++ `LessonSidebar`: thẻ chương gập / mở (đang mở: nền tím nhạt, viền 2px, số bài đã học), thẻ bài học có số tròn và trạng thái bằng chữ (Đang học / ✓ Đã học / 🔒 Đang khóa / Học tiếp); bấm bài đang khóa hiện lời nhắc "Hoàn thành bài trước để mở khóa bài này"; nút "Làm bài kiểm tra cuối khóa"; điện thoại có nút gập mục lục.
++ `LessonContent`: tiêu đề "Bài N · tên bài", video 16:9 bo góc, nội dung chữ tối đa ~70 ký tự / dòng, thẻ tài liệu PDF có nút "Tải xuống".
++ `LessonNav`: "✓ Đánh dấu hoàn thành bài này" / "✓ Đã hoàn thành bài này", "‹ Bài trước: …", "Bài sau: … ›" (khóa kèm lời nhắc khi chưa hoàn thành); điện thoại 2 nút chia đôi hàng.
++ `lessonTitle.js`: bỏ tiền tố "Bài 3:" trong tên bài để không hiện lặp "Bài 3 · Bài 3: …".
+- Đánh giá: Khớp Figma khi đo trên trình duyệt ở 1366 px (thanh tiến độ cao 78 px, vùng đọc 720 px, video 720 × 405, nút hoàn thành 292 × 48); 360 px không cuộn ngang.
+- Đã chỉnh sửa gì: Chỉnh sửa giao diện trang học
+- Cách kiểm chứng: `npm run lint` (không lỗi ở các file đã sửa), `npm run build`; `npm run dev` với dữ liệu giả: ghi danh khóa học → Vào học, đánh dấu hoàn thành 4 bài (tiến độ 4/10 · 40%), bấm bài đang khóa, chế độ tập trung, giao diện tối, 1366 / 768 / 360 px. Thử phần chương bằng cách tạm thêm chương vào dữ liệu giả rồi hoàn tác.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Dùng `box-shadow` + `clip-path` để cột mục lục có nền trắng kéo ra mép trái màn hình mà không phải sửa Layout dùng chung.
+
+### [AI-22] Phân trang mục lục "Nội dung khóa học" ở trang học (HT-05)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-05] Trang học / 744bd1162ac053653408867aa9a1db37df44e2bd / #91
+- Mục đích: Khóa học nhiều bài làm mục lục bên trái trang học quá dài, phải cuộn nhiều.
+- Prompt chính (nguyên văn): "Thêm Phân trang cho Nội dung khóa học - XX bài, khoảng 7-8 bài là phân trang"
+- Kết quả AI trả về (tóm tắt):
++ `LessonSidebar`: tiêu đề "Nội dung khóa học – N bài"; phân trang 8 bài / trang theo đúng thứ tự trong mục lục (‹ Bài 1–8 · Trang 1/2 ›); mặc định mở trang chứa bài đang học, chuyển sang bài khác thì tự về trang của bài đó; chương bị chia sang trang sau ghi "(tiếp)", số bài đã học vẫn tính cả chương.
++ `learn.css`: thanh chuyển trang gọn cho cột 300 px (nút ‹ › 40 × 40, chữ "Bài 1–8 · Trang 1/2" ở giữa); điện thoại nút gập ghi "Nội dung khóa học – N bài" (bỏ "(x/y)" vì thanh tiến độ phía trên đã có, để chữ không xuống 2 dòng).
+- Đánh giá: Trang 1 "Bài 1–8", trang 2 "Bài 9–10" với "Chương 3 … (tiếp)"; đang ở trang 2 mở bài 4 thì mục lục tự về trang 1; 360 px không cuộn ngang.
+- Đã chỉnh sửa gì: Cập nhật phân trang cho danh sách bài học
+- Cách kiểm chứng: `npm run lint`, `npm run build`; `npm run dev` với dữ liệu giả (tạm thêm chương rồi hoàn tác): chuyển trang ‹ ›, chuyển bài, 1366 / 360 px.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Tính trang đang xem từ bài đang học (giá trị suy ra) thay vì dùng `useEffect` đặt lại state, nên không bị lỗi lint "setState trong effect".
+
+### [AI-23] Phân trang danh sách bài ở trang chi tiết; thẻ bài học ở trang học tối đa 2 hàng (HT-02, HT-05)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5)
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-02] Chi tiết khóa học; [HT-05] Trang học / 744bd1162ac053653408867aa9a1db37df44e2bd / #91
+- Mục đích: Khóa học nhiều bài (vd. 20 bài) làm danh sách "Nội dung khóa học" ở trang chi tiết quá dài; ở mục lục trang học, tên bài từ bài 10 trở đi xuống 3 hàng vì trạng thái "Đang khóa" chiếm chỗ bên phải.
+- Prompt chính (nguyên văn): "Tương tự cho trang chi tiết khóa học (Ví dụ: http://localhost:5174/courses/4) cũng phân trang cho Nội dung khóa học, còn trang học bài (Ví dụ: http://localhost:5174/courses/4/learn/401) thì các nội dung bài học từ 10 trở lên thì text bị xuống thành 3 hàng khá xấu, nên cần chỉnh lại thẻ hoặc hạ cỡ chữ để text xuống còn 2 hàng"
+- Kết quả AI trả về (tóm tắt):
++ `LessonList` + `CourseDetailPage.css` (trang chi tiết): 8 bài / trang, dùng lại component `Pagination` của trang chủ (điện thoại tự đổi sang "‹ Trang 1 / 3 ›"), dòng "Bài 1–8 trên 20 bài"; chương bị chia sang trang sau ghi "(tiếp)"; đổi trang thì đưa đầu danh sách vào tầm nhìn.
++ `LessonSidebar` + `learn.css` (trang học): trạng thái (Đang học / ✓ Đã học / 🔒 Đang khóa / Học tiếp) chuyển xuống dòng dưới tên bài, tên bài 16px / 24px, giới hạn 2 hàng và hiện "…" nếu dài hơn (rê chuột xem đủ tên); lề thẻ gọn lại.
+- Đánh giá: Trang chi tiết chia 3 trang 1–8 / 9–16 / 17–20; trang học: 20 thẻ đều 1 hàng tên, cao 72px; thử tên rất dài thì dừng ở 2 hàng + "…" (thẻ cao 96px); 360px không cuộn ngang.
+- Đã chỉnh sửa gì: Cập nhật phân trang cho danh sách bài học
+- Cách kiểm chứng: `npm run lint`, `npm run build`; `npm run dev` với dữ liệu giả: mở /courses/4 chuyển trang 1 → 3, ghi danh rồi vào /courses/4/learn/401 xem cả 3 trang mục lục; 1366 / 360 px.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Thiếu chỗ ngang thì đổi bố cục (đưa trạng thái xuống dưới) hiệu quả hơn hạ cỡ chữ; `-webkit-line-clamp` giữ chữ tối đa N hàng mà vẫn đọc đủ qua `title`.
+
+### [AI-24] Sửa mục lục trang học đè lên Footer; chuyển sang gọi API backend thật (HT-05)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5)
+- Giai đoạn: Lập trình / Kiểm thử
+- Task / Commit / PR: [HT-05] Trang học / 744bd1162ac053653408867aa9a1db37df44e2bd / #91
+- Mục đích: Ở trang học, nền trắng của cột mục lục che mất một bên Footer; chạy thử với backend thật thay vì dữ liệu giả.
+- Prompt chính (nguyên văn): "Sửa giúp tôi thêm phần Trang bài học, khối nội dung khóa học chèn lên trên cả footer khiến footer bị che đi 1 bên. Và kết nối API đến Back End để test thay vì Mock Data"
+- Kết quả AI trả về (tóm tắt):
++ `learn.css`: nền trắng của cột mục lục chỉ kéo xuống thêm 1.5rem (lề dưới py-4 của `<main>`) thay vì 100vmax, bỏ `position: relative` (thứ khiến cột được vẽ đè lên Footer).
++ `frontend/.env` (chỉ trên máy, không commit vì nằm trong `.gitignore`): thêm `VITE_USE_MOCK=false`. Code coi "không khai báo" là bật dữ liệu giả nên trước đó vẫn chạy mock dù backend đã chạy.
++ Đối chiếu dữ liệu `/api/courses/:id/learn` của backend với giao diện: các trường `videoUrl`, `fileUrl`, `content`, `chapterId`, `isLocked`, `chapters`, `completedLessonIds` khớp, không phải sửa code.
+- Đánh giá: Cột mục lục kết thúc ở 1277 px, Footer bắt đầu ở 1301 px (đúng khoảng 24 px), Footer hiện đủ. Sau khi khởi động lại Vite, trang chủ lấy 6 khóa học từ CSDL, `/api/courses`, `/api/categories`, `/api/teachers` trả 200, trang chi tiết đọc đúng bài và chương.
+- Đã chỉnh sửa gì: Sửa mục lục trang học đè lên Footer.
+- Cách kiểm chứng: `npm run lint`, `npm run build`; khởi động lại `npm run dev` sau khi sửa `.env`; xem Network thấy các request tới `localhost:5000` trả 200; trang học cuộn xuống cuối thấy Footer không bị che.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Phần tử có `position` được vẽ sau (đè lên) phần tử thường đứng sau nó trong trang; Vite chỉ đọc lại `.env` khi khởi động lại server.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 

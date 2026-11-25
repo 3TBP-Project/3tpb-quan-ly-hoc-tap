@@ -1,10 +1,17 @@
-// AI-assisted [AI-13]
+// AI-assisted [AI-13] [AI-21]
 import { useState } from 'react';
-import { Alert, Button, Ratio } from 'react-bootstrap';
 import { toEmbedUrl } from '../../utils/video';
 import { downloadLessonFile } from '../../services/lessonService';
+import { plainLessonTitle } from './lessonTitle';
 
-function LessonContent({ lesson }) {
+// Tên tệp hiển thị: lấy từ đường dẫn tệp, không có thì đặt theo tên bài
+const pdfName = (lesson) => {
+  const fromUrl = decodeURIComponent((lesson.fileUrl || '').split('/').pop() || '');
+  return /\.pdf$/i.test(fromUrl) ? fromUrl : `${lesson.title || 'tai-lieu'}.pdf`;
+};
+
+// Vùng đọc bài (Figma "Vùng bài đọc"): tiêu đề, video 16:9, nội dung chữ, thẻ tài liệu PDF
+function LessonContent({ lesson, number }) {
   const embedUrl = toEmbedUrl(lesson.videoUrl);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState('');
@@ -23,23 +30,46 @@ function LessonContent({ lesson }) {
   };
 
   return (
-    <>
-      <h1 className="h4 mb-3">{lesson.title}</h1>
+    <article className="ht-lesson-read">
+      <h1 className="ht-lesson-read__title">
+        Bài {number} · {plainLessonTitle(lesson.title)}
+      </h1>
+
       {embedUrl && (
-        <Ratio aspectRatio="16x9" className="mb-3">
-          <iframe src={embedUrl} title={lesson.title} allowFullScreen />
-        </Ratio>
+        <div className="ht-lesson-read__video">
+          <iframe src={embedUrl} title={`Video bài ${number}: ${plainLessonTitle(lesson.title)}`} allowFullScreen />
+        </div>
       )}
-      <p style={{ whiteSpace: 'pre-line' }}>{lesson.content}</p>
+
+      {lesson.content ? (
+        <div className="ht-lesson-read__text">{lesson.content}</div>
+      ) : (
+        !embedUrl && !lesson.fileUrl && (
+          <p className="ht-lesson-read__empty">Bài học này chưa có nội dung.</p>
+        )
+      )}
+
       {lesson.fileUrl && (
-        <>
-          <Button variant="outline-secondary" onClick={handleDownload} disabled={downloading}>
-            {downloading ? 'Đang tải...' : 'Tải tài liệu (PDF)'}
-          </Button>
-          {downloadError && <Alert variant="danger" className="mt-2 mb-0">{downloadError}</Alert>}
-        </>
+        <div className="ht-pdf-card">
+          <span className="ht-pdf-card__icon" aria-hidden="true">PDF</span>
+          <div className="ht-pdf-card__file">
+            <span className="ht-pdf-card__name">{pdfName(lesson)}</span>
+            <span className="ht-pdf-card__meta">Tài liệu đính kèm của bài học</span>
+          </div>
+          <button
+            type="button"
+            className="ht-btn ht-btn--secondary ht-pdf-card__btn"
+            onClick={handleDownload}
+            disabled={downloading}
+          >
+            {downloading ? 'Đang tải...' : 'Tải xuống'}
+          </button>
+          {downloadError && (
+            <p className="ht-pdf-card__error" role="alert">✕ {downloadError}</p>
+          )}
+        </div>
       )}
-    </>
+    </article>
   );
 }
 

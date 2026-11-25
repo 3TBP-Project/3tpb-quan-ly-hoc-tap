@@ -1,8 +1,6 @@
-// AI-assisted [AI-13]
+// AI-assisted [AI-13] [AI-21]
 import { useState } from 'react';
 import { Navigate, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
-import { Row, Col, ProgressBar, Alert } from 'react-bootstrap';
 import { useFetch } from '../hooks/useFetch';
 import { getLearnData, completeLesson } from '../services/lessonService';
 import { parseApiError } from '../utils/apiError';
@@ -12,9 +10,32 @@ import LessonSidebar from '../components/learn/LessonSidebar';
 import LessonContent from '../components/learn/LessonContent';
 import LessonNav from '../components/learn/LessonNav';
 import NotFoundPage from './NotFoundPage';
+import { plainLessonTitle } from '../components/learn/lessonTitle';
+import '../components/learn/learn.css';
+
+// Chế độ tập trung: ẩn mục lục, chỉ còn vùng đọc; nhớ lựa chọn trên máy người dùng
+const FOCUS_KEY = 'ht-learn-focus';
+const readFocus = () => {
+  try {
+    return localStorage.getItem(FOCUS_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
 
 function LearnPage() {
   const { id, lessonId } = useParams();
+  const [focus, setFocus] = useState(readFocus);
+  const toggleFocus = () => {
+    setFocus((on) => {
+      try {
+        localStorage.setItem(FOCUS_KEY, on ? '0' : '1');
+      } catch {
+        // trình duyệt chặn lưu trữ: vẫn đổi chế độ trong phiên
+      }
+      return !on;
+    });
+  };
   // reloadKey tăng sau khi hoàn thành bài để tải nội dung bài vừa được mở khóa
   const [reloadKey, setReloadKey] = useState(0);
   const { data, loading, error, status } = useFetch(getLearnData, { courseId: id, reloadKey });
@@ -96,38 +117,66 @@ function LearnPage() {
   };
 
   return (
-    <>
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <div className="text-break">
-          <Button variant="link" size="sm" className="p-0 small" onClick={handleExit}>‹ Thoát</Button>
-          <h1 className="h5 mb-0">{course.title}</h1>
+    <div className={`ht-learn${focus ? ' is-focus' : ''}`}>
+      {/* Thanh tiến độ tràn ngang dưới Header (Figma "Thanh tiến độ") */}
+      <div className="ht-learn-bar">
+        <nav className="ht-learn-bar__crumb" aria-label="Vị trí trang">
+          <button type="button" className="ht-learn-bar__course" onClick={handleExit} title="Về trang khóa học">
+            {course.title}
+          </button>
+          <span aria-hidden="true"> › </span>
+          <span className="ht-learn-bar__lesson" aria-current="page">Bài {index + 1}: {plainLessonTitle(lesson.title)}</span>
+        </nav>
+
+        <div className="ht-learn-progress">
+          <div className="ht-learn-progress__label">
+            <span>Tiến độ khóa học</span>
+            <strong>{completed.size}/{lessons.length} bài · {percent}%</strong>
+          </div>
+          <div
+            className="ht-learn-progress__track"
+            role="progressbar"
+            aria-label="Tiến độ khóa học"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={percent}
+          >
+            <span style={{ width: `${percent}%` }} />
+          </div>
         </div>
-        <div className="flex-grow-1 flex-md-grow-0" style={{ minWidth: 220 }}>
-          <small className="text-muted">Tiến độ: {completed.size}/{lessons.length} bài ({percent}%)</small>
-          <ProgressBar now={percent} />
-        </div>
+
+        <button type="button" className="ht-btn ht-btn--ghost ht-learn-bar__focus" aria-pressed={focus} onClick={toggleFocus}>
+          {focus ? 'Hiện mục lục' : 'Chế độ tập trung'}
+        </button>
       </div>
 
-      <Row className="g-4">
-        <Col lg={3} className="order-last order-lg-first">
-          <LessonSidebar
-            courseId={id}
-            chapters={data.chapters}
-            currentLessonId={lesson.id}
-            lessons={lessons}
-            completed={completed}
-            isLocked={isLocked}
-            linkState={lessonLinkState}
-          />
-        </Col>
-        <Col lg={9}>
+      <div className="ht-learn-body">
+        {!focus && (
+          <aside className="ht-learn-side">
+            <LessonSidebar
+              courseId={id}
+              chapters={data.chapters}
+              currentLessonId={lesson.id}
+              lessons={lessons}
+              completed={completed}
+              isLocked={isLocked}
+              linkState={lessonLinkState}
+            />
+          </aside>
+        )}
+
+        <div className="ht-learn-main">
           {location.state?.lockedNotice && (
-            <Alert variant="warning">
-              Bài học đó đang bị khóa. Hãy hoàn thành bài này trước để mở khóa bài tiếp theo.
-            </Alert>
+            <p className="ht-learn-alert is-warning" role="status">
+              <span aria-hidden="true">⚠</span> Bài học đó đang bị khóa. Hãy hoàn thành bài này trước để mở khóa bài tiếp theo.
+            </p>
           )}
-          {saveError && <Alert variant="danger">{saveError}</Alert>}
-          {waitingContent ? <Loading /> : <LessonContent lesson={lesson} />}
+          {saveError && (
+            <p className="ht-learn-alert is-error" role="alert">
+              <span aria-hidden="true">✕</span> {saveError}
+            </p>
+          )}
+          {waitingContent ? <Loading /> : <LessonContent lesson={lesson} number={index + 1} />}
           <LessonNav
             courseId={id}
             prev={lessons[index - 1]}
@@ -137,9 +186,9 @@ function LearnPage() {
             onComplete={handleComplete}
             linkState={lessonLinkState}
           />
-        </Col>
-      </Row>
-    </>
+        </div>
+      </div>
+    </div>
   );
 }
 
