@@ -1,24 +1,32 @@
+// AI-assisted [AI-17]
 import { Link, useLocation } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
 
+// Nút chính trong thẻ ghi danh (Figma "Thẻ ghi danh" / "Thẻ học tiếp"), rộng hết thẻ
 function EnrollButton({ user, courseId, isEnrolled, enrolling, onEnroll }) {
-    const location = useLocation();
-    if (!user) {
-        return (
-            <Button as={Link} to="/login" state={{ from: location }} variant="primary">
-                Đăng nhập để ghi danh
-            </Button>
-        );
-    }
-    if (user.role !== 'student') return null;
+  const location = useLocation();
 
-    return isEnrolled ? (
-        <Button as={Link} to={`/courses/${courseId}/learn`} state={{ fromCourseDetail: true }} variant="success" className="w-100">Vào học</Button>
-    ) : (
-        <Button variant="primary" className="w-100" disabled={enrolling} onClick={onEnroll}>
-            {enrolling ? 'Đang ghi danh...' : 'Ghi danh'}
-        </Button>
+  if (!user) {
+    return (
+      <Link to="/login" state={{ from: location }} className="ht-btn ht-btn--primary w-100">
+        Đăng nhập để ghi danh
+      </Link>
     );
+  }
+  if (user.role !== 'student') return null;
+
+  return isEnrolled ? (
+    <Link
+      to={`/courses/${courseId}/learn`}
+      state={{ fromCourseDetail: true }}
+      className="ht-btn ht-btn--primary w-100"
+    >
+      Vào học
+    </Link>
+  ) : (
+    <button type="button" className="ht-btn ht-btn--primary w-100" disabled={enrolling} onClick={onEnroll}>
+      {enrolling ? 'Đang ghi danh…' : 'Ghi danh'}
+    </button>
+  );
 }
 
 export default EnrollButton;
