@@ -1,0 +1,314 @@
+/* AI-assisted [AI-17] — Figma "HT-02 · Chi tiết khóa học (chưa ghi danh / đã ghi danh)" */
+.ht-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Banner màu danh mục, tràn hết chiều ngang màn hình ---------- */
+.ht-detail__banner {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  /* Sát header: bù phần đệm trên py-4 của <main> */
+  margin-top: -1.5rem;
+  padding: 48px 0;
+  background: var(--cat-bg);
+  /* Tô nền ra 2 bên mép màn hình mà không làm trang cuộn ngang */
+  box-shadow: 0 0 0 100vmax var(--cat-bg);
+  clip-path: inset(0 -100vmax);
+}
+
+.ht-detail__info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.ht-detail__back {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ht-primary);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ht-detail__back:hover { text-decoration: underline; }
+
+.ht-detail__back:focus-visible {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-detail__notice {
+  padding: 10px 14px;
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-warning-bg);
+  color: var(--ht-warning-fg);
+  font-weight: 500;
+}
+
+.ht-detail__title {
+  margin: 0;
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 52px;
+  color: var(--ht-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.ht-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+/* Thẻ ghi danh / học tiếp */
+.ht-detail__enroll {
+  flex: 0 0 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 24px;
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+}
+
+.ht-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-success-bg);
+  color: var(--ht-success-fg);
+}
+
+.ht-detail__error {
+  margin: 0;
+  color: var(--ht-error-fg);
+}
+
+/* ---------- Nội dung chính: 760px + 398px như Figma ---------- */
+.ht-detail__main {
+  display: grid;
+  grid-template-columns: minmax(0, 760fr) minmax(0, 398fr);
+  gap: 48px;
+  align-items: start;
+  padding: 40px 0 32px;
+}
+
+.ht-detail__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ht-detail__description {
+  max-width: 680px;
+  white-space: pre-line;
+}
+
+.ht-detail__section-title {
+  margin-top: 0;
+}
+
+.ht-detail__note {
+  margin: 0;
+  color: var(--ht-text-secondary);
+}
+
+.ht-detail__side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ht-side-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px;
+  border-radius: var(--ht-radius-lg);
+  border: 1px solid var(--ht-border-default);
+  background: var(--ht-bg-surface);
+}
+
+.ht-side-card__teacher {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ht-side-card__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-primary-soft);
+  color: var(--ht-primary);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.ht-side-card__name {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-primary);
+}
+
+.ht-side-card__hint {
+  margin: 0;
+  color: var(--ht-text-secondary);
+}
+
+/* Nút "Làm bài kiểm tra" khi chưa được làm: viền nhạt, chữ xám (Figma State=Disabled) */
+.ht-btn--locked:disabled {
+  opacity: 1;
+  border-color: var(--ht-border-default);
+  color: var(--ht-text-secondary);
+}
+
+/* ---------- Danh sách bài học (Figma "Lesson row") ---------- */
+.ht-lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ht-lesson-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px 14px 16px;
+  border-radius: var(--ht-radius-md);
+  border: 1px solid var(--ht-border-default);
+  background: var(--ht-bg-surface);
+}
+
+.ht-lesson-row__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.ht-lesson-row__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+.ht-lesson-row__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: var(--ht-text-secondary);
+}
+
+.ht-lesson-chapters {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ht-lesson-chapters__summary {
+  margin: -4px 0 0;
+  color: var(--ht-text-secondary);
+}
+
+.ht-lesson-chapter {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ht-lesson-chapter__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ht-text-secondary);
+}
+
+.ht-lesson-chapter__title {
+  margin: 0;
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+/* ---------- Máy tính bảng / điện thoại: xếp 1 cột ---------- */
+@media (max-width: 991.98px) {
+  .ht-detail__banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding: 24px 0;
+  }
+
+  .ht-detail__enroll {
+    flex-basis: auto;
+  }
+
+  .ht-detail__main {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding-top: 24px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .ht-detail__title {
+    font-size: 34px;
+    line-height: 42px;
+  }
+
+  .ht-detail__meta {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ht-lesson-row {
+    padding: 14px 14px 14px 12px;
+    gap: 12px;
+  }
+
+  .ht-lesson-row__status {
+    font-size: 0; /* điện thoại: chỉ hiện icon ổ khóa như Figma, chữ vẫn có cho trình đọc màn hình */
+  }
+}
