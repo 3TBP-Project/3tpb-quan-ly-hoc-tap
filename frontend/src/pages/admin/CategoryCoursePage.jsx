@@ -1,9 +1,10 @@
-// AI-assisted [AI-07]
+// AI-assisted [AI-07] [AI-28]
 // HT-15: Danh mục và duyệt khóa học (quản trị viên)
+// Giao diện theo Figma trang "03 – Quản trị": "HT-15 · Danh mục & duyệt khóa học" (Desktop / Mobile, Sáng / Tối)
+// và "Trạng thái bảng · HT-14/15". Vẫn giữ 2 trang riêng trên menu: /admin/categories và /admin/courses.
 import { useState } from 'react';
 import { Modal, Toast, ToastContainer } from 'react-bootstrap';
-import ErrorMessage from '../../components/common/ErrorMessage';
-import Loading from '../../components/common/Loading';
+import { Link } from 'react-router-dom';
 import { useFetch } from '../../hooks/useFetch';
 import {
   createCategory,
@@ -15,29 +16,42 @@ import {
   updateCategory,
 } from '../../services/adminCatalogService';
 import { parseApiError } from '../../utils/apiError';
+import { getCategoryTheme } from '../../utils/categoryTheme';
 import './CategoryCoursePage.css';
 
+// Trạng thái luôn có ký hiệu + chữ (Figma Badge)
 const STATUS = {
-  public: { label: 'Công khai', cls: 'public' },
-  draft: { label: 'Nháp', cls: 'draft' },
-  hidden: { label: 'Đã ẩn', cls: 'hidden' },
+  public: { label: '✓ Công khai', cls: 'public' },
+  draft: { label: '✎ Nháp', cls: 'draft' },
+  hidden: { label: '◌ Đã ẩn', cls: 'hidden' },
 };
 
 // Bỏ dấu tiếng Việt để gõ "co so" vẫn ra "Cơ sở"
 const normalize = (s = '') => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
 
-const ICON = {
-  edit: <><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></>,
-  trash: <><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /></>,
-  eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>,
-  eyeoff: <><path d="M9.9 4.2A10 10 0 0 1 12 4c6.5 0 10 7 10 7a18 18 0 0 1-3 3.9M6.6 6.6A18 18 0 0 0 2 11s3.5 7 10 7a10 10 0 0 0 3.7-.7" /><path d="m4 4 16 16" /></>,
-  search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>,
-};
-const Icon = ({ name }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {ICON[name]}
-  </svg>
+// Chip danh mục mang màu riêng của danh mục (dùng chung bộ màu với thẻ khóa học ở trang chủ)
+const CategoryChip = ({ name, id }) => (
+  <span className={`cc-chip ${getCategoryTheme(name, id).className}`}>{name ?? '—'}</span>
 );
+
+// Trạng thái đang tải / trống / lỗi (Figma "Trạng thái bảng · HT-14/15")
+function PanelState({ tone, title, message, action }) {
+  if (tone === 'loading') {
+    return (
+      <div className="cc-skeleton" aria-hidden="true">
+        {Array.from({ length: 4 }, (_, i) => <span key={i} />)}
+      </div>
+    );
+  }
+  return (
+    <div className="cc-state" role={tone === 'error' ? 'alert' : 'status'}>
+      <span className={`cc-state-icon ${tone}`} aria-hidden="true">{tone === 'error' ? '!' : '≡'}</span>
+      <h3 className="cc-state-title">{title}</h3>
+      <p className="cc-muted">{message}</p>
+      {action}
+    </div>
+  );
+}
 
 function CategoryModal({ category, onClose, onSaved }) {
   const isEdit = Boolean(category?.id);
@@ -63,29 +77,55 @@ function CategoryModal({ category, onClose, onSaved }) {
   };
 
   return (
-    <Modal show onHide={onClose} centered className="cc-modal">
-      <form onSubmit={handleSubmit} noValidate>
-        <Modal.Header closeButton>
-          <Modal.Title as="h2" className="cc-modal-title">{isEdit ? 'Sửa danh mục' : 'Thêm danh mục'}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <label htmlFor="cat-name" className="cc-label">Tên danh mục</label>
-          <input id="cat-name" className="cc-input" type="text" autoFocus maxLength={255}
-            placeholder="Ví dụ: Cấu trúc dữ liệu" value={name} onChange={(e) => setName(e.target.value)} />
-          {error && <div className="cc-err">{error}</div>}
-        </Modal.Body>
-        <Modal.Footer>
-          <button type="button" className="cc-btn" onClick={onClose}>Hủy</button>
-          <button type="submit" className="cc-btn cc-btn-primary" disabled={saving}>{saving ? 'Đang lưu...' : 'Lưu'}</button>
-        </Modal.Footer>
+    <Modal show onHide={onClose} centered dialogClassName="cc-modal-dialog" contentClassName="cc-modal" aria-labelledby="cc-cat-title">
+      <form onSubmit={handleSubmit} noValidate className="cc-modal-body">
+        <h2 id="cc-cat-title" className="cc-modal-title">{isEdit ? 'Sửa danh mục' : 'Thêm danh mục'}</h2>
+        <div className={`cc-field${error ? ' has-error' : ''}`}>
+          <label htmlFor="cat-name">Tên danh mục</label>
+          <input id="cat-name" type="text" autoFocus maxLength={255} placeholder="Ví dụ: Cấu trúc dữ liệu"
+            value={name} onChange={(e) => setName(e.target.value)}
+            aria-invalid={error ? true : undefined} aria-describedby="cat-name-note" />
+          <div id="cat-name-note" className={error ? 'cc-err' : 'cc-hint'}>
+            {error ? `✕ ${error}` : 'Hiển thị ở bộ lọc trang chủ và trên thẻ khóa học'}
+          </div>
+        </div>
+        <div className="cc-modal-actions">
+          <button type="button" className="ht-btn ht-btn--ghost" onClick={onClose} disabled={saving}>Hủy</button>
+          <button type="submit" className="ht-btn ht-btn--primary" disabled={saving}>
+            {saving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Thêm danh mục'}
+          </button>
+        </div>
       </form>
     </Modal>
   );
 }
 
-function CategoryPanel({ notify }) {
+// Xác nhận xóa danh mục (thay cho window.confirm)
+function ConfirmDeleteModal({ category, busy, onCancel, onConfirm }) {
+  return (
+    <Modal show onHide={busy ? undefined : onCancel} centered backdrop={busy ? 'static' : true}
+      dialogClassName="cc-modal-dialog" contentClassName="cc-modal" aria-labelledby="cc-del-title">
+      <div className="cc-modal-body">
+        <h2 id="cc-del-title" className="cc-modal-title">Xóa danh mục?</h2>
+        <p className="cc-muted">
+          Danh mục <CategoryChip name={category.name} id={category.id} /> chưa có khóa học nào. Sau khi xóa sẽ không khôi phục được.
+        </p>
+        <div className="cc-modal-actions">
+          <button type="button" className="ht-btn ht-btn--secondary" onClick={onCancel} disabled={busy}>Hủy</button>
+          <button type="button" className="ht-btn cc-btn-danger" onClick={onConfirm} disabled={busy}>
+            {busy ? 'Đang xóa...' : 'Xóa danh mục'}
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function CategoryPanel({ notify, renderHead }) {
   const [version, setVersion] = useState(0);
   const [editing, setEditing] = useState(null); // null = đóng, {} = thêm mới, {id,name} = sửa
+  const [deleting, setDeleting] = useState(null);
+  const [busy, setBusy] = useState(false);
   const { data, loading, error } = useFetch(getAdminCategories, { version });
   const categories = Array.isArray(data) ? data : [];
   const reload = () => setVersion((v) => v + 1);
@@ -96,80 +136,91 @@ function CategoryPanel({ notify }) {
     reload();
   };
 
-  const handleDelete = async (category) => {
+  const askDelete = (category) => {
     if (category.courseCount > 0) {
       notify('Không thể xóa',
         `Danh mục "${category.name}" đang có ${category.courseCount} khóa học. Hãy chuyển các khóa sang danh mục khác trước.`, 'warn');
       return;
     }
-    if (!window.confirm(`Xóa danh mục "${category.name}"?`)) return;
+    setDeleting(category);
+  };
+
+  const handleDelete = async () => {
+    setBusy(true);
     try {
-      await deleteCategory(category.id);
-      notify('Đã xóa danh mục', `Đã xóa "${category.name}".`);
+      await deleteCategory(deleting.id);
+      notify('Đã xóa danh mục', `Đã xóa "${deleting.name}".`);
     } catch (err) {
-      notify('Không thể xóa', parseApiError(err).message, 'warn');
+      notify('Không thể xóa', parseApiError(err).message, 'error');
     }
+    setBusy(false);
+    setDeleting(null);
     reload();
   };
 
+  const totalCourses = categories.reduce((sum, c) => sum + (Number(c.courseCount) || 0), 0);
+
+  let body;
+  if (error) {
+    body = (
+      <PanelState tone="error" title="Không tải được dữ liệu" message={`${error} Kiểm tra mạng rồi bấm “Thử lại”.`}
+        action={<button type="button" className="ht-btn ht-btn--secondary" onClick={reload}>Thử lại</button>} />
+    );
+  } else if (loading && !data) {
+    body = <PanelState tone="loading" />;
+  } else if (categories.length === 0) {
+    body = (
+      <PanelState tone="empty" title="Chưa có danh mục nào" message="Thêm danh mục đầu tiên để giảng viên chọn khi tạo khóa học."
+        action={<button type="button" className="ht-btn ht-btn--primary" onClick={() => setEditing({})}>+ Thêm danh mục</button>} />
+    );
+  } else {
+    body = (
+      <>
+        <ul className={`cc-cat-grid${loading ? ' is-loading' : ''}`}>
+          {categories.map((c) => (
+            <li key={c.id} className="cc-cat-card">
+              <CategoryChip name={c.name} id={c.id} />
+              <span className="cc-cat-count">{c.courseCount} khóa học</span>
+              <div className="cc-actions">
+                <button type="button" className="cc-link-btn" onClick={() => setEditing(c)} aria-label={`Sửa ${c.name}`}>Sửa</button>
+                <button type="button" className="cc-link-btn danger" onClick={() => askDelete(c)} aria-label={`Xóa ${c.name}`}>Xóa</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p className="cc-summary">{categories.length} danh mục · {totalCourses} khóa học</p>
+      </>
+    );
+  }
+
   return (
-    <section>
-      <div className="cc-panel-head">
-        <h2>Danh mục ({categories.length})</h2>
-        <button type="button" className="cc-btn cc-btn-primary" onClick={() => setEditing({})}>＋ Thêm danh mục</button>
-      </div>
-      {error && <ErrorMessage message={error} />}
-      {loading && !data ? <Loading /> : (
-        <div className="cc-card">
-          <table>
-            <thead>
-              <tr>
-                <th style={{ width: 60 }}>#</th>
-                <th>Tên danh mục</th>
-                <th style={{ width: 160 }}>Số khóa học</th>
-                <th style={{ width: 120 }}>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.length === 0 ? (
-                <tr><td colSpan={4} className="cc-empty">Chưa có danh mục nào.</td></tr>
-              ) : categories.map((c, i) => (
-                <tr key={c.id}>
-                  <td className="cc-num">{i + 1}</td>
-                  <td><span className="cc-chip">{c.name}</span></td>
-                  <td className="cc-num">{c.courseCount} khóa học</td>
-                  <td>
-                    <div className="cc-actions">
-                      <button type="button" className="cc-icon-btn" title="Sửa" aria-label={`Sửa ${c.name}`} onClick={() => setEditing(c)}>
-                        <Icon name="edit" />
-                      </button>
-                      <button type="button" className="cc-icon-btn danger" title="Xóa" aria-label={`Xóa ${c.name}`} onClick={() => handleDelete(c)}>
-                        <Icon name="trash" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+    <>
+      {renderHead(
+        <button type="button" className="ht-btn ht-btn--primary" onClick={() => setEditing({})}>+ Thêm danh mục</button>,
       )}
+      {body}
       {editing && (
         <CategoryModal key={editing.id ?? 'new'} category={editing} onClose={() => setEditing(null)} onSaved={handleSaved} />
       )}
-    </section>
+      {deleting && (
+        <ConfirmDeleteModal category={deleting} busy={busy} onCancel={() => setDeleting(null)} onConfirm={handleDelete} />
+      )}
+    </>
   );
 }
 
-function CoursePanel({ notify }) {
+function CoursePanel({ notify, renderHead }) {
   const [version, setVersion] = useState(0);
   const [keyword, setKeyword] = useState('');
   const [busyId, setBusyId] = useState(null);
   const { data, loading, error } = useFetch(getAdminCourses, { version });
   const courses = Array.isArray(data) ? data : [];
+  const reload = () => setVersion((v) => v + 1);
 
   const q = normalize(keyword.trim());
-  const visible = courses.filter((c) => !q || normalize(c.title).includes(q) || normalize(c.categoryName ?? '').includes(q));
+  const visible = courses.filter((c) => !q || normalize(c.title).includes(q)
+    || normalize(c.categoryName ?? '').includes(q) || normalize(c.teacherName ?? '').includes(q));
+  const countOf = (status) => courses.filter((c) => c.status === status).length;
 
   const toggleHidden = async (course) => {
     const hide = course.status !== 'hidden';
@@ -180,74 +231,87 @@ function CoursePanel({ notify }) {
         notify('Đã ẩn khóa học', `"${course.title}" đã bị ẩn khỏi danh sách công khai.`, 'warn');
       } else {
         const restored = res.data?.status === 'draft' ? 'nháp' : 'công khai';
-        notify('Đã bỏ ẩn khóa học', `"${course.title}" đã hiển thị trở lại (${restored}).`, 'info');
+        notify('Đã hiện lại khóa học', `"${course.title}" đã hiển thị trở lại (${restored}).`, 'info');
       }
     } catch (err) {
-      notify('Thao tác thất bại', parseApiError(err).message, 'warn');
+      notify('Thao tác thất bại', parseApiError(err).message, 'error');
     } finally {
       setBusyId(null);
-      setVersion((v) => v + 1);
+      reload();
     }
   };
 
-  return (
-    <section>
-      <div className="cc-panel-head">
-        <h2>Khóa học ({courses.length})</h2>
-        <label className="cc-search">
-          <Icon name="search" />
-          <input type="search" placeholder="Tìm khóa học..." aria-label="Tìm khóa học"
-            value={keyword} onChange={(e) => setKeyword(e.target.value)} />
-        </label>
-      </div>
-      {error && <ErrorMessage message={error} />}
-      {loading && !data ? <Loading /> : (
-        <div className="cc-card">
-          <table className="cc-course-table">
-            <thead>
-              <tr>
-                <th style={{ width: '34%' }}>Khóa học</th>
-                <th style={{ width: '21%' }}>Danh mục</th>
-                <th style={{ width: '23%' }}>Giảng viên</th>
-                <th style={{ width: '13%' }}>Trạng thái</th>
-                <th style={{ width: '9%' }}>Thao tác</th>
+  let body;
+  if (error) {
+    body = (
+      <PanelState tone="error" title="Không tải được dữ liệu" message={`${error} Kiểm tra mạng rồi bấm “Thử lại”.`}
+        action={<button type="button" className="ht-btn ht-btn--secondary" onClick={reload}>Thử lại</button>} />
+    );
+  } else if (loading && !data) {
+    body = <PanelState tone="loading" />;
+  } else if (visible.length === 0) {
+    body = courses.length === 0 ? (
+      <PanelState tone="empty" title="Chưa có khóa học nào" message="Khóa học do giảng viên tạo sẽ hiện ở đây để duyệt." />
+    ) : (
+      <PanelState tone="empty" title="Không có khóa học phù hợp"
+        message={`Không tìm thấy khóa học nào khớp “${keyword.trim()}”. Thử tên khóa học, giảng viên hoặc danh mục khác.`}
+        action={<button type="button" className="ht-btn ht-btn--primary" onClick={() => setKeyword('')}>Xóa tìm kiếm</button>} />
+    );
+  } else {
+    body = (
+      <table className={`cc-table${loading ? ' is-loading' : ''}`}>
+        <thead>
+          <tr>
+            <th scope="col">Khóa học cần duyệt</th>
+            <th scope="col">Giảng viên</th>
+            <th scope="col">Danh mục</th>
+            <th scope="col">Trạng thái</th>
+            <th scope="col" className="c-actions">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {visible.map((c) => {
+            const status = STATUS[c.status] ?? STATUS.draft;
+            const hidden = c.status === 'hidden';
+            return (
+              <tr key={c.id}>
+                <td className="c-title">{c.title}</td>
+                <td className="c-teacher">{c.teacherName ?? '—'}</td>
+                <td className="c-category"><CategoryChip name={c.categoryName} id={c.categoryId} /></td>
+                <td className="c-status"><span className={`cc-badge ${status.cls}`}>{status.label}</span></td>
+                <td className="c-actions">
+                  <div className="cc-actions">
+                    <Link to={`/courses/${c.id}`} className="cc-link-btn" aria-label={`Xem ${c.title}`}>Xem</Link>
+                    <button type="button" className={`cc-link-btn${hidden ? '' : ' danger'}`} disabled={busyId === c.id}
+                      onClick={() => toggleHidden(c)} aria-label={`${hidden ? 'Hiện lại' : 'Ẩn'} ${c.title}`}>
+                      {hidden ? 'Hiện lại' : 'Ẩn'}
+                    </button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {visible.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="cc-empty">
-                    {courses.length === 0 ? 'Chưa có khóa học nào.' : `Không tìm thấy khóa học khớp với "${keyword}".`}
-                  </td>
-                </tr>
-              ) : visible.map((c) => {
-                const status = STATUS[c.status] ?? STATUS.draft;
-                const hidden = c.status === 'hidden';
-                return (
-                  <tr key={c.id}>
-                    <td><strong>{c.title}</strong></td>
-                    <td><span className="cc-chip">{c.categoryName ?? '—'}</span></td>
-                    <td className="cc-teacher" title={c.teacherName ?? ''}>{c.teacherName ?? '—'}</td>
-                    <td><span className={`cc-badge ${status.cls}`}>{status.label}</span></td>
-                    <td>
-                      <div className="cc-actions">
-                        <button type="button" disabled={busyId === c.id}
-                          className={`cc-icon-btn ${hidden ? '' : 'danger'}`}
-                          title={hidden ? 'Bỏ ẩn' : 'Ẩn khóa học vi phạm'}
-                          aria-label={hidden ? `Bỏ ẩn ${c.title}` : `Ẩn ${c.title}`}
-                          onClick={() => toggleHidden(c)}>
-                          <Icon name={hidden ? 'eye' : 'eyeoff'} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  }
+
+  return (
+    <>
+      {renderHead(null)}
+      <label className="cc-search">
+        <span className="cc-search-icon" aria-hidden="true" />
+        <input type="search" placeholder="Tìm theo tên khóa học, giảng viên hoặc danh mục..." aria-label="Tìm khóa học"
+          value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+      </label>
+      <div className="cc-table-card">{body}</div>
+      {!error && courses.length > 0 && (
+        <p className="cc-summary" aria-live="polite">
+          {q ? `Hiển thị ${visible.length} trong ${courses.length} khóa học · ` : `${courses.length} khóa học · `}
+          {countOf('public')} công khai · {countOf('draft')} nháp · {countOf('hidden')} đang bị ẩn
+        </p>
       )}
-    </section>
+    </>
   );
 }
 
@@ -255,7 +319,7 @@ function CoursePanel({ notify }) {
 const SECTIONS = {
   categories: {
     title: 'Danh mục khóa học',
-    desc: 'Thêm, sửa, xóa danh mục khóa học.',
+    desc: 'Thêm, sửa, xóa danh mục. Chỉ xóa được danh mục chưa có khóa học.',
     Panel: CategoryPanel,
   },
   courses: {
@@ -275,14 +339,20 @@ function CategoryCoursePage({ section = 'categories' }) {
   };
   const closeToast = (id) => setToasts((list) => list.filter((t) => t.id !== id));
 
-  return (
-    <div className="category-course-page">
-      <div className="cc-page-head">
+  // Tiêu đề trang + nút bên phải (nếu có) theo Figma "Tiêu đề trang"
+  const renderHead = (action) => (
+    <div className="cc-page-head">
+      <div>
         <h1>{title}</h1>
         <p>{desc}</p>
       </div>
+      {action}
+    </div>
+  );
 
-      <Panel notify={notify} />
+  return (
+    <div className="category-course-page">
+      <Panel notify={notify} renderHead={renderHead} />
 
       <ToastContainer position="top-end" className="p-3 cc-toasts" containerPosition="fixed">
         {toasts.map((t) => (
