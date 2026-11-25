@@ -56,6 +56,9 @@ const StatusBadge = ({ status }) => {
   return <span className={`um-badge ${STATUS[status] ? status : 'active'}`}>{s.mark} {s.label}</span>;
 };
 
+// Giới hạn ô nhập ở form tạo / sửa tài khoản
+const LIMIT = { name: 50, email: 50, password: 20 };
+
 const coursesText = (u) => `${fmt(u.courses)} khóa ${u.role === 'teacher' ? 'giảng dạy' : 'ghi danh'}`;
 
 // Ô nhập theo component "Input" của Figma: nhãn, ô, gợi ý hoặc lỗi "✕ …"
@@ -87,10 +90,13 @@ function UserFormModal({ user, onClose, onSaved }) {
     const next = {};
     if (!name) next.name = 'Họ tên không được để trống.';
     else if (name.length < 2) next.name = 'Họ tên phải có ít nhất 2 ký tự.';
+    else if (name.length > LIMIT.name) next.name = `Họ tên tối đa ${LIMIT.name} ký tự.`;
     if (!isEdit) {
       if (!email) next.email = 'Email không được để trống.';
+      else if (email.length > LIMIT.email) next.email = `Email tối đa ${LIMIT.email} ký tự.`;
       else if (!EMAIL_REGEX.test(email)) next.email = 'Email không hợp lệ.';
       if (values.password.length < 6) next.password = 'Mật khẩu phải có ít nhất 6 ký tự.';
+      else if (values.password.length > LIMIT.password) next.password = `Mật khẩu tối đa ${LIMIT.password} ký tự.`;
     }
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -115,21 +121,21 @@ function UserFormModal({ user, onClose, onSaved }) {
       <form onSubmit={handleSubmit} noValidate className="um-modal-body">
         <h2 id="um-form-title" className="um-modal-title">{title}</h2>
         <Field id="um-name" label={isEdit ? 'Họ và tên' : 'Họ và tên giảng viên'} error={errors.name}
-          hint={isEdit ? 'Tên hiển thị trên hồ sơ và khóa học' : 'Hiển thị trên các khóa học do giảng viên phụ trách'}>
-          <input id="um-name" type="text" autoFocus maxLength={255} placeholder="Ví dụ: Nguyễn Văn A"
+          hint={`${isEdit ? 'Tên hiển thị trên hồ sơ và khóa học' : 'Hiển thị trên các khóa học do giảng viên phụ trách'} · ${values.name.length}/${LIMIT.name} ký tự`}>
+          <input id="um-name" type="text" autoFocus maxLength={LIMIT.name} placeholder="Ví dụ: Nguyễn Văn A"
             value={values.name} onChange={setField('name')} {...aria('name')} />
         </Field>
         <Field id="um-email" label="Email" error={errors.email}
-          hint={isEdit ? 'Email là định danh đăng nhập nên không sửa được' : 'Dùng để đăng nhập, không sửa được sau khi tạo'}>
-          <input id="um-email" type="email" maxLength={255} placeholder="giangvien@email.com"
+          hint={isEdit ? 'Email là định danh đăng nhập nên không sửa được' : `Dùng để đăng nhập, không sửa được sau khi tạo · tối đa ${LIMIT.email} ký tự`}>
+          <input id="um-email" type="email" maxLength={isEdit ? undefined : LIMIT.email} placeholder="giangvien@email.com"
             value={values.email} onChange={setField('email')} disabled={isEdit} {...aria('email')} />
         </Field>
         {!isEdit && (
           <Field id="um-password" label="Mật khẩu tạm thời" error={errors.password}
-            hint="Giảng viên phải đổi mật khẩu ở lần đăng nhập đầu">
+            hint={`Từ 6 đến ${LIMIT.password} ký tự · giảng viên phải đổi ở lần đăng nhập đầu`}>
             <div className="um-password">
-              <input id="um-password" type={showPassword ? 'text' : 'password'} autoComplete="new-password"
-                placeholder="Ít nhất 6 ký tự" value={values.password} onChange={setField('password')} {...aria('password')} />
+              <input id="um-password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={LIMIT.password}
+                placeholder={`6–${LIMIT.password} ký tự`} value={values.password} onChange={setField('password')} {...aria('password')} />
               <button type="button" className="um-link-btn" onClick={() => setShowPassword((v) => !v)}
                 aria-pressed={showPassword} aria-controls="um-password">
                 {showPassword ? 'Ẩn' : 'Hiện'}
@@ -338,10 +344,10 @@ function UserManagementPage() {
       <table className="um-table">
         <thead>
           <tr>
-            <th scope="col">Họ tên</th>
-            <th scope="col">Email</th>
-            <th scope="col">Vai trò</th>
-            <th scope="col">Trạng thái</th>
+            <th scope="col" className="c-user">Họ tên</th>
+            <th scope="col" className="c-email">Email</th>
+            <th scope="col" className="c-role">Vai trò</th>
+            <th scope="col" className="c-status">Trạng thái</th>
             <th scope="col" className="c-actions">Thao tác</th>
           </tr>
         </thead>
@@ -354,12 +360,12 @@ function UserManagementPage() {
                 <td className="c-user">
                   {/* Bấm tên để xem hồ sơ (số khóa học, ngày đăng ký) */}
                   <button type="button" className="um-user-cell" onClick={() => setModal({ type: 'view', user: u })}
-                    title="Xem hồ sơ">
+                    title={`Xem hồ sơ: ${u.name}`}>
                     <Avatar user={u} />
-                    <span className="um-user-name">{u.name}</span>
+                    <span className="um-user-name um-clamp">{u.name}</span>
                   </button>
                 </td>
-                <td className="c-email">{u.email}</td>
+                <td className="c-email"><span className="um-clamp" title={u.email}>{u.email}</span></td>
                 <td className="c-role">{roleText(u.role)}</td>
                 <td className="c-status"><StatusBadge status={u.status} /></td>
                 <td className="c-actions">

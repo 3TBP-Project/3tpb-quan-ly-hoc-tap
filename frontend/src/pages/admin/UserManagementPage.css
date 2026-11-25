@@ -111,6 +111,25 @@
 .um-table {
   width: 100%;
   border-collapse: collapse;
+  /* Cột cố định: tên / email dài không đẩy các cột khác ra ngoài bảng */
+  table-layout: fixed;
+}
+
+.um-table th.c-role { width: 130px; }
+.um-table th.c-status { width: 210px; }
+/* Đủ chỗ cho "Sửa · Mở khóa · Xóa" trên một hàng */
+.um-table th.c-actions { width: 260px; }
+.um-table td.c-role { white-space: nowrap; }
+
+/* Chữ dài tự xuống dòng, tối đa 2 dòng rồi hiện "…" (di chuột để xem đủ) */
+.um-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .um-table thead th {
@@ -142,6 +161,7 @@
 
 .um-user-cell {
   display: inline-flex;
+  max-width: 100%;
   align-items: center;
   gap: 12px;
   padding: 4px 8px 4px 0;
@@ -166,14 +186,23 @@
 }
 
 .um-user-name {
+  min-width: 0;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .um-user-email {
   color: var(--ht-text-secondary);
   font-size: 15px;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
+
+/* Hồ sơ / xác nhận xóa / thông báo: tên, email dài xuống dòng trong hộp */
+.um-profile > div,
+.um-note > span:last-child,
+.um-toast .toast-body,
+.um-modal-title,
+.um-profile-list dd { min-width: 0; overflow-wrap: anywhere; }
 
 .um-avatar {
   flex: 0 0 36px;
@@ -542,8 +571,19 @@
 .um-toast.error { border-left-color: var(--ht-error-fg); }
 
 /* ---------- Máy tính bảng: thu hẹp bộ lọc ---------- */
+@media (max-width: 1199.98px) {
+  .um-table th.c-role { width: 110px; }
+  .um-table th.c-status { width: 190px; }
+  .um-table th.c-actions { width: 250px; }
+}
+
 @media (max-width: 991.98px) {
   .um-role-filter { flex-basis: 220px; }
+  .um-table thead th,
+  .um-table td { padding-left: 12px; padding-right: 12px; }
+  .um-table th.c-role { width: 100px; }
+  .um-table th.c-status { width: 180px; }
+  .um-table th.c-actions { width: 150px; }
   .um-table .c-email { font-size: 15px; }
 }
 

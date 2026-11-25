@@ -61,6 +61,7 @@
 
 .ht-quiz-intro__desc,
 .ht-quiz-result__sub {
+  overflow-wrap: anywhere;
   margin: 0;
   color: var(--ht-text-secondary);
   font-size: 17px;
@@ -166,6 +167,7 @@
 
 .ht-quiz-bar__title {
   min-width: 0;
+  overflow-wrap: anywhere;
   margin: 0;
   font-weight: 600;
   font-size: 17px;

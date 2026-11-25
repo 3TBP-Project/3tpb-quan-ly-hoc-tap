@@ -28,6 +28,9 @@
 }
 
 .ht-learn-bar__course {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: left;
   padding: 0;
   border: 0;
   background: none;
@@ -53,6 +56,7 @@
 }
 
 .ht-learn-bar__lesson {
+  overflow-wrap: anywhere;
   color: var(--ht-text-primary);
 }
 
@@ -189,6 +193,7 @@
 .ht-chapter__title {
   flex: 1;
   min-width: 0;
+  overflow-wrap: anywhere;
   font-weight: 600;
   font-size: 17px;
   line-height: 28px;

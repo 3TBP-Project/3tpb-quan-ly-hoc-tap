@@ -34,16 +34,31 @@
 
 /* ---------- Chip danh mục: màu riêng mỗi danh mục ---------- */
 .cc-chip {
-  display: inline-flex;
-  align-items: center;
+  /* Tên danh mục dài: xuống dòng trong chip, tối đa 2 dòng rồi "…" */
+  display: -webkit-inline-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
   padding: 4px 12px;
-  border-radius: var(--ht-radius-full);
+  border-radius: 14px;
   background: var(--cat-bg, var(--ht-bg-surface-2));
   color: var(--cat-fg, var(--ht-text-secondary));
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  white-space: nowrap;
+}
+
+/* Chữ dài trong ô bảng: xuống dòng, tối đa 2 dòng rồi "…" */
+.cc-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 /* ---------- Thẻ danh mục: 5 thẻ mỗi hàng ở 1366px ---------- */
@@ -63,6 +78,7 @@
 }
 
 .cc-cat-card {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -179,6 +195,8 @@
 .cc-table {
   width: 100%;
   border-collapse: collapse;
+  /* Cột cố định: tên khóa học / giảng viên / danh mục dài không đẩy cột khác ra ngoài */
+  table-layout: fixed;
   transition: opacity 150ms ease-out;
 }
 
@@ -200,7 +218,11 @@
   vertical-align: middle;
 }
 
-.cc-table .c-title { font-weight: 600; overflow-wrap: anywhere; }
+.cc-table th.c-teacher { width: 20%; }
+.cc-table th.c-category { width: 20%; }
+.cc-table th.c-status { width: 160px; }
+.cc-table th.c-actions { width: 170px; }
+.cc-table .c-title { font-weight: 600; }
 .cc-table .c-teacher { color: var(--ht-text-secondary); }
 .cc-table .c-actions { text-align: right; }
 .cc-table .c-actions .cc-actions { justify-content: flex-end; }
@@ -294,7 +316,10 @@
 .cc-muted {
   color: var(--ht-text-secondary);
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
+
+.cc-toast .toast-body { overflow-wrap: anywhere; }
 
 /* ---------- Hộp thoại ---------- */
 .cc-modal-dialog {
@@ -390,6 +415,13 @@
 .cc-toast.error { border-left-color: var(--ht-error-fg); }
 
 /* ---------- Điện thoại (Figma Mobile): thẻ danh mục 2 cột, mỗi khóa học một thẻ ---------- */
+@media (max-width: 991.98px) {
+  .cc-table thead th,
+  .cc-table td { padding-left: 12px; padding-right: 12px; }
+  .cc-table th.c-status { width: 140px; }
+  .cc-table th.c-actions { width: 130px; }
+}
+
 @media (max-width: 767.98px) {
   .cc-page-head h1 { font-size: 28px; line-height: 36px; }
   .cc-page-head .ht-btn { width: 100%; }
@@ -432,7 +464,10 @@
   .cc-table td { padding: 0; border: 0; }
   .cc-table .c-title { flex: 0 0 100%; font-size: 17px; }
   .cc-table .c-teacher { font-size: 14px; line-height: 20px; }
-  .cc-table .c-teacher::after { content: ' ·'; }
+  .cc-table .c-teacher { display: flex; gap: 4px; max-width: 100%; min-width: 0; }
+  .cc-table .c-teacher::after { content: '·'; flex: none; }
+  /* Điện thoại: tên giảng viên 1 dòng, cắt "…" để dấu "·" luôn đứng ngay sau tên */
+  .cc-table .c-teacher .cc-clamp { display: block; min-width: 0; white-space: nowrap; text-overflow: ellipsis; }
   /* Danh mục chiếm ít nhất hơn nửa thẻ nên trạng thái luôn xuống hàng mới */
   .cc-table .c-category { flex: 1 1 auto; min-width: 58%; }
   .cc-table .c-status { padding-top: 8px; }

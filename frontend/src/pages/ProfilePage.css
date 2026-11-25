@@ -103,8 +103,8 @@
 .pf-btn-sm { padding: 8px 16px; font-size: 15px; }
 .pf-avatar-hint { color: var(--ht-text-secondary); font-size: 14px; line-height: 20px; font-weight: 500; }
 
-.pf-name { font-family: var(--ht-font-heading); font-weight: 700; font-size: 20px; line-height: 28px; }
-.pf-email { color: var(--ht-text-secondary); font-size: 17px; line-height: 28px; word-break: break-all; }
+.pf-name { max-width: 100%; overflow-wrap: anywhere; text-align: center; font-family: var(--ht-font-heading); font-weight: 700; font-size: 20px; line-height: 28px; }
+.pf-email { max-width: 100%; text-align: center; color: var(--ht-text-secondary); font-size: 17px; line-height: 28px; overflow-wrap: anywhere; }
 .pf-role {
   padding: 4px 12px;
   border-radius: var(--ht-radius-full);
@@ -347,7 +347,7 @@
 }
 
 @media (max-width: 991.98px) {
-  .pf-layout { grid-template-columns: 1fr; gap: 24px; }
+  .pf-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .pf-title { font-size: 28px; line-height: 36px; margin-top: 8px; }
 }
 

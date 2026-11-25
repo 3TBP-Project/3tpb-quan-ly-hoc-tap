@@ -30,8 +30,9 @@ const STATUS = {
 const normalize = (s = '') => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
 
 // Chip danh mục mang màu riêng của danh mục (dùng chung bộ màu với thẻ khóa học ở trang chủ)
+// Tên dài tự xuống dòng trong chip, tối đa 2 dòng rồi hiện "…" (di chuột để xem đủ)
 const CategoryChip = ({ name, id }) => (
-  <span className={`cc-chip ${getCategoryTheme(name, id).className}`}>{name ?? '—'}</span>
+  <span className={`cc-chip ${getCategoryTheme(name, id).className}`} title={name ?? undefined}>{name ?? '—'}</span>
 );
 
 // Trạng thái đang tải / trống / lỗi (Figma "Trạng thái bảng · HT-14/15")
@@ -262,10 +263,10 @@ function CoursePanel({ notify, renderHead }) {
       <table className={`cc-table${loading ? ' is-loading' : ''}`}>
         <thead>
           <tr>
-            <th scope="col">Khóa học cần duyệt</th>
-            <th scope="col">Giảng viên</th>
-            <th scope="col">Danh mục</th>
-            <th scope="col">Trạng thái</th>
+            <th scope="col" className="c-title">Khóa học cần duyệt</th>
+            <th scope="col" className="c-teacher">Giảng viên</th>
+            <th scope="col" className="c-category">Danh mục</th>
+            <th scope="col" className="c-status">Trạng thái</th>
             <th scope="col" className="c-actions">Thao tác</th>
           </tr>
         </thead>
@@ -275,8 +276,8 @@ function CoursePanel({ notify, renderHead }) {
             const hidden = c.status === 'hidden';
             return (
               <tr key={c.id}>
-                <td className="c-title">{c.title}</td>
-                <td className="c-teacher">{c.teacherName ?? '—'}</td>
+                <td className="c-title"><span className="cc-clamp" title={c.title}>{c.title}</span></td>
+                <td className="c-teacher"><span className="cc-clamp" title={c.teacherName ?? undefined}>{c.teacherName ?? '—'}</span></td>
                 <td className="c-category"><CategoryChip name={c.categoryName} id={c.categoryId} /></td>
                 <td className="c-status"><span className={`cc-badge ${status.cls}`}>{status.label}</span></td>
                 <td className="c-actions">
