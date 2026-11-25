@@ -150,3 +150,60 @@
 - Cách kiểm chứng: `node --test test/courseEnrollmentGuard.test.js test/enrollmentService.test.js` tại `backend` (15/15 test đạt).
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%.
 - Điều học được: Cần kiểm tra ràng buộc dữ liệu ở server và xử lý cả điều kiện tranh chấp trước khi xóa, không chỉ ẩn hoặc vô hiệu hóa nút ở giao diện.
+
+
+### [AI-12] Rà soát và hoàn thiện nội dung Chương 5, Chương 6
+- Ngày / Người dùng: 2026-11-25 / Nguyễn Quang Thông
+- Công cụ: GitHub Copilot (Copilot SDK trong VS Code)
+- Giai đoạn: Viết báo cáo / Rà soát tài liệu
+- Task / Commit / PR: Cập nhật `docs/bao-cao/chuong-05-kien-truc.md` và `docs/bao-cao/chuong-06-cai-dat.md`
+- Mục đích: Đối chiếu nội dung kiến trúc và nghiệp vụ trắc nghiệm trong báo cáo với mã nguồn hiện tại, sau đó trình bày Chương 6 tập trung vào mẫu thiết kế, nghiệp vụ chấm thi, mã giả và độ phức tạp.
+- Prompt chính (nguyên văn): “kiểm tra xem 2 file: chuong-05-kien-truc.md và chuong-06-cai-dat.md có ổn chưa, có đúng với dự án không?”; “sửa bổ sung nếu thiếu và sửa nếu sai”; “chương 6: mẫu thiết kế, nghiệp vụ tiêu biểu ‘Chấm trắc nghiệm ở server, giới hạn thời gian và số lượt’ (mã giả, độ phức tạp).”
+- Kết quả AI trả về (tóm tắt): Rà soát kiến trúc backend, phân quyền và luồng thi với source; chỉnh các mô tả chưa khớp về middleware, snapshot câu hỏi, kiểm tra hạn nộp và cập nhật lượt thi. Tổ chức lại Chương 6 để làm rõ Repository, Service Layer, Middleware/Chain of Responsibility, mã giả `start`/`submit`, cùng phân tích thời gian và bộ nhớ theo số câu hỏi và số lượt thi.
+- Đánh giá: Đủ; nội dung được đối chiếu trực tiếp với các service, repository, middleware và migration của dự án. Những giới hạn đang có trong code được ghi rõ thay vì mô tả như tính năng đã hoàn thiện.
+- Đã chỉnh sửa gì: Cập nhật hai file báo cáo Markdown; Chương 5 làm rõ kiến trúc Controller–Service–Repository và phân quyền; Chương 6 sửa mã giả, nêu giới hạn snapshot/timeout hiện tại và bổ sung bảng độ phức tạp. Không thay đổi mã nguồn ứng dụng.
+- Cách kiểm chứng: Đối chiếu với `backend/src/services/quizService.js`, `backend/src/repositories/quizRepository.js`, `backend/src/middlewares/authMiddleware.js` và migration `quiz_attempt_answers`; chạy `git diff --check` (đạt). Không chạy test ứng dụng vì chỉ thay đổi tài liệu.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100% nội dung tài liệu được giữ sau khi rà soát theo yêu cầu.
+- Điều học được: Khi mô tả giải thuật trong báo cáo cần phân biệt hành vi thực tế với hướng cải tiến; phân tích Big-O cũng cần nêu rõ giả định về số câu hỏi, dữ liệu và chỉ mục cơ sở dữ liệu.
+
+### [AI-13] Sửa lỗi dư cột `false_answer_4` ở seed và truy vấn câu hỏi (HT-06)
+- Ngày / Người dùng: 2026-11-18 / Nguyễn Quang Thông
+- Công cụ: GitHub Copilot (Copilot SDK trong VS Code)
+- Giai đoạn: Lập trình / Kiểm thử
+- Task / Commit / PR: [HT-06] / commit `466065e`
+- Mục đích: Khắc phục lỗi truy vấn và dữ liệu mẫu tham chiếu cột `false_answer_4` không tồn tại trong bảng `questions` (chỉ có `correct_answer`, `false_answer`, `false_answer_2`, `false_answer_3`).
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): Bổ sung hồi cứu từ lịch sử commit `466065e` (không còn lưu nguyên văn prompt).
+- Kết quả AI trả về (tóm tắt): Loại bỏ cột `false_answer_4` khỏi câu lệnh `SELECT` trong `quizRepository.getQuestionsByCourseId`, xóa trường dư trong `Database/seeds/01_seed_data.js` và bổ sung unit test kiểm tra câu SQL chỉ chọn đúng 3 cột đáp án sai.
+- Đánh giá: Đủ; xử lý đúng nguyên nhân lệch schema giữa migration bảng `questions` với repository và seed.
+- Đã chỉnh sửa gì: Cập nhật `Database/seeds/01_seed_data.js`, `backend/src/repositories/quizRepository.js` và thêm test `getQuestionsByCourseId selects only the three configured distractor columns` trong `backend/test/quizRepository.test.js`.
+- Cách kiểm chứng: Chạy `node --test test/quizRepository.test.js` tại `backend` (2/2 test đạt).
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%.
+- Điều học được: Cần viết unit test kiểm tra trực tiếp câu truy vấn repository khớp với schema bảng trong migration để tránh lỗi cột không tồn tại khi chạy với MySQL.
+
+### [AI-14] Điều chỉnh lọc danh sách khóa học và thông báo xác thực
+- Ngày / Người dùng: 2026-11-19 / Nguyễn Quang Thông
+- Công cụ: GitHub Copilot (Copilot SDK trong VS Code)
+- Giai đoạn: Lập trình / Kiểm thử
+- Task / Commit / PR: commit `5cfe7e9`
+- Mục đích: Hỗ trợ lọc danh sách khóa học theo từ khóa `search`, `categoryId`, `teacherId` ở cả controller và repository, kiểm tra tham số đầu vào hợp lệ và làm rõ thông báo lỗi token ở `authMiddleware`.
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): Bổ sung hồi cứu từ lịch sử commit `5cfe7e9` (không còn lưu nguyên văn prompt).
+- Kết quả AI trả về (tóm tắt): Bổ sung `parseOptionalPositiveInteger` và kiểm tra đầu vào trong `courseController.listCourses`, dựng mệnh đề `WHERE` tham số hóa động cho cả truy vấn danh sách lẫn `COUNT(*)` trong `courseRepository.findPage`, cập nhật thông báo 401 trong `authMiddleware.js` và viết unit test kiểm tra lọc.
+- Đánh giá: Đủ; đảm bảo tham số hóa truy vấn SQL (tránh SQL injection) và đồng bộ điều kiện lọc giữa danh sách phân trang với tổng số bản ghi.
+- Đã chỉnh sửa gì: Cập nhật `backend/src/controllers/courseController.js`, `backend/src/repositories/courseRepository.js`, `backend/src/middlewares/authMiddleware.js`, bổ sung test trong `backend/test/courseController.test.js` và tạo `backend/test/courseRepository.test.js`.
+- Cách kiểm chứng: Chạy `node --test test/courseController.test.js test/courseRepository.test.js` tại `backend` (9/9 test đạt).
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%.
+- Điều học được: Khi thêm bộ lọc phân trang ở API, phải áp dụng cùng điều kiện `WHERE` và danh sách tham số cho cả truy vấn lấy dữ liệu lẫn truy vấn `COUNT(*)`.
+
+### [AI-15] Bổ sung unit test giới hạn 3 lượt làm bài và điểm cao nhất (HT-06)
+- Ngày / Người dùng: 2026-11-21 / Nguyễn Quang Thông
+- Công cụ: GitHub Copilot (Copilot SDK trong VS Code)
+- Giai đoạn: Kiểm thử
+- Task / Commit / PR: [HT-06] / commit `1fd3d1f` (nhánh `test/HT-06`, merge `453b12f`; trong mã nguồn từng gắn nhãn tạm `[AI-10]`)
+- Mục đích: Bổ sung các unit test bắt buộc cho luồng trắc nghiệm: chặn khi hết tối đa 3 lượt làm bài, trả về điểm cao nhất qua nhiều lượt, chặn học viên chưa ghi danh và chặn nộp trùng lượt đã nộp; đồng thời cập nhật mock/chữ ký hàm trong một số test liên quan.
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): Bổ sung hồi cứu từ lịch sử commit `1fd3d1f` (không còn lưu nguyên văn prompt).
+- Kết quả AI trả về (tóm tắt): Thêm 4 unit test trong `backend/test/quizService.test.js` (chặn quá 3 lượt, lấy `bestScore` cao nhất, chặn chưa ghi danh, chặn nộp trùng) và đồng bộ lại stub/tên hàm trong `backend/test/learningService.test.js`, `backend/test/questionService.test.js`.
+- Đánh giá: Đủ cho các trường hợp nghiệp vụ chính và điều kiện biên của `QuizService.start()` / `submit()`.
+- Đã chỉnh sửa gì: Bổ sung 4 test case vào `backend/test/quizService.test.js` (gắn tag `// AI-assisted [AI-05, AI-10]` tại thời điểm commit) và cập nhật `backend/test/learningService.test.js`, `backend/test/questionService.test.js`.
+- Cách kiểm chứng: Chạy `node --test test/quizService.test.js` tại `backend` (7/7 test đạt).
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%.
+- Điều học được: Cần kiểm thử cả các trường hợp biên như chưa ghi danh, hết lượt và nộp trùng để bảo vệ tính toàn vẹn nghiệp vụ thi trắc nghiệm; khi tách nhánh test cũng cần cập nhật kịp thời mock của các module thay đổi chữ ký hàm.
