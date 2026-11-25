@@ -122,3 +122,31 @@
 - Cách kiểm chứng: Chạy `npm test` trong thư mục `backend`; kết quả đạt 35/35 test, bao gồm xác thực, phân quyền, ghi danh, tiến độ học tập, câu hỏi và bảo vệ dữ liệu trong phản hồi lỗi.
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Cần triển khai API theo đầy đủ ba lớp của dự án, dùng middleware phân quyền tại route, kiểm tra quyền sở hữu ở service và giải quyết xung đột bằng cách tích hợp cả hai phần thay đổi thay vì chọn bỏ một phần.
+
+### [AI-10] Chặn công khai khóa học chưa có bài học công khai (HT-09)
+- Ngày / Người dùng: 2026-11-24 / Nguyễn Quang Thông
+- Công cụ: GitHub Copilot (Copilot SDK trong VS Code)
+- Giai đoạn: Lập trình / Kiểm thử
+- Task / Commit / PR: [HT-09] / commit `edd5ea3`
+- Mục đích: Không cho khóa học chưa có bài học công khai xuất hiện cho học viên, được ghi danh hoặc bắt đầu học/làm bài.
+- Prompt chính: Nếu khóa học có ít hơn một bài học thì không cho phép công khai, chỉ để ở trạng thái bản nháp; hãy thực hiện luồng này.
+- Kết quả AI trả về (tóm tắt): Bổ sung kiểm tra ở backend để chỉ cho công khai khóa học khi có bài học công khai; chặn học, ghi danh và làm bài với khóa học không công khai. Khóa không có bài công khai được loại khỏi danh sách công khai.
+- Đánh giá: Đủ kiểm tra được thực hiện ở backend, không chỉ dựa vào giao diện.
+- Đã chỉnh sửa gì: Thêm kiểm tra trạng thái và số bài học công khai khi tạo/cập nhật khóa học; chặn ghi danh, truy cập nội dung học và bài kiểm tra khi khóa học không công khai. Bổ sung luồng đưa khóa học về nháp khi không còn bài học công khai, cảnh báo ở giao diện giảng viên và cập nhật trạng thái các khóa cũ công khai nhưng không có bài.
+- Cách kiểm chứng: `node --test --test-name-pattern="rejects publishing a course without public lessons" test/courseService.test.js` tại `backend` (1/1 đạt), kiểm thử ghi danh 6/6 đạt, build frontend thành công. Gọi API thực tế xác nhận khóa học không có bài công khai bị từ chối khi chuyển sang công khai.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%.
+- Điều học được: Quy tắc công khai phải được xác thực ở backend và cần chặn đồng bộ ở danh sách khóa học, ghi danh, học bài và làm bài kiểm tra.
+
+### [AI-11] Bảo vệ khóa học đã có học viên ghi danh khỏi bị xóa (HT-09)
+- Ngày / Người dùng: 2026-11-25 / Nguyễn Quang Thông
+- Công cụ: GitHub Copilot (Copilot SDK trong VS Code)
+- Giai đoạn: Lập trình / Kiểm thử
+- Task / Commit / PR: [HT-09] / commit `be7939d`
+- Mục đích: Giữ lại khóa học và nội dung liên quan khi đã có học viên ghi danh, tránh làm mất dữ liệu học tập.
+- Prompt chính: Không cho xóa khóa học khi đã có học viên ghi danh, cần xử lý nhất quán ở backend và thông báo phù hợp trên giao diện.
+- Kết quả AI trả về (tóm tắt): Backend kiểm tra số lượt ghi danh trước khi xóa khóa học; trả lỗi xung đột nếu còn học viên. Đồng thời ngăn chuyển khóa học về nháp hoặc ẩn/xóa bài học công khai cuối cùng khi việc đó làm ảnh hưởng khóa học đã có học viên.
+- Đánh giá: Đủ có kiểm tra trường hợp giáo viên/quản trị viên, khóa không có học viên và tình huống ghi danh xảy ra ngay trước thao tác xóa.
+- Đã chỉnh sửa gì: Bổ sung kiểm tra số học viên ghi danh trong service/repository, hiển thị và xử lý lỗi phù hợp ở trang quản lý khóa học, thêm test cho xóa khóa học, chuyển trạng thái và thay đổi bài học.
+- Cách kiểm chứng: `node --test test/courseEnrollmentGuard.test.js test/enrollmentService.test.js` tại `backend` (15/15 test đạt).
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%.
+- Điều học được: Cần kiểm tra ràng buộc dữ liệu ở server và xử lý cả điều kiện tranh chấp trước khi xóa, không chỉ ẩn hoặc vô hiệu hóa nút ở giao diện.
