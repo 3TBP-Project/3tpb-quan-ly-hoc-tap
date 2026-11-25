@@ -1,4 +1,4 @@
-// AI-assisted [AI-14]
+// AI-assisted [AI-14] [AI-19]
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Alert, Badge, Button, Card, Col, Dropdown, Form, ListGroup, Modal, Row } from 'react-bootstrap';
@@ -29,6 +29,7 @@ import { groupLessonsByChapter, groupTitle } from '../utils/chapters';
 import ChapterManager from '../components/teacher/ChapterManager';
 import { getProfile } from '../services/profileService';
 import './TeacherLessonsPage.css';
+import '../styles/teacher.css';
 
 const MAX_PDF_SIZE = 5 * 1024 * 1024; // 5 MB (HT-NFR2)
 
@@ -53,6 +54,12 @@ const COURSE_STATUS_LABELS = {
 };
 
 const LESSONS_PER_PAGE = 5;
+
+// Thẻ chọn trạng thái khi tạo khóa học (Figma: biểu tượng + chữ, không chỉ dùng màu)
+const COURSE_STATUS_CHOICES = [
+  { value: 'draft', icon: '✎', label: 'Nháp – chỉ bạn thấy' },
+  { value: 'public', icon: '✓', label: 'Công khai – học viên tìm thấy' },
+];
 
 // Vị trí kế tiếp = vị trí lớn nhất hiện có + 1 (không dựa vào số lượng bài)
 const nextPosition = (list) =>
@@ -138,6 +145,7 @@ function TeacherLessonsPage() {
   const [thumbnailError, setThumbnailError] = useState('');
   const [removeThumbnail, setRemoveThumbnail] = useState(false);
   const [thumbnailInputKey, setThumbnailInputKey] = useState(0);
+  const [dragOver, setDragOver] = useState(false); // đang kéo ảnh vào khung ảnh bìa
 
   // Xác nhận xóa khóa học
   const [deleteCourseTarget, setDeleteCourseTarget] = useState(null);
@@ -643,7 +651,7 @@ function TeacherLessonsPage() {
   };
 
   return (
-    <>
+    <div className="ht-teacher">
       <PageHeader
         title="Quản lý bài học"
         subtitle="Thêm, sửa, xóa bài học, nhúng video YouTube, đính kèm PDF, sắp xếp thứ tự và công khai bài học."
@@ -788,10 +796,10 @@ function TeacherLessonsPage() {
 
       {selectedCourseId && (
         <Row className="g-4">
-          {/* Cột trái: Form Thêm / Cập nhật bài học */}
-          <Col lg={5}>
+          {/* Form Thêm / Cập nhật bài học: cột phải trên máy tính (Figma "HT-10 · Quản lý bài học") */}
+          <Col lg={5} className="order-lg-2">
             <Card className="shadow-sm sticky-top" style={{ top: '80px', zIndex: 10 }}>
-              <Card.Header className="bg-primary text-white fw-semibold">
+              <Card.Header className="fw-semibold">
                 {editingId ? `Cập nhật bài học #${editingId}` : '+ Thêm bài học mới'}
               </Card.Header>
               <Card.Body>
@@ -938,8 +946,8 @@ function TeacherLessonsPage() {
             </Card>
           </Col>
 
-          {/* Cột phải: Danh sách bài học của khóa học */}
-          <Col lg={7}>
+          {/* Danh sách bài học của khóa học: cột trái trên máy tính */}
+          <Col lg={7} className="order-lg-1">
             <Card className="shadow-sm">
               <Card.Header className="d-flex justify-content-between align-items-center">
                 <span className="fw-semibold">
@@ -983,7 +991,7 @@ function TeacherLessonsPage() {
                       return (
                     <ListGroup.Item
                       key={lesson.id}
-                      className={`p-3 ${editingId === lesson.id ? 'bg-light border-primary border-2' : ''}`}
+                      className={`p-3 ${editingId === lesson.id ? 'is-editing' : ''}`}
                     >
                       <div className="d-flex justify-content-between align-items-start gap-2">
                         <div className="flex-grow-1" style={{ minWidth: 0 }}>
@@ -1098,7 +1106,7 @@ function TeacherLessonsPage() {
         show={deleteLessonTarget != null}
         onHide={() => !deletingLesson && setDeleteLessonTarget(null)}
         centered
-        className="lesson-confirm-modal"
+        className="lesson-confirm-modal ht-teacher"
       >
         <Modal.Header closeButton={!deletingLesson}>
           <Modal.Title as="h2" className="lesson-confirm-title">Xác nhận xóa bài học</Modal.Title>
@@ -1128,7 +1136,7 @@ function TeacherLessonsPage() {
         show={deleteCourseTarget != null}
         onHide={() => !deletingCourse && setDeleteCourseTarget(null)}
         centered
-        className="lesson-confirm-modal"
+        className="lesson-confirm-modal ht-teacher"
       >
         <Modal.Header closeButton={!deletingCourse}>
           <Modal.Title as="h2" className="lesson-confirm-title">Xác nhận xóa khóa học</Modal.Title>
@@ -1151,115 +1159,162 @@ function TeacherLessonsPage() {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showCourseModal} onHide={closeCourseModal} centered>
+      {/* Tạo / sửa khóa học theo Figma "HT-09 · Tạo / sửa khóa học": thông tin bên trái, ảnh bìa bên phải */}
+      <Modal
+        show={showCourseModal}
+        onHide={closeCourseModal}
+        centered
+        size="lg"
+        className="ht-teacher ht-course-modal"
+        aria-labelledby="course-modal-title"
+      >
         <Form onSubmit={handleSubmitCourse}>
           <Modal.Header closeButton={!savingCourse}>
-            <Modal.Title>{editingCourseId != null ? 'Sửa khóa học' : 'Tạo khóa học mới'}</Modal.Title>
+            <Modal.Title id="course-modal-title" as="h2">
+              {editingCourseId != null ? 'Sửa khóa học' : 'Tạo khóa học mới'}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {courseFormError && <Alert variant="danger">{courseFormError}</Alert>}
+            {courseFormError && <Alert variant="danger">✕ {courseFormError}</Alert>}
 
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">
-                Tên khóa học <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Ví dụ: Lập trình ReactJS cơ bản"
-                value={courseForm.title}
-                onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
-                maxLength={255}
-                autoFocus
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">
-                Danh mục <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Select
-                value={courseForm.categoryId}
-                onChange={(e) => setCourseForm({ ...courseForm, categoryId: e.target.value })}
-                required
-              >
-                <option value="">-- Chọn danh mục --</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Mô tả</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Giới thiệu ngắn về khóa học..."
-                value={courseForm.description}
-                onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Ảnh bìa</Form.Label>
-              {(thumbnailPreview || (editingCourseThumbnail && !removeThumbnail)) ? (
-                <div className="course-thumbnail-preview mb-2">
-                  <img
-                    src={thumbnailPreview || toMediaUrl(editingCourseThumbnail)}
-                    alt="Ảnh bìa khóa học"
+            <Row className="g-4">
+              <Col md={7}>
+                <Form.Group className="mb-3" controlId="course-title">
+                  <Form.Label>
+                    Tên khóa học <span className="text-danger">*</span>
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Ví dụ: Lập trình ReactJS cơ bản"
+                    value={courseForm.title}
+                    onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
+                    maxLength={255}
+                    autoFocus
+                    required
                   />
-                </div>
-              ) : (
-                <div className="course-thumbnail-preview course-thumbnail-preview--empty mb-2">
-                  {removeThumbnail ? 'Ảnh bìa sẽ bị xóa khi lưu' : 'Chưa có ảnh bìa (dùng ảnh mặc định)'}
-                </div>
-              )}
-              <Form.Control
-                key={thumbnailInputKey}
-                type="file"
-                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-                onChange={handleThumbnailChange}
-                isInvalid={Boolean(thumbnailError)}
-                disabled={savingCourse}
-              />
-              <Form.Control.Feedback type="invalid">{thumbnailError}</Form.Control.Feedback>
-              <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
-                <Form.Text className="text-muted me-auto">
-                  {thumbnailFile
-                    ? `Đã chọn: ${thumbnailFile.name} (${(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB)`
-                    : 'JPG, PNG hoặc WEBP, tối đa 2 MB.'}
-                </Form.Text>
-                {thumbnailFile && (
-                  <Button size="sm" variant="outline-secondary" onClick={resetThumbnailInput} disabled={savingCourse}>
-                    Bỏ ảnh vừa chọn
-                  </Button>
-                )}
-                {!thumbnailFile && editingCourseThumbnail && (
-                  <Button
-                    size="sm"
-                    variant={removeThumbnail ? 'outline-secondary' : 'outline-danger'}
-                    onClick={() => setRemoveThumbnail((v) => !v)}
-                    disabled={savingCourse}
-                  >
-                    {removeThumbnail ? 'Giữ ảnh hiện tại' : 'Xóa ảnh bìa'}
-                  </Button>
-                )}
-              </div>
-            </Form.Group>
+                  <Form.Text>Ngắn gọn, nên bắt đầu bằng chủ đề chính của khóa học.</Form.Text>
+                </Form.Group>
 
-            {editingCourseId == null && (
-              <Form.Group>
-                <Form.Label className="fw-semibold">Trạng thái</Form.Label>
-                <Form.Select
-                  value={courseForm.status}
-                  onChange={(e) => setCourseForm({ ...courseForm, status: e.target.value })}
+                <Form.Group className="mb-3" controlId="course-category">
+                  <Form.Label>
+                    Danh mục <span className="text-danger">*</span>
+                  </Form.Label>
+                  <Form.Select
+                    value={courseForm.categoryId}
+                    onChange={(e) => setCourseForm({ ...courseForm, categoryId: e.target.value })}
+                    required
+                  >
+                    <option value="">-- Chọn danh mục --</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="course-description">
+                  <Form.Label>Mô tả</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder="Giới thiệu ngắn về khóa học..."
+                    value={courseForm.description}
+                    onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
+                  />
+                  <Form.Text>Hiển thị trên thẻ khóa học và trang chi tiết.</Form.Text>
+                </Form.Group>
+
+                {editingCourseId == null && (
+                  <fieldset className="ht-status-choice">
+                    <legend className="form-label">Trạng thái hiển thị</legend>
+                    <div className="ht-status-choice__grid">
+                      {COURSE_STATUS_CHOICES.map((choice) => (
+                        <label
+                          key={choice.value}
+                          className={`ht-status-option${courseForm.status === choice.value ? ' is-selected' : ''}`}
+                        >
+                          <input
+                            type="radio"
+                            name="course-status"
+                            className="ht-visually-hidden"
+                            value={choice.value}
+                            checked={courseForm.status === choice.value}
+                            onChange={() => setCourseForm({ ...courseForm, status: choice.value })}
+                          />
+                          <span className="ht-status-option__icon" aria-hidden="true">{choice.icon}</span>
+                          <span>{choice.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
+              </Col>
+
+              <Col md={5}>
+                <div className="form-label" id="course-thumbnail-label">Ảnh bìa</div>
+                {/* Bấm hoặc kéo thả ảnh vào khung; ô chọn tệp ẩn bằng CSS để vẫn dùng được bàn phím */}
+                <label
+                  className={`ht-cover-drop${dragOver ? ' is-dragover' : ''}${thumbnailError ? ' is-invalid' : ''}`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    if (!savingCourse) setDragOver(true);
+                  }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    if (!savingCourse) handleThumbnailChange({ target: { files: e.dataTransfer.files } });
+                  }}
                 >
-                  <option value="draft">Nháp (chưa hiển thị cho học viên)</option>
-                  <option value="public">Công khai</option>
-                </Form.Select>
-              </Form.Group>
-            )}
+                  <input
+                    key={thumbnailInputKey}
+                    type="file"
+                    className="ht-visually-hidden"
+                    accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                    onChange={handleThumbnailChange}
+                    disabled={savingCourse}
+                    aria-labelledby="course-thumbnail-label"
+                    aria-describedby="course-thumbnail-note"
+                  />
+                  {(thumbnailPreview || (editingCourseThumbnail && !removeThumbnail)) ? (
+                    <img
+                      className="ht-cover-drop__img"
+                      src={thumbnailPreview || toMediaUrl(editingCourseThumbnail)}
+                      alt="Ảnh bìa khóa học"
+                    />
+                  ) : (
+                    <span className="ht-cover-drop__empty">
+                      <span className="ht-cover-drop__plus" aria-hidden="true">+</span>
+                      <strong>{removeThumbnail ? 'Ảnh bìa sẽ bị xóa khi lưu' : 'Kéo thả ảnh vào đây hoặc bấm để chọn'}</strong>
+                      <span>Chưa chọn ảnh thì dùng ảnh mặc định theo danh mục</span>
+                    </span>
+                  )}
+                </label>
+                <div id="course-thumbnail-note" className={thumbnailError ? 'ht-field-error' : 'form-text'}>
+                  {thumbnailError
+                    ? `✕ ${thumbnailError}`
+                    : thumbnailFile
+                    ? `Đã chọn: ${thumbnailFile.name} (${(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB)`
+                    : 'JPG, PNG hoặc WEBP · tối đa 2 MB · tỉ lệ 16:9'}
+                </div>
+                <div className="d-flex flex-wrap gap-2 mt-2">
+                  {thumbnailFile && (
+                    <Button size="sm" variant="outline-secondary" onClick={resetThumbnailInput} disabled={savingCourse}>
+                      Bỏ ảnh vừa chọn
+                    </Button>
+                  )}
+                  {!thumbnailFile && editingCourseThumbnail && (
+                    <Button
+                      size="sm"
+                      variant={removeThumbnail ? 'outline-secondary' : 'outline-danger'}
+                      onClick={() => setRemoveThumbnail((v) => !v)}
+                      disabled={savingCourse}
+                    >
+                      {removeThumbnail ? 'Giữ ảnh hiện tại' : 'Xóa ảnh bìa'}
+                    </Button>
+                  )}
+                </div>
+              </Col>
+            </Row>
           </Modal.Body>
           <Modal.Footer>
             <Button
@@ -1279,7 +1334,7 @@ function TeacherLessonsPage() {
           </Modal.Footer>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 }
 

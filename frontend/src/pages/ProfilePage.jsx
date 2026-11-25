@@ -1,10 +1,12 @@
-// AI-assisted [AI-06]
+// AI-assisted [AI-06] [AI-19]
 // HT-07: Hồ sơ và kết quả học tập của học viên
-import { useState } from 'react';
+import { cloneElement, useState } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import ErrorMessage from '../components/common/ErrorMessage';
 import Loading from '../components/common/Loading';
+import Pagination from '../components/common/Pagination';
+import { getCategoryTheme, getInitials } from '../utils/categoryTheme';
 import { useAuth } from '../context/useAuth';
 import { useFetch } from '../hooks/useFetch';
 import {
@@ -24,7 +26,7 @@ const MAX_ATTEMPTS = 3;
 const MIN_PASSWORD_LENGTH = 6;
 const ROLE_LABEL = { student: 'Học viên', teacher: 'Giảng viên', admin: 'Quản trị viên' };
 
-const initial = (name = '') => name.trim().charAt(0).toUpperCase() || '?';
+const initial = (name = '') => getInitials(name) || '?';
 const scoreClass = (score) => (score >= 8 ? 'high' : score >= 5 ? 'mid' : 'low');
 const formatScore = (score) => Number(score).toFixed(1);
 
@@ -91,27 +93,51 @@ function AvatarPicker({ name, avatar, onSaved, notify }) {
 
   return (
     <div className="pf-avatar-wrap">
-      {src ? (
-        <img className="pf-avatar pf-avatar-img" src={src} alt={`Ảnh đại diện của ${name}`} onError={() => setBroken(true)} />
-      ) : (
-        <div className="pf-avatar">{initial(name)}</div>
-      )}
+      {/* Ảnh đại diện tròn 96px + huy hiệu máy ảnh (Figma "Ảnh đại diện (chữ viết tắt)") */}
+      <div className="pf-avatar-box">
+        {src ? (
+          <img className="pf-avatar pf-avatar-img" src={src} alt={`Ảnh đại diện của ${name}`} onError={() => setBroken(true)} />
+        ) : (
+          <div className="pf-avatar" aria-hidden="true">{initial(name)}</div>
+        )}
+        <span className="pf-avatar-cam" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
+            <path d="M2.5 6.2a1.6 1.6 0 0 1 1.6-1.6h1.7L7 3h4l1.2 1.6h1.7a1.6 1.6 0 0 1 1.6 1.6v6.6a1.6 1.6 0 0 1-1.6 1.6H4.1a1.6 1.6 0 0 1-1.6-1.6Z" />
+            <circle cx="9" cy="9.4" r="2.6" />
+          </svg>
+        </span>
+      </div>
 
       {file ? (
         <div className="pf-avatar-actions">
-          <button type="button" className="pf-btn pf-btn-primary pf-btn-sm" onClick={handleSave} disabled={saving}>
+          <button type="button" className="ht-btn ht-btn--primary pf-btn-sm" onClick={handleSave} disabled={saving}>
             {saving ? 'Đang lưu...' : 'Lưu ảnh'}
           </button>
-          <button type="button" className="pf-btn pf-btn-sm" onClick={reset} disabled={saving}>Hủy</button>
+          <button type="button" className="ht-btn ht-btn--ghost pf-btn-sm" onClick={reset} disabled={saving}>Hủy</button>
         </div>
       ) : (
-        <label className="pf-btn pf-btn-sm pf-avatar-choose">
+        <label className="ht-btn ht-btn--secondary pf-avatar-choose">
           Đổi ảnh
-          <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleChoose} hidden />
+          {/* Ẩn bằng CSS (không dùng hidden) để vẫn bấm Tab tới được */}
+          <input className="pf-visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" onChange={handleChoose} />
         </label>
       )}
       <div className="pf-avatar-hint">JPG, PNG hoặc WEBP, tối đa 2 MB</div>
-      {error && <div className="pf-err">{error}</div>}
+      {error && <div className="pf-err" role="alert">✕ {error}</div>}
+    </div>
+  );
+}
+
+// Ô nhập theo component "Input" của Figma: nhãn, ô, gợi ý hoặc lỗi "✕ …" bên dưới
+function Field({ id, label, hint, error, children }) {
+  const noteId = `${id}-note`;
+  return (
+    <div className={`pf-field${error ? ' has-error' : ''}`}>
+      <label htmlFor={id}>{label}</label>
+      {cloneElement(children, { id, 'aria-invalid': error ? true : undefined, 'aria-describedby': noteId })}
+      <div id={noteId} className={error ? 'pf-err' : 'pf-hint'}>
+        {error ? `✕ ${error}` : hint}
+      </div>
     </div>
   );
 }
@@ -145,18 +171,14 @@ function ProfileInfoForm({ profile, onSaved, notify }) {
   return (
     <form className="pf-box" onSubmit={handleSubmit} noValidate>
       <h3>Thông tin cá nhân</h3>
-      <p className="pf-desc">Sửa họ tên của bạn. Email dùng để đăng nhập nên không thể thay đổi.</p>
-      <div className="pf-field">
-        <label htmlFor="pf-name">Họ và tên</label>
-        <input id="pf-name" type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={255} />
-        {error && <div className="pf-err">{error}</div>}
-      </div>
-      <div className="pf-field">
-        <label htmlFor="pf-email">Email</label>
-        <input id="pf-email" type="email" value={profile.email} disabled />
-      </div>
+      <Field id="pf-name" label="Họ và tên" hint="Tên hiển thị trên hồ sơ và lịch sử học" error={error}>
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={255} />
+      </Field>
+      <Field id="pf-email" label="Email" hint="Không thể đổi email sau khi đăng ký">
+        <input type="email" value={profile.email} disabled />
+      </Field>
       <div className="pf-form-foot">
-        <button type="submit" className="pf-btn pf-btn-primary" disabled={saving}>
+        <button type="submit" className="ht-btn ht-btn--primary" disabled={saving}>
           {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
         </button>
       </div>
@@ -203,29 +225,20 @@ function ChangePasswordForm({ notify, onPasswordChanged }) {
   return (
     <form className="pf-box" onSubmit={handleSubmit} noValidate>
       <h3>Đổi mật khẩu</h3>
-      <p className="pf-desc">Nhập đúng mật khẩu hiện tại để đặt mật khẩu mới.</p>
-      <div className="pf-field">
-        <label htmlFor="pw-current">Mật khẩu hiện tại</label>
-        <input id="pw-current" type="password" autoComplete="current-password" placeholder="••••••••"
+      <Field id="pw-current" label="Mật khẩu hiện tại" hint="Nhập mật khẩu bạn đang dùng" error={errors.current}>
+        <input type="password" autoComplete="current-password" placeholder="••••••••"
           value={values.current} onChange={setField('current')} />
-        {errors.current && <div className="pf-err">{errors.current}</div>}
-      </div>
-      <div className="pf-row2">
-        <div className="pf-field">
-          <label htmlFor="pw-new">Mật khẩu mới</label>
-          <input id="pw-new" type="password" autoComplete="new-password" placeholder={`Ít nhất ${MIN_PASSWORD_LENGTH} ký tự`}
-            value={values.next} onChange={setField('next')} />
-          {errors.next && <div className="pf-err">{errors.next}</div>}
-        </div>
-        <div className="pf-field">
-          <label htmlFor="pw-confirm">Xác nhận mật khẩu mới</label>
-          <input id="pw-confirm" type="password" autoComplete="new-password" placeholder="Nhập lại mật khẩu mới"
-            value={values.confirm} onChange={setField('confirm')} />
-          {errors.confirm && <div className="pf-err">{errors.confirm}</div>}
-        </div>
-      </div>
+      </Field>
+      <Field id="pw-new" label="Mật khẩu mới" hint={`Ít nhất ${MIN_PASSWORD_LENGTH} ký tự`} error={errors.next}>
+        <input type="password" autoComplete="new-password" placeholder="••••••••"
+          value={values.next} onChange={setField('next')} />
+      </Field>
+      <Field id="pw-confirm" label="Nhập lại mật khẩu mới" hint="Nhập giống mật khẩu mới ở trên" error={errors.confirm}>
+        <input type="password" autoComplete="new-password" placeholder="••••••••"
+          value={values.confirm} onChange={setField('confirm')} />
+      </Field>
       <div className="pf-form-foot">
-        <button type="submit" className="pf-btn pf-btn-primary" disabled={saving}>
+        <button type="submit" className="ht-btn ht-btn--secondary" disabled={saving}>
           {saving ? 'Đang đổi...' : 'Đổi mật khẩu'}
         </button>
       </div>
@@ -283,35 +296,76 @@ function QuizHistory({ history, loading, error }) {
   ));
 }
 
+// Nhãn trạng thái khóa học: luôn có ký hiệu + chữ, không chỉ dùng màu (Figma component "Badge")
+const COURSE_STATUS = {
+  public: { label: '✓ Công khai', className: 'is-public', note: 'học viên tìm thấy' },
+  draft: { label: '✎ Nháp', className: 'is-draft', note: 'chưa xuất bản' },
+  hidden: { label: '◌ Đã ẩn', className: 'is-hidden', note: 'học viên không thấy khóa này' },
+};
+const COURSES_PER_PAGE = 4;
+
 function TeacherCourses({ courses, loading, error }) {
+  const [page, setPage] = useState(1);
+
   if (loading && !courses) return <Loading />;
   if (error) return <ErrorMessage message={error} />;
   if (!courses?.length) {
-    return <div className="pf-box pf-empty">Bạn chưa phụ trách khóa học nào.</div>;
+    return (
+      <div className="pf-box pf-empty">
+        <span className="pf-empty-art" aria-hidden="true">📚</span>
+        <h3>Bạn chưa phụ trách khóa học nào</h3>
+        <p>Tạo khóa học đầu tiên ở trang Quản lý bài học, sau đó thêm bài và công khai cho học viên.</p>
+        <Link to="/teacher/lessons" className="ht-btn ht-btn--primary">+ Tạo khóa học</Link>
+      </div>
+    );
   }
 
+  const totalPages = Math.max(1, Math.ceil(courses.length / COURSES_PER_PAGE));
+  const current = Math.min(page, totalPages);
+  const visible = courses.slice((current - 1) * COURSES_PER_PAGE, current * COURSES_PER_PAGE);
+
   return (
-    <div className="pf-teacher-courses">
-      {courses.map((course) => (
-        <div className="pf-teacher-course" key={course.id}>
-          <div className="pf-teacher-course-head">
-            <span className="pf-teacher-course-title">{course.title}</span>
-            <span className={`pf-course-status ${course.status === 'public' ? 'public' : 'draft'}`}>
-              {course.status === 'public' ? 'Công khai' : 'Bản nháp'}
-            </span>
-          </div>
-          <div className="pf-teacher-course-category">
-            Danh mục: <b>{course.categoryName || course.category_name || course.category?.name || 'Chưa phân loại'}</b>
-          </div>
-        </div>
-      ))}
+    <div className="pf-box pf-courses">
+      <h3>Khóa học phụ trách ({courses.length})</h3>
+      <ul className="pf-course-list">
+        {visible.map((course) => {
+          const status = COURSE_STATUS[course.status] ?? COURSE_STATUS.draft;
+          const categoryName = course.categoryName || course.category_name || course.category?.name || 'Chưa phân loại';
+          const cat = getCategoryTheme(categoryName, course.categoryId);
+          return (
+            <li className="pf-course-item" key={course.id}>
+              <span className={`pf-course-dot ${cat.className}`} aria-hidden="true" />
+              <div className="pf-course-body">
+                <span className="pf-course-title">{course.title}</span>
+                <span className="pf-course-meta">Danh mục: {categoryName} · {status.note}</span>
+                <div className="pf-course-row">
+                  <span className={`pf-badge ${status.className}`}>{status.label}</span>
+                  <span className="pf-course-actions">
+                    <Link to={`/teacher/courses/${course.id}/lessons`}>Quản lý bài học</Link>
+                    <Link to={`/courses/${course.id}`}>Xem khóa học</Link>
+                  </span>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {totalPages > 1 && <Pagination page={current} totalPages={totalPages} onPageChange={setPage} />}
     </div>
   );
 }
 
 function ProfilePage() {
   const { user, role, updateUser } = useAuth();
-  const [tab, setTab] = useState('info');
+  // Tab đang mở lấy từ URL:
+  //   /profile               -> Thông tin & Mật khẩu (mặc định)
+  //   /profile?tab=account   -> Thông tin & Mật khẩu
+  //   /profile?tab=history   -> Lịch sử làm bài (học viên)
+  //   /profile?tab=courses   -> Khóa học phụ trách (giảng viên)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get('tab');
+  const tab = ['account', 'history', 'courses'].includes(requestedTab) ? requestedTab : 'account';
+  const setTab = (next) => setSearchParams({ tab: next });
   const [toasts, setToasts] = useState([]);
   const [savedProfile, setSavedProfile] = useState(null);
   const isStudent = role === 'student';
@@ -358,17 +412,17 @@ function ProfilePage() {
 
   return (
     <div className="profile-page">
-      <h1 className="pf-title">{isStudent ? 'Hồ sơ & Kết quả học tập' : 'Hồ sơ cá nhân'}</h1>
-      <p className="pf-sub">
-        {isStudent
-          ? 'Cập nhật thông tin cá nhân và xem lại kết quả các bài trắc nghiệm.'
-          : 'Cập nhật thông tin cá nhân và bảo mật tài khoản.'}
-      </p>
+      <h1 className="pf-title">
+        {isStudent ? 'Hồ sơ & Kết quả học tập' : isTeacher ? 'Hồ sơ giảng viên' : 'Hồ sơ cá nhân'}
+      </h1>
 
       {isTeacher && profile?.mustChangePassword && (
         <div className="pf-password-warning" role="alert">
-          <b>⚠ Tài khoản đang chờ xử lý.</b>
-          <span>Bạn cần đổi mật khẩu tạm trước khi tạo khóa học, bài học hoặc câu hỏi.</span>
+          <span className="pf-password-warning-icon" aria-hidden="true">⚠</span>
+          <div>
+            <b>Tài khoản đang chờ xử lý</b>
+            <span>Bạn cần đổi mật khẩu tạm trước khi tạo khóa học, bài học hoặc câu hỏi.</span>
+          </div>
         </div>
       )}
 
@@ -386,7 +440,10 @@ function ProfilePage() {
                   <div className="pf-stat"><b>{attemptCount}</b><span>Lượt làm bài</span></div>
                 </>
               ) : (
-                <div className="pf-stat"><b>{teacherCourseCount}</b><span>Khóa học phụ trách</span></div>
+                <>
+                  <div className="pf-stat"><b>{teacherCourseCount}</b><span>Khóa học</span></div>
+                  <div className="pf-stat"><b>Giảng viên</b><span>Vai trò</span></div>
+                </>
               )}
             </div>
           )}
@@ -395,8 +452,8 @@ function ProfilePage() {
         <div className="pf-main">
           {(isStudent || isTeacher) && (
             <div className="pf-tabs" role="tablist">
-              <button type="button" role="tab" aria-selected={tab === 'info'}
-                className={`pf-tab ${tab === 'info' ? 'active' : ''}`} onClick={() => setTab('info')}>
+              <button type="button" role="tab" aria-selected={tab === 'account'}
+                className={`pf-tab ${tab === 'account' ? 'active' : ''}`} onClick={() => setTab('account')}>
                 Thông tin &amp; Mật khẩu
               </button>
               {isStudent ? (
@@ -413,8 +470,8 @@ function ProfilePage() {
             </div>
           )}
 
-          {tab === 'info' || (tab === 'history' && !isStudent) || (tab === 'courses' && !isTeacher) ? (
-            <section>
+          {tab === 'account' || (tab === 'history' && !isStudent) || (tab === 'courses' && !isTeacher) ? (
+            <section className="pf-account">
               {profile && <ProfileInfoForm key={profile.id} profile={profile} onSaved={handleSaved} notify={notify} />}
               <ChangePasswordForm notify={notify} onPasswordChanged={handlePasswordChanged} />
             </section>

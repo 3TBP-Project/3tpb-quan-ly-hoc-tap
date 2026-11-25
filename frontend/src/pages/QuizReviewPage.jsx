@@ -85,7 +85,7 @@ function QuizReviewPage() {
   if (error) {
     return (
       <div className="quiz-review-page">
-        <Link to="/profile" state={{ tab: 'history' }} className="qr-back">← Lịch sử làm bài</Link>
+        <Link to="/profile?tab=history" className="qr-back">← Lịch sử làm bài</Link>
         <ErrorMessage message={error} />
       </div>
     );
@@ -110,7 +110,7 @@ function QuizReviewPage() {
 
   return (
     <div className="quiz-review-page">
-      <Link to="/profile" state={{ tab: 'history' }} className="qr-back">← Lịch sử làm bài</Link>
+      <Link to="/profile?tab=history" className="qr-back">← Lịch sử làm bài</Link>
       <h1 className="qr-title">Xem lại bài làm</h1>
       <p className="qr-sub">{data.courseTitle} · Lần {data.attemptNumber}/{data.maxAttempts}</p>
 

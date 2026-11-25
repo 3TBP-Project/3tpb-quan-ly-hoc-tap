@@ -1,0 +1,498 @@
+/* AI-assisted [AI-19]
+ * Giao diện trang giảng viên (HT-09/10/11) theo Figma trang "02 – Giảng viên".
+ * Chỉ áp trong khối .ht-teacher, giữ nguyên các component React-Bootstrap và logic của trang.
+ */
+.ht-teacher {
+  /* Màu Bootstrap bên trong trang giảng viên dùng bộ màu "Học Vui" */
+  --bs-body-color: var(--ht-text-primary);
+  --bs-secondary-color: var(--ht-text-secondary);
+  --bs-border-color: var(--ht-border-default);
+  --bs-border-radius: var(--ht-radius-md);
+  --bs-link-color-rgb: 91, 63, 240;
+  --bs-tertiary-bg: var(--ht-bg-surface-2);
+  font-size: 16px;
+  padding-bottom: 24px;
+}
+
+/* ---------- Tiêu đề trang (PageHeader) ---------- */
+.ht-teacher h1 {
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 42px;
+  color: var(--ht-text-primary);
+}
+
+/* ---------- Thẻ ---------- */
+.ht-teacher .card {
+  --bs-card-border-radius: var(--ht-radius-lg);
+  --bs-card-inner-border-radius: calc(var(--ht-radius-lg) - 1px);
+  --bs-card-border-color: var(--ht-border-default);
+  --bs-card-bg: var(--ht-bg-surface);
+  --bs-card-cap-bg: var(--ht-bg-surface);
+  --bs-card-cap-padding-y: 16px;
+  --bs-card-cap-padding-x: 20px;
+  --bs-card-spacer-y: 20px;
+  --bs-card-spacer-x: 20px;
+  box-shadow: none !important;
+}
+
+.ht-teacher .card-header {
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+/* ---------- Form ---------- */
+.ht-teacher .form-label,
+.ht-teacher .col-form-label {
+  font-weight: 600;
+  color: var(--ht-text-primary);
+}
+
+.ht-teacher .form-control,
+.ht-teacher .form-select {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: var(--ht-radius-md);
+  border: 1.5px solid var(--ht-border-strong);
+  background-color: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+}
+
+.ht-teacher .form-control:focus,
+.ht-teacher .form-select:focus {
+  border-color: var(--ht-primary);
+  box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+
+.ht-teacher .form-control.is-invalid,
+.ht-teacher .form-select.is-invalid {
+  border: 2px solid var(--ht-error-fg);
+}
+
+.ht-teacher .invalid-feedback,
+.ht-teacher .text-danger {
+  color: var(--ht-error-fg) !important;
+}
+
+.ht-teacher .form-text {
+  color: var(--ht-text-secondary);
+}
+
+.ht-teacher .form-check-input:checked {
+  background-color: var(--ht-primary);
+  border-color: var(--ht-primary);
+}
+
+.ht-teacher .form-check-input:focus {
+  border-color: var(--ht-primary);
+  box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+
+/* ---------- Nút ---------- */
+.ht-teacher .btn {
+  --bs-btn-border-radius: var(--ht-radius-md);
+  --bs-btn-font-weight: 600;
+  --bs-btn-focus-box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+
+.ht-teacher .btn:not(.btn-sm) {
+  --bs-btn-padding-y: 10px;
+  --bs-btn-padding-x: 20px;
+}
+
+.ht-teacher .btn-sm {
+  --bs-btn-border-radius: var(--ht-radius-sm);
+}
+
+.ht-teacher .btn-primary {
+  --bs-btn-color: var(--ht-text-on-primary);
+  --bs-btn-bg: var(--ht-primary);
+  --bs-btn-border-color: var(--ht-primary);
+  --bs-btn-hover-color: var(--ht-text-on-primary);
+  --bs-btn-hover-bg: var(--ht-primary);
+  --bs-btn-hover-border-color: var(--ht-primary);
+  --bs-btn-active-color: var(--ht-text-on-primary);
+  --bs-btn-active-bg: var(--ht-primary-press);
+  --bs-btn-active-border-color: var(--ht-primary-press);
+  --bs-btn-disabled-color: var(--ht-text-on-primary);
+  --bs-btn-disabled-bg: var(--ht-primary);
+  --bs-btn-disabled-border-color: var(--ht-primary);
+  box-shadow: 0 4px 0 var(--ht-primary-press);
+}
+
+.ht-teacher .btn-primary:hover { filter: brightness(1.06); }
+.ht-teacher .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--ht-primary-press); }
+.ht-teacher .btn-primary:disabled { box-shadow: none; }
+
+.ht-teacher .btn-outline-primary {
+  --bs-btn-color: var(--ht-primary);
+  --bs-btn-border-color: var(--ht-primary);
+  --bs-btn-hover-color: var(--ht-primary);
+  --bs-btn-hover-bg: var(--ht-primary-soft);
+  --bs-btn-hover-border-color: var(--ht-primary);
+  --bs-btn-active-color: var(--ht-primary);
+  --bs-btn-active-bg: var(--ht-primary-soft);
+  --bs-btn-active-border-color: var(--ht-primary);
+  --bs-btn-disabled-color: var(--ht-primary);
+  --bs-btn-disabled-border-color: var(--ht-primary);
+}
+
+.ht-teacher .btn-outline-secondary {
+  --bs-btn-color: var(--ht-text-secondary);
+  --bs-btn-border-color: var(--ht-border-strong);
+  --bs-btn-hover-color: var(--ht-text-primary);
+  --bs-btn-hover-bg: var(--ht-bg-surface-2);
+  --bs-btn-hover-border-color: var(--ht-border-strong);
+  --bs-btn-active-color: var(--ht-text-primary);
+  --bs-btn-active-bg: var(--ht-bg-surface-2);
+  --bs-btn-active-border-color: var(--ht-border-strong);
+  --bs-btn-disabled-color: var(--ht-text-secondary);
+  --bs-btn-disabled-border-color: var(--ht-border-default);
+}
+
+/* Nút xóa: đỏ đặc như Figma "Xóa bài học" */
+.ht-teacher .btn-danger,
+.ht-teacher .btn-outline-danger:hover,
+.ht-teacher .btn-outline-danger:active {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--ht-error-fg);
+  --bs-btn-border-color: var(--ht-error-fg);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--ht-error-fg);
+  --bs-btn-hover-border-color: var(--ht-error-fg);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--ht-error-fg);
+}
+
+.ht-teacher .btn-outline-danger {
+  --bs-btn-color: var(--ht-error-fg);
+  --bs-btn-border-color: var(--ht-error-fg);
+  --bs-btn-disabled-color: var(--ht-error-fg);
+  --bs-btn-disabled-border-color: var(--ht-error-fg);
+}
+
+.ht-teacher .btn-outline-success {
+  --bs-btn-color: var(--ht-success-fg);
+  --bs-btn-border-color: var(--ht-success-fg);
+  --bs-btn-hover-color: var(--ht-success-fg);
+  --bs-btn-hover-bg: var(--ht-success-bg);
+  --bs-btn-hover-border-color: var(--ht-success-fg);
+  --bs-btn-active-color: var(--ht-success-fg);
+  --bs-btn-active-bg: var(--ht-success-bg);
+  --bs-btn-disabled-color: var(--ht-success-fg);
+  --bs-btn-disabled-border-color: var(--ht-success-fg);
+}
+
+.ht-teacher .btn-outline-warning {
+  --bs-btn-color: var(--ht-warning-fg);
+  --bs-btn-border-color: var(--ht-warning-fg);
+  --bs-btn-hover-color: var(--ht-warning-fg);
+  --bs-btn-hover-bg: var(--ht-warning-bg);
+  --bs-btn-hover-border-color: var(--ht-warning-fg);
+  --bs-btn-active-color: var(--ht-warning-fg);
+  --bs-btn-active-bg: var(--ht-warning-bg);
+  --bs-btn-disabled-color: var(--ht-warning-fg);
+  --bs-btn-disabled-border-color: var(--ht-warning-fg);
+}
+
+/* ---------- Nhãn (Badge): nền nhạt + chữ đậm, luôn kèm chữ (không chỉ dùng màu) ---------- */
+.ht-teacher .badge {
+  padding: 4px 10px;
+  border-radius: var(--ht-radius-full);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.ht-teacher .badge.bg-success { background-color: var(--ht-success-bg) !important; color: var(--ht-success-fg) !important; }
+.ht-teacher .badge.bg-warning { background-color: var(--ht-warning-bg) !important; color: var(--ht-warning-fg) !important; }
+.ht-teacher .badge.bg-danger { background-color: var(--ht-error-bg) !important; color: var(--ht-error-fg) !important; }
+.ht-teacher .badge.bg-info,
+.ht-teacher .badge.bg-primary { background-color: var(--ht-primary-soft) !important; color: var(--ht-primary) !important; }
+.ht-teacher .badge.bg-secondary,
+.ht-teacher .badge.bg-light,
+.ht-teacher .badge.bg-dark { background-color: var(--ht-bg-surface-2) !important; color: var(--ht-text-secondary) !important; border: 0 !important; }
+
+/* ---------- Danh sách bài học / câu hỏi: mỗi mục là 1 thẻ bo góc (Figma "Lesson row") ---------- */
+.ht-teacher .card > .list-group-flush {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.ht-teacher .card > .list-group-flush > .list-group-item {
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-bg-surface);
+}
+
+/* Tiêu đề chương trong danh sách */
+.ht-teacher .card > .list-group-flush > .list-group-item.bg-body-tertiary {
+  border: 0;
+  padding: 8px 4px 0;
+  background: transparent !important;
+}
+
+.ht-teacher .card > .list-group-flush > .list-group-item.bg-body-tertiary .fw-semibold {
+  font-family: var(--ht-font-heading);
+  font-weight: 700 !important;
+  font-size: 18px;
+}
+
+/* Mục đang sửa: nền tím nhạt + viền 2px màu nhấn (Figma trạng thái "Đang sửa") */
+.ht-teacher .list-group-item.is-editing {
+  border: 2px solid var(--ht-primary) !important;
+  background: var(--ht-primary-soft) !important;
+}
+
+/* Đáp án đúng trong danh sách câu hỏi */
+.ht-teacher .text-success {
+  color: var(--ht-success-fg) !important;
+}
+
+/* Lựa chọn đang là đáp án đúng trong form câu hỏi (Figma: nền xanh nhạt + "✓ Đáp án đúng") */
+.ht-teacher .ht-option.is-correct .form-control {
+  border: 2px solid var(--ht-success-fg);
+  background: var(--ht-success-bg);
+}
+
+/* ---------- Thông báo ---------- */
+.ht-teacher .alert {
+  border-radius: var(--ht-radius-md);
+  border-width: 1px;
+}
+
+.ht-teacher .alert-danger { background: var(--ht-error-bg); border-color: var(--ht-error-fg); color: var(--ht-text-primary); }
+.ht-teacher .alert-success { background: var(--ht-success-bg); border-color: var(--ht-success-fg); color: var(--ht-text-primary); }
+.ht-teacher .alert-warning { background: var(--ht-warning-bg); border-color: var(--ht-warning-fg); color: var(--ht-text-primary); }
+.ht-teacher .alert-info { background: var(--ht-primary-soft); border-color: var(--ht-primary); color: var(--ht-text-primary); }
+
+/* ---------- Menu chọn khóa học ---------- */
+.ht-teacher .dropdown-menu {
+  --bs-dropdown-border-radius: var(--ht-radius-md);
+  --bs-dropdown-border-color: var(--ht-border-default);
+  --bs-dropdown-link-active-bg: var(--ht-primary);
+  --bs-dropdown-link-active-color: var(--ht-text-on-primary);
+  padding: 6px;
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+}
+
+.ht-teacher .dropdown-item {
+  border-radius: var(--ht-radius-sm);
+}
+
+/* ---------- Modal (tạo khóa học, xác nhận xóa): <Modal className="ht-teacher"> ---------- */
+.modal.ht-teacher {
+  padding-bottom: 0;
+}
+
+.ht-teacher .modal-content {
+  border: 0;
+  border-radius: var(--ht-radius-xl);
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+}
+
+.ht-teacher .modal-header,
+.ht-teacher .modal-footer {
+  border-color: var(--ht-border-default);
+  padding: 20px 28px;
+}
+
+.ht-teacher .modal-body {
+  padding: 24px 28px;
+}
+
+.ht-teacher .modal-title {
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 34px;
+}
+
+.ht-teacher .modal-content .btn-close {
+  filter: var(--ht-close-filter, none);
+}
+
+:root[data-theme='dark'] .ht-teacher {
+  --ht-close-filter: invert(1) grayscale(1) brightness(1.6);
+}
+
+/* Ẩn khỏi mắt nhưng vẫn bấm Tab tới được (ô chọn tệp, nút radio) */
+.ht-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.ht-teacher .ht-field-error {
+  margin-top: 6px;
+  color: var(--ht-error-fg);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ---------- Tạo / sửa khóa học (Figma "HT-09 · Tạo / sửa khóa học") ---------- */
+.ht-course-modal .modal-lg {
+  --bs-modal-width: 960px;
+}
+
+/* Ảnh bìa: khung kéo thả nét đứt, tỉ lệ 16:9 */
+.ht-cover-drop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  overflow: hidden;
+  border: 2px dashed var(--ht-border-strong);
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface-2);
+  cursor: pointer;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.ht-cover-drop:hover,
+.ht-cover-drop.is-dragover {
+  border-color: var(--ht-primary);
+  background: var(--ht-primary-soft);
+}
+
+.ht-cover-drop:focus-within {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-cover-drop.is-invalid {
+  border-color: var(--ht-error-fg);
+}
+
+.ht-cover-drop__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ht-cover-drop__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  text-align: center;
+  color: var(--ht-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ht-cover-drop__empty strong {
+  color: var(--ht-text-primary);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.ht-cover-drop__plus {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 6px;
+  border-radius: 16px;
+  background: var(--ht-bg-surface);
+  color: var(--ht-primary);
+  font-size: 28px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px var(--ht-shadow-primary);
+}
+
+/* Chọn trạng thái: 2 thẻ, thẻ đang chọn viền tím + dấu tròn đặc */
+.ht-status-choice {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Bootstrap cho legend chữ to và float: đưa về giống nhãn ô nhập */
+.ht-status-choice legend {
+  float: none;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.ht-status-choice__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ht-status-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--ht-border-strong);
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+  font-size: 15px;
+  line-height: 22px;
+  cursor: pointer;
+}
+
+.ht-status-option:hover {
+  border-color: var(--ht-primary);
+}
+
+.ht-status-option:focus-within {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-status-option.is-selected {
+  border: 2px solid var(--ht-primary);
+  background: var(--ht-primary-soft);
+}
+
+.ht-status-option__icon {
+  flex: 0 0 36px;
+  display: grid;
+  place-items: center;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+}
+
+.ht-status-option.is-selected .ht-status-option__icon {
+  background: var(--ht-primary);
+  color: var(--ht-text-on-primary);
+}
+
+@media (max-width: 575.98px) {
+  .ht-status-choice__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ht-teacher .modal-header,
+  .ht-teacher .modal-footer,
+  .ht-teacher .modal-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ht-cover-drop {
+    transition: none;
+  }
+}
