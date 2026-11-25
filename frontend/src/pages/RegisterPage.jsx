@@ -1,9 +1,9 @@
-// AI-assisted [AI-07]
+// AI-assisted [AI-07] [AI-18]
 import { useState } from 'react';
-import { Alert, Button, Card, Form } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Link, useNavigate } from 'react-router-dom';
+import AuthLayout, { AuthAlert } from '../components/auth/AuthLayout';
 import InputField from '../components/auth/InputField';
 import { registerSchema } from '../schemas/authSchema';
 import { register as registerAccount } from '../services/authService';
@@ -35,28 +35,39 @@ function RegisterPage() {
     };
 
     return (
-        <Card className="mx-auto" style={{ maxWidth: 420 }}>
-            <Card.Body>
-                <h1 className="h4 mb-3">Đăng ký tài khoản</h1>
-                {formError && <Alert variant="danger">{formError}</Alert>}
-                <Form noValidate onSubmit={handleSubmit(onSubmit)}>
-                    <InputField label="Họ và tên" type="text" autoComplete="name"
-                        error={errors.name} {...register('name')} />
-                    <InputField label="Email" type="email" autoComplete="email"
-                        error={errors.email} {...register('email')} />
-                    <InputField label="Mật khẩu" type="password" autoComplete="new-password"
-                        error={errors.password} {...register('password')} />
-                    <InputField label="Xác nhận mật khẩu" type="password" autoComplete="new-password"
-                        error={errors.confirmPassword} {...register('confirmPassword')} />
-                    <Button type="submit" className="w-100" disabled={isSubmitting}>
-                        {isSubmitting ? 'Đang xử lý...' : 'Đăng ký'}
-                    </Button>
-                </Form>
-                <p className="mt-3 mb-0 text-center">
-                    Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
+        <AuthLayout>
+            <h1 className="ht-h1">Tạo tài khoản</h1>
+            <Link to="/login" className="ht-auth__switch">
+                Đã có tài khoản? Đăng nhập
+            </Link>
+
+            {formError && (
+                <AuthAlert tone="error" title="Chưa tạo được tài khoản">
+                    {formError}
+                </AuthAlert>
+            )}
+
+            <form noValidate onSubmit={handleSubmit(onSubmit)} className="ht-auth__form">
+                <InputField label="Họ và tên" type="text" autoComplete="name"
+                    placeholder="Nhập họ và tên" hint="Tên hiển thị trên hồ sơ của bạn"
+                    error={errors.name} {...register('name')} />
+                <InputField label="Email" type="email" autoComplete="email"
+                    placeholder="Nhập email của bạn" hint="Dùng email bạn đã đăng ký tài khoản"
+                    error={errors.email} {...register('email')} />
+                <InputField label="Mật khẩu" type="password" autoComplete="new-password"
+                    placeholder="Nhập mật khẩu" hint="Ít nhất 8 ký tự"
+                    error={errors.password} {...register('password')} />
+                <InputField label="Xác nhận mật khẩu" type="password" autoComplete="new-password"
+                    placeholder="Nhập lại mật khẩu" hint="Phải trùng với mật khẩu ở trên"
+                    error={errors.confirmPassword} {...register('confirmPassword')} />
+                <p className="ht-caption ht-auth__note">
+                    Tài khoản mới là tài khoản Học viên. Tài khoản Giảng viên do quản trị viên cấp.
                 </p>
-            </Card.Body>
-        </Card>
+                <button type="submit" className="ht-btn ht-btn--primary w-100" disabled={isSubmitting}>
+                    {isSubmitting ? 'Đang tạo tài khoản…' : 'Tạo tài khoản'}
+                </button>
+            </form>
+        </AuthLayout>
     );
 }
 

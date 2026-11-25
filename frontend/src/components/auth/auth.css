@@ -1,0 +1,237 @@
+/* AI-assisted [AI-18] — Figma "HT-03 · Đăng nhập / Đăng ký" (Desktop / Mobile, Sáng / Tối) */
+.ht-auth {
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  /* Đủ cao để sticker không đè lên câu khẩu hiệu ở đáy khối minh họa */
+  min-height: 720px;
+  margin-bottom: 16px;
+  border-radius: var(--ht-radius-xl);
+  overflow: hidden;
+}
+
+/* ---------- Khối minh họa gradient bên trái ---------- */
+.ht-auth__art {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 56px;
+  overflow: hidden;
+  background: linear-gradient(124deg, #5b3ff0 0%, #bf2e8c 100%);
+  color: #fff;
+}
+
+.ht-auth__brand {
+  position: relative;
+  z-index: 1;
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 34px;
+}
+
+.ht-auth__slogan {
+  position: relative;
+  z-index: 1;
+  max-width: 448px;
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 52px;
+}
+
+.ht-auth__blob {
+  position: absolute;
+  left: 260px;
+  top: 140px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.ht-auth__sticker {
+  position: absolute;
+  left: 120px;
+  top: 250px;
+  width: 110px;
+  height: 110px;
+  border-radius: 32px;
+  background: #ff8a3d;
+  box-shadow: 0 0 0 6px #fff;
+}
+
+.ht-auth__dot {
+  position: absolute;
+  left: 330px;
+  top: 420px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #00b8a9;
+  box-shadow: 0 0 0 5px #fff;
+}
+
+/* ---------- Thẻ form bên phải ---------- */
+.ht-auth__form-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.ht-auth__card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  border-radius: var(--ht-radius-xl);
+  background: var(--ht-bg-surface);
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+}
+
+.ht-auth__switch {
+  align-self: flex-start;
+  margin-top: -4px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--ht-primary);
+  text-decoration: none;
+}
+
+.ht-auth__switch:hover {
+  color: var(--ht-primary);
+  text-decoration: underline;
+}
+
+.ht-auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ht-auth__note {
+  margin: 0;
+  color: var(--ht-text-secondary);
+}
+
+/* ---------- Ô nhập (Figma component "Input") ---------- */
+.ht-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ht-input__label {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+.ht-input__field {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--ht-radius-md);
+  border: 1.5px solid var(--ht-border-strong);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+  font-size: 17px;
+  line-height: 28px;
+}
+
+.ht-input__field::placeholder {
+  color: var(--ht-text-secondary);
+}
+
+.ht-input__field:focus {
+  outline: none;
+  border-color: var(--ht-primary);
+  box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+
+.ht-input.has-error .ht-input__field {
+  border: 2px solid var(--ht-error-fg);
+}
+
+.ht-input__help {
+  margin: 0;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ht-text-secondary);
+}
+
+.ht-input__help--error {
+  color: var(--ht-error-fg);
+}
+
+/* ---------- Hộp thông báo (Figma component "Alert") ---------- */
+.ht-auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px 14px 16px;
+  border-radius: var(--ht-radius-md);
+  border: 1px solid var(--alert-fg);
+  background: var(--alert-bg);
+}
+
+.ht-auth-alert--error { --alert-fg: var(--ht-error-fg); --alert-bg: var(--ht-error-bg); }
+.ht-auth-alert--warning { --alert-fg: var(--ht-warning-fg); --alert-bg: var(--ht-warning-bg); }
+.ht-auth-alert--success { --alert-fg: var(--ht-success-fg); --alert-bg: var(--ht-success-bg); }
+
+.ht-auth-alert__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--alert-fg);
+  color: var(--ht-bg-surface);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.ht-auth-alert__title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--alert-fg);
+}
+
+.ht-auth-alert__text {
+  margin: 2px 0 0;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+/* ---------- Máy tính bảng / điện thoại: chỉ còn thẻ form ---------- */
+@media (max-width: 991.98px) {
+  .ht-auth {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .ht-auth__art {
+    display: none;
+  }
+
+  .ht-auth__form-area {
+    padding: 8px 0 24px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .ht-auth__card {
+    padding: 24px 20px;
+  }
+}
