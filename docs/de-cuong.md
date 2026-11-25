@@ -15,13 +15,13 @@
 
 ## 2. Thành viên và vai trò
 
-| Mã | Họ tên | MSSV | Vai trò | Email | Phụ trách chính |
-| --- | --- | --- | --- | --- | --- |
-| TV1 | [Nguyễn Ngọc Trọng] | [0306241500] | LE – Leader (trưởng nhóm) | [0306241500@caothang.edu.vn] | Quản lý dự án, Trello, [mã chức năng] |
-| TV2 | [Hà Hữu Thịnh] | [0306241490] | BE 1 – Backend 1 | [0306241490@caothang.edu.vn] | Xác thực, nghiệp vụ chính, [mã] |
-| TV3 | [Lê Đức Phong] | [0306241471] | FE – Frontend | [0306241471@caothang.edu.vn] | Giao diện người dùng, [mã] |
-| TV4 | [Nguyễn Quang Thông] | [0306241492] | BE 2 – Backend 2 (CSDL) | [0306241492@caothang.edu.vn] | ERD, migration, quản trị, [mã] |
-| TV5 | [Trần Thanh Bình] | [0306241432] | GT – Git & Tester | [0306241432@caothang.edu.vn] | Quy tắc Git, review PR, kiểm thử, [mã] |
+| Mã  | Họ tên               | MSSV         | Vai trò                   | Email                        | Phụ trách chính                        |
+| --- | -------------------- | ------------ | ------------------------- | ---------------------------- | -------------------------------------- |
+| TV1 | [Nguyễn Ngọc Trọng]  | [0306241500] | LE – Leader (trưởng nhóm) | [0306241500@caothang.edu.vn] | Quản lý dự án, Trello, [mã chức năng]  |
+| TV2 | [Nguyễn Quang Thông] | [0306241490] | BE 1 – Backend 1          | [0306241490@caothang.edu.vn] | Xác thực, nghiệp vụ chính, [mã]        |
+| TV3 | [Lê Đức Phong]       | [0306241471] | FE – Frontend             | [0306241471@caothang.edu.vn] | Giao diện người dùng, [mã]             |
+| TV4 | [Hà Hữu Thịnh]       | [0306241492] | BE 2 – Backend 2 (CSDL)   | [0306241492@caothang.edu.vn] | ERD, migration, quản trị, [mã]         |
+| TV5 | [Trần Thanh Bình]    | [0306241432] | GT – Git & Tester         | [0306241432@caothang.edu.vn] | Quy tắc Git, review PR, kiểm thử, [mã] |
 
 ## 3. Công nghệ
 
@@ -37,22 +37,22 @@
 
 Bắt buộc (Must) – mã theo đặc tả đề tài:
 
-| Mã   | Chức năng                   | Người phụ trách                                        |
-| ---- | --------------------------- | ------------------------------------------------------ |
-| HT01 | Danh sách khóa học          | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT02 | Chi tiết khóa học           | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT03 | Đăng ký, đăng nhập          | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT04 | Ghi danh, khóa học của tôi  | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT05 | Học bài                     | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT06 | Làm bài trắc nghiệm         | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT07 | Hồ sơ và kết quả học tập    | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT08 | Hỏi đáp trong bài học       | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT09 | Quản lý khóa học            | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT10 | Quản lý bài học             | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT11 | Quản lý câu hỏi trắc nghiệm | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT12 | Theo dõi học viên           | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT14 | Quản lý người dùng          | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
-| HT15 | Danh mục và duyệt khóa học  | Nguyễn Quang Thông - BE Lead<br>Lê Đức Phong - FE Lead |
+| Mã   | Chức năng                   | Người phụ trách          | Mức |
+| ---- | --------------------------- | ------------------------ | --- |
+| HT01 | Danh sách khóa học          | Lê Đức Phong - TV3       | B   |
+| HT02 | Chi tiết khóa học           | Lê Đức Phong - TV3       | B   |
+| HT03 | Đăng ký, đăng nhập          | Nguyễn Quang Thông - TV2 | B   |
+| HT04 | Ghi danh, khóa học của tôi  | Trần Thanh Bình - TV5    | B   |
+| HT05 | Học bài                     | Lê Đức Phong - TV3       | B   |
+| HT06 | Làm bài trắc nghiệm         | Nguyễn Quang Thông - TV2 | B   |
+| HT07 | Hồ sơ và kết quả học tập    | Nguyễn Ngọc Trọng - TV1  | B   |
+| HT08 | Hỏi đáp trong bài học       |                          | C   |
+| HT09 | Quản lý khóa học            | Hà Hữu Thịnh - TV4       | B   |
+| HT10 | Quản lý bài học             | Hà Hữu Thịnh - TV4       | B   |
+| HT11 | Quản lý câu hỏi trắc nghiệm | Trần Thanh Bình - TV5    | B   |
+| HT12 | Theo dõi học viên           |                          | C   |
+| HT14 | Quản lý người dùng          | Nguyễn Ngọc Trọng - TV1  | B   |
+| HT15 | Danh mục và duyệt khóa học  | Nguyễn Ngọc Trọng - TV1  | B   |
 
 Cộng điểm (Could), làm khi còn thời gian: [HT-12, HT-08]
 
