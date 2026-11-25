@@ -18,6 +18,9 @@ module.exports = {
     migrations: {
       tableName: 'knex_migrations',
       directory: './migrations' // Thư mục chứa các file migration ở cùng cấp
+    },
+    seeds: {
+      directory: './seeds' // Thư mục chứa các file seeder ở cùng cấp
     }
   }
 };
