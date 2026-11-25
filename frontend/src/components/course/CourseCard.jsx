@@ -1,6 +1,7 @@
 // AI-assisted [AI-03] [AI-08] [AI-16]
 import { Link } from 'react-router-dom';
 import { getCategoryTheme, getInitials } from '../../utils/categoryTheme';
+import { toAvatarUrl, toMediaUrl } from '../../utils/avatar';
 import './course.css';
 
 const DEFAULT_COVER = '/images/course-default.jpg';
@@ -20,7 +21,7 @@ function CourseCard({ course, to = `/courses/${course.id}`, onClick, children })
     <article className={`ht-course-card ${theme.className}`}>
       <div className="ht-course-card__cover">
         {hasCover ? (
-          <img src={course.coverImage} alt="" loading="lazy" />
+          <img src={toMediaUrl(course.coverImage)} alt="" loading="lazy" />
         ) : (
           <>
             <span className="ht-course-card__blob" aria-hidden="true" />
@@ -43,9 +44,13 @@ function CourseCard({ course, to = `/courses/${course.id}`, onClick, children })
 
         {course.teacherName && (
           <div className="ht-course-card__teacher">
-            <span className="ht-avatar ht-caption" aria-hidden="true">
-              {getInitials(course.teacherName)}
-            </span>
+            {toAvatarUrl(course.teacherAvatar) ? (
+              <img className="ht-avatar ht-avatar-img" src={toAvatarUrl(course.teacherAvatar)} alt="" loading="lazy" />
+            ) : (
+              <span className="ht-avatar ht-caption" aria-hidden="true">
+                {getInitials(course.teacherName)}
+              </span>
+            )}
             <span className="ht-caption">{course.teacherName}</span>
           </div>
         )}

@@ -3,7 +3,7 @@ const { pool } = require('../config/db');
 
 const findByEmail = async (email) => {
   const [rows] = await pool.query(
-    'SELECT id, name, email, password, role, is_locked FROM users WHERE email = ? LIMIT 1',
+    'SELECT id, name, email, password, role, avatar, is_locked FROM users WHERE email = ? LIMIT 1',
     [email]
   );
   return rows[0] || null;
@@ -12,7 +12,7 @@ const findByEmail = async (email) => {
 // Trạng thái đăng nhập mới nhất (dùng ở authMiddleware cho mọi request có token)
 const findAuthStateById = async (id) => {
   const [rows] = await pool.query(
-    'SELECT id, email, role, is_locked FROM users WHERE id = ? LIMIT 1',
+    'SELECT id, email, role, is_locked, status, must_change_password FROM users WHERE id = ? LIMIT 1',
     [id]
   );
   return rows[0] || null;
@@ -33,10 +33,13 @@ const createUser = async ({ name, email, password_hash, role }) => {
 
 const findProfileById = async (userId) => {
   const [rows] = await pool.query(
-    'SELECT id, name, email, role, avatar FROM users WHERE id = ? LIMIT 1',
+    'SELECT id, name, email, role, avatar, must_change_password AS mustChangePassword FROM users WHERE id = ? LIMIT 1',
     [userId]
   );
-  return rows[0] || null;
+  return rows[0] ? {
+    ...rows[0],
+    mustChangePassword: Number(rows[0].mustChangePassword) === 1
+  } : null;
 };
 
 const updateProfile = async (userId, { name, email }) => {
@@ -65,15 +68,18 @@ const updateAvatar = async (userId, avatarUrl) => {
 // HT-07: lấy chuỗi băm mật khẩu để đối chiếu khi đổi mật khẩu
 const findPasswordById = async (userId) => {
   const [rows] = await pool.query(
-    'SELECT id, password FROM users WHERE id = ? LIMIT 1',
+    'SELECT id, password, must_change_password AS mustChangePassword FROM users WHERE id = ? LIMIT 1',
     [userId]
   );
-  return rows[0] || null;
+  return rows[0] ? {
+    ...rows[0],
+    mustChangePassword: Number(rows[0].mustChangePassword) === 1
+  } : null;
 };
 
 const updatePassword = async (userId, passwordHash) => {
   const [result] = await pool.query(
-    'UPDATE users SET password = ? WHERE id = ?',
+    "UPDATE users SET password = ?, must_change_password = 0, status = 'active' WHERE id = ?",
     [passwordHash, userId]
   );
   return result.affectedRows > 0;
@@ -89,6 +95,7 @@ const listEnrolledCourses = async (userId) => {
        c.category_id AS categoryId,
        category.name AS categoryName,
        teacher.name AS teacherName,
+       teacher.avatar AS teacherAvatar,
        (SELECT COUNT(*) FROM lessons AS l
         WHERE l.course_id = c.id AND l.status = 'public') AS lessonCount
      FROM enrollments AS e

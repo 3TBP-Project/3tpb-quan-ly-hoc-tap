@@ -13,6 +13,7 @@ import {
 } from '../../services/adminUserService';
 import { parseApiError } from '../../utils/apiError';
 import { getPageItems } from '../../utils/pagination';
+import { toAvatarUrl } from '../../utils/avatar';
 import './UserManagementPage.css';
 
 const ROLE_LABEL = { all: 'Tất cả người dùng', student: 'Học viên', teacher: 'Giảng viên' };
@@ -58,16 +59,26 @@ function IconButton({ icon, label, danger, onClick, disabled }) {
   );
 }
 
-const Avatar = ({ user }) => (
-  <div className={`um-avatar ${user.role}`} aria-hidden="true">{initial(user.name)}</div>
-);
+const Avatar = ({ user }) => {
+  const [broken, setBroken] = useState(false);
+  const src = broken ? '' : toAvatarUrl(user.avatar);
+  return src ? (
+    <img className={`um-avatar um-avatar-img ${user.role}`} src={src} alt="" onError={() => setBroken(true)} />
+  ) : (
+    <div className={`um-avatar ${user.role}`} aria-hidden="true">{initial(user.name)}</div>
+  );
+};
 
 const RoleBadge = ({ role }) => (
   <span className={`um-badge ${role === 'teacher' ? 'teacher' : 'student'}`}>{role === 'teacher' ? 'Giảng viên' : 'Học viên'}</span>
 );
 
+const STATUS_LABEL = { locked: 'Bị chặn', pending: 'Chờ xử lý', active: 'Hoạt động' };
+
 const StatusBadge = ({ status }) => (
-  <span className={`um-badge ${status === 'locked' ? 'locked' : 'active'}`}>{status === 'locked' ? 'Bị chặn' : 'Hoạt động'}</span>
+  <span className={`um-badge ${status === 'locked' ? 'locked' : status === 'pending' ? 'pending' : 'active'}`}>
+    {STATUS_LABEL[status] ?? 'Hoạt động'}
+  </span>
 );
 
 const coursesText = (u) => `${fmt(u.courses)} khóa ${u.role === 'teacher' ? 'giảng dạy' : 'ghi danh'}`;

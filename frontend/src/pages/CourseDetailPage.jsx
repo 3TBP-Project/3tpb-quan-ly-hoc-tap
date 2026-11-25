@@ -6,6 +6,7 @@ import { useFetch } from '../hooks/useFetch';
 import { useAuth } from '../context/useAuth';
 import { getCourseById, enrollCourse } from '../services/courseService';
 import { parseApiError } from '../utils/apiError';
+import { toMediaUrl } from '../utils/avatar';
 import Loading from '../components/common/Loading';
 import ErrorMessage from '../components/common/ErrorMessage';
 import LessonList from '../components/course/LessonList';
@@ -65,7 +66,7 @@ function CourseDetailPage() {
           <LessonList lessons={course.lessons} chapters={course.chapters} unlocked={isEnrolled} />
         </Col>
         <Col className="order-first order-lg-last">
-          <img src={course.coverImage} alt={course.title} className="img-fluid rounded mb-3" />
+          <img src={toMediaUrl(course.coverImage)} alt={course.title} className="img-fluid rounded mb-3" />
           <p className="mb-3">
             {course.studentCount + (justEnrolled ? 1 : 0)} học viên · {course.lessons.length} bài học
           </p>

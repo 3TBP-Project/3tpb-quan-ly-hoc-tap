@@ -24,7 +24,16 @@ export function AuthProvider({ children }) {
     if (!isLoggedIn) return undefined;
     const checkSession = () => {
       if (document.visibilityState === 'hidden') return;
-      axiosClient.get('/api/users/profile').catch(() => {
+      axiosClient.get('/api/users/profile').then((res) => {
+        if (res?.data?.avatar !== undefined) {
+          setUser((current) => {
+            if (!current) return current;
+            const next = { ...current, avatar: res.data.avatar ?? null };
+            localStorage.setItem('user', JSON.stringify(next));
+            return next;
+          });
+        }
+      }).catch(() => {
         // Lỗi mạng tạm thời thì bỏ qua; khóa tài khoản / hết phiên đã được interceptor xử lý
       });
     };

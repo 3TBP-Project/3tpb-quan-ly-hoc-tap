@@ -62,6 +62,7 @@ class CourseRepository {
          c.title,
          c.user_id AS teacherId,
          u.name AS teacherName,
+         u.avatar AS teacherAvatar,
          c.category_id AS categoryId,
          category.name AS categoryName,
          COUNT(lesson.id) AS lessonCount,
@@ -76,6 +77,7 @@ class CourseRepository {
          c.title,
          c.user_id,
          u.name,
+         u.avatar,
          c.category_id,
          category.name,
          c.thumbnail
@@ -172,6 +174,7 @@ class CourseRepository {
          COALESCE(c.thumbnail, '/images/course-default.jpg') AS coverImage,
          c.user_id AS teacherId,
          u.name AS teacherName,
+         u.avatar AS teacherAvatar,
          c.category_id AS categoryId,
          category.name AS categoryName,
          c.status,
@@ -242,6 +245,15 @@ class CourseRepository {
        SET title = ?, description = ?, category_id = ?, price_course = ?, quiz_minutes = ?, thumbnail = ?, status = ?
        WHERE id = ?`,
       [title, description, category_id, price_course, quiz_minutes, thumbnail, status, id]
+    );
+    return result.affectedRows;
+  }
+
+  // 4b. Chỉ đổi ảnh bìa (null = xóa ảnh bìa)
+  async updateThumbnail(id, thumbnail) {
+    const [result] = await pool.query(
+      `UPDATE courses SET thumbnail = ? WHERE id = ?`,
+      [thumbnail ?? null, id]
     );
     return result.affectedRows;
   }

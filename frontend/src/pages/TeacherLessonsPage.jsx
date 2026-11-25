@@ -8,17 +8,22 @@ import Pagination from '../components/common/Pagination';
 import {
   createCourse,
   createLesson,
+  deleteCourse,
+  deleteCourseThumbnail,
   deleteLesson,
   getCourseCategories,
   getCourseChapters,
   getCourseLessons,
   getTeacherCourses,
   swapLessons,
+  updateCourse,
   updateCourseStatus,
   updateLesson,
   updateLessonStatus,
+  uploadCourseThumbnail,
   uploadLessonFile,
 } from '../services/lessonService';
+import { toMediaUrl } from '../utils/avatar';
 import { parseApiError } from '../utils/apiError';
 import { groupLessonsByChapter, groupTitle } from '../utils/chapters';
 import ChapterManager from '../components/teacher/ChapterManager';
@@ -71,6 +76,23 @@ const EMPTY_COURSE_FORM = {
   status: 'draft',
 };
 
+const MAX_THUMBNAIL_SIZE = 2 * 1024 * 1024; // 2 MB
+const THUMBNAIL_TYPES = {
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/png': ['.png'],
+  'image/webp': ['.webp'],
+};
+
+// Kiểm tra ảnh bìa phía trình duyệt trước khi gửi (server vẫn kiểm tra lại)
+const validateThumbnailFile = (file) => {
+  if (!file) return '';
+  const exts = THUMBNAIL_TYPES[file.type];
+  const name = file.name.toLowerCase();
+  if (!exts || !exts.some((ext) => name.endsWith(ext))) return 'Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP.';
+  if (file.size > MAX_THUMBNAIL_SIZE) return 'Ảnh vượt quá dung lượng tối đa 2 MB.';
+  return '';
+};
+
 function TeacherLessonsPage() {
   const { courseId: routeCourseId } = useParams();
   const navigate = useNavigate();
@@ -99,8 +121,9 @@ function TeacherLessonsPage() {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [savingStatus, setSavingStatus] = useState(false);
 
-  // Modal tạo khóa học mới
+  // Modal tạo / sửa khóa học
   const [showCourseModal, setShowCourseModal] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState(null); // null = đang tạo mới
   const [courseForm, setCourseForm] = useState(EMPTY_COURSE_FORM);
   const [categories, setCategories] = useState([]);
   const [courseFormError, setCourseFormError] = useState('');
@@ -108,6 +131,29 @@ function TeacherLessonsPage() {
   const [mustChangePassword, setMustChangePassword] = useState(false);
   const [deleteLessonTarget, setDeleteLessonTarget] = useState(null);
   const [deletingLesson, setDeletingLesson] = useState(false);
+
+  // Ảnh bìa trong modal: ảnh mới chọn, ảnh xem trước, có xóa ảnh hiện tại không
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState('');
+  const [thumbnailError, setThumbnailError] = useState('');
+  const [removeThumbnail, setRemoveThumbnail] = useState(false);
+  const [thumbnailInputKey, setThumbnailInputKey] = useState(0);
+
+  // Xác nhận xóa khóa học
+  const [deleteCourseTarget, setDeleteCourseTarget] = useState(null);
+  const [deletingCourse, setDeletingCourse] = useState(false);
+
+  // Tạo URL xem trước cho ảnh vừa chọn và thu hồi khi đổi ảnh / đóng modal
+  useEffect(() => {
+    if (!thumbnailFile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setThumbnailPreview('');
+      return undefined;
+    }
+    const url = URL.createObjectURL(thumbnailFile);
+    setThumbnailPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [thumbnailFile]);
 
   useEffect(() => {
     let ignore = false;
@@ -120,6 +166,13 @@ function TeacherLessonsPage() {
       ignore = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (mustChangePassword) {
+      setNotice('');
+      setError('Tài khoản đang chờ xử lý. Hãy đổi mật khẩu tạm trong Hồ sơ trước khi quản lý khóa học hoặc bài học.');
+    }
+  }, [mustChangePassword]);
 
   // 1. Tải danh sách khóa học của giảng viên đang đăng nhập
   useEffect(() => {
@@ -145,16 +198,22 @@ function TeacherLessonsPage() {
     };
   }, [routeCourseId]);
 
-  // 1b. Mở modal tạo khóa học, tải danh mục nếu chưa có
-  const openCourseModal = async () => {
-    if (mustChangePassword) {
-      setError('Bạn phải đổi mật khẩu tạm trong Hồ sơ trước khi tạo khóa học.');
-      navigate('/profile');
-      return;
-    }
-    setCourseForm(EMPTY_COURSE_FORM);
-    setCourseFormError('');
-    setShowCourseModal(true);
+  const reloadTeacherCourses = async () => {
+    const listRes = await getTeacherCourses();
+    const list = Array.isArray(listRes?.data) ? listRes.data : [];
+    setCourses(list);
+    return list;
+  };
+
+  const resetThumbnailInput = () => {
+    setThumbnailFile(null);
+    setThumbnailError('');
+    setRemoveThumbnail(false);
+    setThumbnailInputKey((k) => k + 1);
+  };
+
+  // 1b. Tải danh mục cho form khóa học nếu chưa có
+  const ensureCategories = async () => {
     if (categories.length > 0) return;
     try {
       const res = await getCourseCategories();
@@ -166,8 +225,58 @@ function TeacherLessonsPage() {
     }
   };
 
-  // 1c. Tạo khóa học rồi chọn luôn khóa học vừa tạo để thêm bài học
-  const handleCreateCourse = async (e) => {
+  const guardMustChangePassword = (action) => {
+    if (!mustChangePassword) return false;
+    setError(`Bạn phải đổi mật khẩu tạm trong Hồ sơ trước khi ${action}.`);
+    navigate('/profile');
+    return true;
+  };
+
+  // 1c. Mở modal tạo khóa học mới
+  const openCourseModal = () => {
+    if (guardMustChangePassword('tạo khóa học')) return;
+    setEditingCourseId(null);
+    setCourseForm(EMPTY_COURSE_FORM);
+    setCourseFormError('');
+    resetThumbnailInput();
+    setShowCourseModal(true);
+    ensureCategories();
+  };
+
+  // 1d. Mở modal sửa khóa học đang chọn
+  const openEditCourseModal = () => {
+    if (!selectedCourse || isReadOnly) return;
+    if (guardMustChangePassword('sửa khóa học')) return;
+    setEditingCourseId(selectedCourse.id);
+    setCourseForm({
+      title: selectedCourse.title || '',
+      description: selectedCourse.description || '',
+      categoryId: selectedCourse.categoryId != null ? String(selectedCourse.categoryId) : '',
+      status: selectedCourse.status || 'draft',
+    });
+    setCourseFormError('');
+    resetThumbnailInput();
+    setShowCourseModal(true);
+    ensureCategories();
+  };
+
+  const closeCourseModal = () => {
+    if (savingCourse) return;
+    setShowCourseModal(false);
+    resetThumbnailInput();
+  };
+
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    const message = validateThumbnailFile(file);
+    setThumbnailError(message);
+    setThumbnailFile(message ? null : file);
+    if (file && !message) setRemoveThumbnail(false);
+    if (message) setThumbnailInputKey((k) => k + 1);
+  };
+
+  // 1e. Tạo hoặc cập nhật khóa học, sau đó tải lên / xóa ảnh bìa
+  const handleSubmitCourse = async (e) => {
     e.preventDefault();
     const title = courseForm.title.trim();
     if (!title) {
@@ -179,26 +288,85 @@ function TeacherLessonsPage() {
       return;
     }
 
+    const isEditing = editingCourseId != null;
+    const editingCourse = isEditing ? courses.find((c) => Number(c.id) === Number(editingCourseId)) : null;
+
     setSavingCourse(true);
     setCourseFormError('');
+    let courseId = editingCourseId;
     try {
-      const res = await createCourse({
+      const payload = {
         title,
         description: courseForm.description.trim() || null,
         category_id: Number(courseForm.categoryId),
-        status: courseForm.status,
-      });
-      const newId = Number(res?.data?.id);
-      const listRes = await getTeacherCourses();
-      setCourses(Array.isArray(listRes?.data) ? listRes.data : []);
-      setShowCourseModal(false);
-      setError('');
-      setNotice(`Đã tạo khóa học "${title}". Bạn có thể thêm bài học ngay bây giờ.`);
-      if (newId) handleCourseChange(newId);
+      };
+      if (isEditing) {
+        await updateCourse(editingCourseId, payload);
+      } else {
+        const res = await createCourse({ ...payload, status: courseForm.status });
+        courseId = Number(res?.data?.id);
+      }
     } catch (err) {
       setCourseFormError(parseApiError(err).message);
-    } finally {
       setSavingCourse(false);
+      return;
+    }
+
+    // Thông tin khóa học đã lưu; ảnh bìa lỗi thì vẫn báo lưu thành công kèm lỗi ảnh
+    let thumbnailFailed = '';
+    if (courseId) {
+      try {
+        if (thumbnailFile) {
+          await uploadCourseThumbnail(courseId, thumbnailFile);
+        } else if (isEditing && removeThumbnail && editingCourse?.thumbnail) {
+          await deleteCourseThumbnail(courseId);
+        }
+      } catch (err) {
+        thumbnailFailed = parseApiError(err).message;
+      }
+    }
+
+    try {
+      await reloadTeacherCourses();
+    } catch (err) {
+      setError(parseApiError(err).message);
+    }
+    setShowCourseModal(false);
+    resetThumbnailInput();
+    setSavingCourse(false);
+
+    if (thumbnailFailed) {
+      setNotice('');
+      setError(`Đã lưu khóa học "${title}" nhưng cập nhật ảnh bìa thất bại: ${thumbnailFailed}`);
+    } else {
+      setError('');
+      setNotice(isEditing
+        ? `Đã cập nhật khóa học "${title}".`
+        : `Đã tạo khóa học "${title}". Bạn có thể thêm bài học ngay bây giờ.`);
+    }
+    if (!isEditing && courseId) handleCourseChange(courseId);
+  };
+
+  // 1f. Xóa khóa học đang chọn (sau khi xác nhận)
+  const confirmDeleteCourse = async () => {
+    if (!deleteCourseTarget) return;
+    setDeletingCourse(true);
+    setError('');
+    setNotice('');
+    try {
+      await deleteCourse(deleteCourseTarget.id);
+      const list = await reloadTeacherCourses();
+      setNotice(`Đã xóa khóa học "${deleteCourseTarget.title}".`);
+      setDeleteCourseTarget(null);
+      setLessons([]);
+      setChapters([]);
+      if (routeCourseId) navigate('/teacher/lessons', { replace: true });
+      handleCourseChange(list.length > 0 ? list[0].id : '');
+    } catch (err) {
+      setError(parseApiError(err).message);
+      setDeleteCourseTarget(null);
+    } finally {
+      setDeletingCourse(false);
     }
   };
 
@@ -252,6 +420,9 @@ function TeacherLessonsPage() {
   // của người khác) thì chỉ được xem, không được sửa trạng thái hay bài học
   const isReadOnly = Boolean(selectedCourseId) && !loadingCourses && !selectedCourse;
   const editingLesson = editingId ? lessons.find((l) => l.id === editingId) : null;
+  const editingCourseThumbnail = editingCourseId != null
+    ? courses.find((c) => Number(c.id) === Number(editingCourseId))?.thumbnail || ''
+    : '';
   // Chương đang chọn trong form (bỏ qua nếu chương vừa bị xóa)
   const selectedChapterId = chapters.some((c) => String(c.id) === String(formData.chapterId))
     ? String(formData.chapterId)
@@ -541,6 +712,20 @@ function TeacherLessonsPage() {
                 <Link to={`/courses/${selectedCourseId}`} className="btn btn-outline-secondary btn-sm">
                   Xem khóa học
                 </Link>
+                {selectedCourse && !isReadOnly && (
+                  <>
+                    <Button size="sm" variant="outline-primary" onClick={openEditCourseModal}>
+                      Sửa khóa học
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline-danger"
+                      onClick={() => setDeleteCourseTarget(selectedCourse)}
+                    >
+                      Xóa khóa học
+                    </Button>
+                  </>
+                )}
               </Col>
             )}
           </Form.Group>
@@ -939,10 +1124,37 @@ function TeacherLessonsPage() {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showCourseModal} onHide={() => !savingCourse && setShowCourseModal(false)} centered>
-        <Form onSubmit={handleCreateCourse}>
+      <Modal
+        show={deleteCourseTarget != null}
+        onHide={() => !deletingCourse && setDeleteCourseTarget(null)}
+        centered
+        className="lesson-confirm-modal"
+      >
+        <Modal.Header closeButton={!deletingCourse}>
+          <Modal.Title as="h2" className="lesson-confirm-title">Xác nhận xóa khóa học</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Bạn có chắc chắn muốn xóa khóa học <strong>{deleteCourseTarget?.title}</strong> không?
+          Toàn bộ chương, bài học, câu hỏi và ảnh bìa của khóa học sẽ bị xóa và không thể khôi phục.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="outline-secondary"
+            onClick={() => setDeleteCourseTarget(null)}
+            disabled={deletingCourse}
+          >
+            Hủy
+          </Button>
+          <Button variant="danger" onClick={confirmDeleteCourse} disabled={deletingCourse}>
+            {deletingCourse ? 'Đang xóa...' : 'Xóa khóa học'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showCourseModal} onHide={closeCourseModal} centered>
+        <Form onSubmit={handleSubmitCourse}>
           <Modal.Header closeButton={!savingCourse}>
-            <Modal.Title>Tạo khóa học mới</Modal.Title>
+            <Modal.Title>{editingCourseId != null ? 'Sửa khóa học' : 'Tạo khóa học mới'}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {courseFormError && <Alert variant="danger">{courseFormError}</Alert>}
@@ -989,27 +1201,80 @@ function TeacherLessonsPage() {
               />
             </Form.Group>
 
-            <Form.Group>
-              <Form.Label className="fw-semibold">Trạng thái</Form.Label>
-              <Form.Select
-                value={courseForm.status}
-                onChange={(e) => setCourseForm({ ...courseForm, status: e.target.value })}
-              >
-                <option value="draft">Nháp (chưa hiển thị cho học viên)</option>
-                <option value="public">Công khai</option>
-              </Form.Select>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-semibold">Ảnh bìa</Form.Label>
+              {(thumbnailPreview || (editingCourseThumbnail && !removeThumbnail)) ? (
+                <div className="course-thumbnail-preview mb-2">
+                  <img
+                    src={thumbnailPreview || toMediaUrl(editingCourseThumbnail)}
+                    alt="Ảnh bìa khóa học"
+                  />
+                </div>
+              ) : (
+                <div className="course-thumbnail-preview course-thumbnail-preview--empty mb-2">
+                  {removeThumbnail ? 'Ảnh bìa sẽ bị xóa khi lưu' : 'Chưa có ảnh bìa (dùng ảnh mặc định)'}
+                </div>
+              )}
+              <Form.Control
+                key={thumbnailInputKey}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                onChange={handleThumbnailChange}
+                isInvalid={Boolean(thumbnailError)}
+                disabled={savingCourse}
+              />
+              <Form.Control.Feedback type="invalid">{thumbnailError}</Form.Control.Feedback>
+              <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
+                <Form.Text className="text-muted me-auto">
+                  {thumbnailFile
+                    ? `Đã chọn: ${thumbnailFile.name} (${(thumbnailFile.size / 1024 / 1024).toFixed(2)} MB)`
+                    : 'JPG, PNG hoặc WEBP, tối đa 2 MB.'}
+                </Form.Text>
+                {thumbnailFile && (
+                  <Button size="sm" variant="outline-secondary" onClick={resetThumbnailInput} disabled={savingCourse}>
+                    Bỏ ảnh vừa chọn
+                  </Button>
+                )}
+                {!thumbnailFile && editingCourseThumbnail && (
+                  <Button
+                    size="sm"
+                    variant={removeThumbnail ? 'outline-secondary' : 'outline-danger'}
+                    onClick={() => setRemoveThumbnail((v) => !v)}
+                    disabled={savingCourse}
+                  >
+                    {removeThumbnail ? 'Giữ ảnh hiện tại' : 'Xóa ảnh bìa'}
+                  </Button>
+                )}
+              </div>
             </Form.Group>
+
+            {editingCourseId == null && (
+              <Form.Group>
+                <Form.Label className="fw-semibold">Trạng thái</Form.Label>
+                <Form.Select
+                  value={courseForm.status}
+                  onChange={(e) => setCourseForm({ ...courseForm, status: e.target.value })}
+                >
+                  <option value="draft">Nháp (chưa hiển thị cho học viên)</option>
+                  <option value="public">Công khai</option>
+                </Form.Select>
+              </Form.Group>
+            )}
           </Modal.Body>
           <Modal.Footer>
             <Button
               variant="outline-secondary"
-              onClick={() => setShowCourseModal(false)}
+              onClick={closeCourseModal}
               disabled={savingCourse}
             >
               Hủy
             </Button>
             <Button type="submit" variant="primary" disabled={savingCourse}>
-              {savingCourse ? 'Đang tạo...' : 'Tạo khóa học'}
+              {savingCourse
+                ? 'Đang lưu...'
+                : editingCourseId != null
+                ? 'Lưu thay đổi'
+                : 'Tạo khóa học'}
             </Button>
           </Modal.Footer>
         </Form>

@@ -8,6 +8,7 @@ import CourseDetailPage from './pages/CourseDetailPage'
 import QuizPage from './pages/QuizPage'
 import MyCoursesPage from './pages/MyCoursesPage'
 import ProfilePage from './pages/ProfilePage'
+import QuizReviewPage from './pages/QuizReviewPage'
 import LearnPage from './pages/LearnPage'
 import TeacherLessonsPage from './pages/TeacherLessonsPage'
 import TeacherQuestionsPage from './pages/TeacherQuestionsPage'
@@ -43,8 +44,16 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute allowedRoles={['student']}>
+            <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/quiz-attempts/:attemptId"
+          element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <QuizReviewPage />
             </ProtectedRoute>
           }
         />

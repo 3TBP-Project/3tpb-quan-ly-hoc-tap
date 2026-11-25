@@ -10,11 +10,14 @@ const findCoursesByTeacherId = async (teacherId) => {
        c.user_id,
        c.quiz_minutes,
        c.status,
+       c.category_id AS categoryId,
+       category.name AS categoryName,
        COUNT(q.id) AS questionCount
      FROM courses AS c
      LEFT JOIN questions AS q ON q.course_id = c.id
+     LEFT JOIN categories AS category ON category.id = c.category_id
      WHERE c.user_id = ?
-     GROUP BY c.id, c.title, c.user_id, c.quiz_minutes, c.status
+     GROUP BY c.id, c.title, c.user_id, c.quiz_minutes, c.status, c.category_id, category.name
      ORDER BY c.id DESC`,
     [teacherId]
   );

@@ -90,7 +90,8 @@ const start = async (userId, courseId) => {
     userId,
     courseId,
     startedAt,
-    maxAttempts: MAX_ATTEMPTS
+    maxAttempts: MAX_ATTEMPTS,
+    questions: sanitizedQuestions
   });
 
   return {
@@ -159,7 +160,8 @@ const submit = async (attemptId, userId, answers = {}) => {
       content: q.content,
       selectedAnswer,
       correctAnswer: q.correct_answer,
-      isCorrect
+      isCorrect,
+      options: [q.correct_answer, ...getFalseOptions(q)]
     };
   });
 
@@ -171,7 +173,7 @@ const submit = async (attemptId, userId, answers = {}) => {
   const updated = await quizRepository.updateAttemptResultIfNotSubmitted(attemptId, userId, {
     score,
     submitted_at: now
-  });
+  }, details);
 
   if (!updated) {
     throw createHttpError('Lượt làm bài này đã được nộp trước đó.', 400);
@@ -186,11 +188,117 @@ const submit = async (attemptId, userId, answers = {}) => {
     correctCount,
     totalQuestions,
     submittedAt: now,
-    details
+    details: details.map(({ options, ...item }) => item)
+  };
+};
+
+const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+
+const parseOptions = (raw) => {
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map((option) => String(option)) : [];
+  } catch {
+    return [];
+  }
+};
+
+const toTime = (value) => {
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? null : time;
+};
+
+const review = async (attemptId, userId) => {
+  const attempt = await quizRepository.findAttemptForReview(attemptId);
+  if (!attempt || Number(attempt.user_id) !== Number(userId)) {
+    throw createHttpError('Không tìm thấy lượt làm bài.', 404);
+  }
+  if (attempt.submitted_at === null || attempt.score === null) {
+    throw createHttpError('Lượt làm bài này chưa được nộp nên chưa thể xem lại.', 400);
+  }
+
+  let rows = [];
+  let snapshotAvailable = true;
+  try {
+    rows = await quizRepository.getAttemptAnswers(attemptId);
+  } catch {
+    rows = [];
+  }
+
+  let questions = rows
+    .filter((row) => row.correct_answer !== null)
+    .map((row, index) => {
+      const options = parseOptions(row.options);
+      const selectedAnswer = row.selected_answer ?? null;
+      const selectedIndex = selectedAnswer === null ? -1 : options.indexOf(selectedAnswer);
+      const correctIndex = options.indexOf(row.correct_answer);
+      return {
+        number: index + 1,
+        questionId: row.question_id === null ? null : Number(row.question_id),
+        content: row.question_content,
+        options: options.map((text, i) => ({ label: OPTION_LABELS[i] ?? String(i + 1), text })),
+        selectedAnswer,
+        selectedLabel: selectedIndex >= 0 ? OPTION_LABELS[selectedIndex] : null,
+        correctAnswer: row.correct_answer,
+        correctLabel: correctIndex >= 0 ? OPTION_LABELS[correctIndex] : null,
+        isCorrect: Boolean(Number(row.is_correct)),
+        isAnswered: selectedAnswer !== null
+      };
+    });
+
+  if (questions.length === 0) {
+    snapshotAvailable = false;
+    const currentQuestions = await quizRepository.getQuestionsByCourseId(attempt.course_id);
+    questions = currentQuestions.map((row, index) => {
+      const falseOptions = getFalseOptions(row);
+      const options = [row.correct_answer, ...falseOptions];
+      const correctIndex = options.indexOf(row.correct_answer);
+      return {
+        number: index + 1,
+        questionId: Number(row.id),
+        content: row.content,
+        options: options.map((text, i) => ({ label: OPTION_LABELS[i] ?? String(i + 1), text })),
+        selectedAnswer: null,
+        selectedLabel: null,
+        correctAnswer: row.correct_answer,
+        correctLabel: OPTION_LABELS[correctIndex] ?? null,
+        isCorrect: false,
+        isAnswered: false
+      };
+    });
+  }
+
+  const correctCount = questions.filter((q) => q.isCorrect).length;
+  const unansweredCount = snapshotAvailable
+    ? questions.filter((q) => !q.isAnswered).length
+    : 0;
+  const started = toTime(attempt.started_at);
+  const finished = toTime(attempt.submitted_at);
+
+  return {
+    attemptId: Number(attempt.id),
+    courseId: Number(attempt.course_id),
+    courseTitle: attempt.course_title,
+    attemptNumber: Number(attempt.attempt_number),
+    maxAttempts: MAX_ATTEMPTS,
+    score: Number(attempt.score),
+    startedAt: attempt.started_at,
+    submittedAt: attempt.submitted_at,
+    durationMinutes: started !== null && finished !== null
+      ? Math.max(1, Math.round((finished - started) / 60000))
+      : null,
+    hasDetails: questions.length > 0,
+    totalQuestions: questions.length,
+    correctCount,
+    wrongCount: snapshotAvailable ? questions.length - correctCount - unansweredCount : 0,
+    unansweredCount,
+    snapshotAvailable,
+    questions
   };
 };
 
 module.exports = {
   start,
-  submit
+  submit,
+  review
 };

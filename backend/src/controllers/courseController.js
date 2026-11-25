@@ -215,7 +215,59 @@ class CourseController {
     }
   }
 
- // ==========================================
+  // ==========================================
+  // 4b. UPDATE - Tải lên / thay ảnh bìa (multipart, trường "thumbnail")
+  // ==========================================
+  async uploadThumbnail(req, res) {
+    const courseId = parsePositiveInteger(req.params.id, null);
+    try {
+      const userId = req.user ? req.user.id : req.userId;
+      const userRole = req.user ? req.user.role : 'teacher';
+      const course = await courseService.updateThumbnail(userId, courseId, req.thumbnailUrl, userRole);
+      return res.status(200).json({
+        success: true,
+        message: 'Cập nhật ảnh bìa thành công!',
+        data: { id: course.id, thumbnail: course.thumbnail }
+      });
+    } catch (error) {
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể cập nhật ảnh bìa lúc này.',
+        'Lỗi khi cập nhật ảnh bìa khóa học:'
+      );
+      return res.status(statusCode).json({ success: false, message });
+    }
+  }
+
+  // ==========================================
+  // 4c. DELETE - Xóa ảnh bìa khóa học
+  // ==========================================
+  async deleteThumbnail(req, res) {
+    const courseId = parsePositiveInteger(req.params.id, null);
+    if (!courseId) {
+      return res.status(400).json({ success: false, message: 'ID khóa học không hợp lệ.' });
+    }
+
+    try {
+      const userId = req.user ? req.user.id : req.userId;
+      const userRole = req.user ? req.user.role : 'teacher';
+      const course = await courseService.removeThumbnail(userId, courseId, userRole);
+      return res.status(200).json({
+        success: true,
+        message: 'Đã xóa ảnh bìa khóa học.',
+        data: { id: course.id, thumbnail: null }
+      });
+    } catch (error) {
+      const { statusCode, message } = toPublicError(
+        error,
+        'Không thể xóa ảnh bìa lúc này.',
+        'Lỗi khi xóa ảnh bìa khóa học:'
+      );
+      return res.status(statusCode).json({ success: false, message });
+    }
+  }
+
+  // ==========================================
   // 5. DELETE - Xóa khóa học
   // ==========================================
   async deleteCourse(req, res) {

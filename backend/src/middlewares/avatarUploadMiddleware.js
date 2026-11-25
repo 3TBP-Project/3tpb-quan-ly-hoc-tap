@@ -103,4 +103,12 @@ function uploadAvatar(req, res, next) {
   });
 }
 
-module.exports = { uploadAvatar, removeAvatarFile, UPLOAD_ROOT, AVATAR_DIR, MAX_AVATAR_SIZE };
+module.exports = {
+  uploadAvatar,
+  removeAvatarFile,
+  matchesSignature,
+  ALLOWED_TYPES,
+  UPLOAD_ROOT,
+  AVATAR_DIR,
+  MAX_AVATAR_SIZE
+};

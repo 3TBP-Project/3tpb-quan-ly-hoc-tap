@@ -39,7 +39,13 @@ const loadCurrentUser = async (req, res, token, next) => {
   }
 
   // Dùng vai trò mới nhất trong CSDL thay vì vai trò lưu trong token
-  req.user = { ...decoded, id: Number(account.id), email: account.email, role: account.role };
+  req.user = {
+    ...decoded,
+    id: Number(account.id),
+    email: account.email,
+    role: account.role,
+    mustChangePassword: Number(account.must_change_password) === 1
+  };
   return next();
 };
 
@@ -83,4 +89,15 @@ const authorizeRoles = (...allowedRoles) => {
   };
 };
 
-module.exports = { verifyToken, optionalVerifyToken, authorizeRoles };
+const requirePasswordChanged = (req, res, next) => {
+  if (req.user?.role === 'teacher' && req.user.mustChangePassword) {
+    return res.status(403).json({
+      status: 'error',
+      code: 'MUST_CHANGE_PASSWORD',
+      message: 'Bạn phải đổi mật khẩu tạm trước khi quản lý khóa học, bài học hoặc câu hỏi.'
+    });
+  }
+  return next();
+};
+
+module.exports = { verifyToken, optionalVerifyToken, authorizeRoles, requirePasswordChanged };

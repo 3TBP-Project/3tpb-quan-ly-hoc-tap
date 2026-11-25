@@ -138,6 +138,11 @@
   background: var(--cat-bg);
   color: var(--cat-fg);
 }
+.ht-avatar-img {
+  display: block;
+  object-fit: cover;
+  border: 1px solid var(--ht-border-default);
+}
 
 .ht-course-card__meta {
   color: var(--ht-text-secondary);

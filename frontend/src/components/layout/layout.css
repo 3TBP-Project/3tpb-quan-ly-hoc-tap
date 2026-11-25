@@ -114,6 +114,11 @@
   font-size: 14px;
   font-weight: 600;
 }
+.ht-user__avatar-img {
+  display: block;
+  object-fit: cover;
+  border: 1px solid var(--ht-border-default);
+}
 
 .ht-user__text {
   display: flex;

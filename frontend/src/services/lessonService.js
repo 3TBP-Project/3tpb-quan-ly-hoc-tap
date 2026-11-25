@@ -15,9 +15,14 @@ export const completeLesson = (lessonId) =>
 // 3. Lấy danh sách khóa học của giảng viên
 export const getTeacherCourses = async () => {
   try {
-    return await axiosClient.get('/api/teacher/courses');
+    const res = await axiosClient.get('/api/teacher/courses');
+    return { status: 'success', data: Array.isArray(res?.data) ? res.data : [] };
   } catch {
-    return await axiosClient.get('/api/courses/my-courses');
+    const res = await axiosClient.get('/api/courses/my-courses');
+    return {
+      status: 'success',
+      data: Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []),
+    };
   }
 };
 
@@ -80,6 +85,28 @@ export const swapLessons = (lessonId, targetLessonId) =>
 // 7e. Đổi trạng thái khóa học: 'draft' (nháp) hoặc 'public' (công khai)
 export const updateCourseStatus = (courseId, status) =>
   axiosClient.put(`/api/courses/${courseId}`, { status });
+
+// 7f. Giảng viên sửa thông tin khóa học: tên, danh mục, mô tả (HT-09)
+export const updateCourse = (courseId, payload) =>
+  axiosClient.put(`/api/courses/${courseId}`, payload);
+
+// 7g. Tải lên / thay ảnh bìa khóa học (multipart, JPG/PNG/WEBP tối đa 2 MB)
+export const uploadCourseThumbnail = (courseId, file) => {
+  const formData = new FormData();
+  formData.append('thumbnail', file);
+  return axiosClient.patch(`/api/courses/${courseId}/thumbnail`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 60000,
+  });
+};
+
+// 7h. Xóa ảnh bìa khóa học (quay về ảnh bìa mặc định theo danh mục)
+export const deleteCourseThumbnail = (courseId) =>
+  axiosClient.delete(`/api/courses/${courseId}/thumbnail`);
+
+// 7i. Xóa khóa học (xóa luôn bài học, chương và ảnh bìa)
+export const deleteCourse = (courseId) =>
+  axiosClient.delete(`/api/courses/${courseId}`);
 
 // 8. Xóa bài học (HT-10)
 export const deleteLesson = (lessonId) =>

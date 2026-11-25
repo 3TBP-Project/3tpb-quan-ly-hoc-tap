@@ -50,6 +50,7 @@ class EnrollmentRepository {
          c.title,
          c.thumbnail AS coverImage,
          u.name AS teacherName,
+         u.avatar AS teacherAvatar,
          c.category_id AS categoryId,
          category.name AS categoryName,
          COUNT(DISTINCT lesson.id) AS lessonCount,
