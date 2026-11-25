@@ -85,7 +85,7 @@ function App() {
           path="/teacher/courses"
           element={
             <ProtectedRoute allowedRoles={['teacher']}>
-              <Navigate to="/" replace />
+              <Navigate to="/profile?tab=courses" replace />
             </ProtectedRoute>
           }
         />

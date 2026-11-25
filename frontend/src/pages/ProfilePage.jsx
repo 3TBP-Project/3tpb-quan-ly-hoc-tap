@@ -2,7 +2,7 @@
 // HT-07: Hồ sơ và kết quả học tập của học viên
 import { useState } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import ErrorMessage from '../components/common/ErrorMessage';
 import Loading from '../components/common/Loading';
 import { useAuth } from '../context/useAuth';
@@ -311,7 +311,15 @@ function TeacherCourses({ courses, loading, error }) {
 
 function ProfilePage() {
   const { user, role, updateUser } = useAuth();
-  const [tab, setTab] = useState('info');
+  // Tab đang mở lấy từ URL:
+  //   /profile               -> Thông tin & Mật khẩu (mặc định)
+  //   /profile?tab=account   -> Thông tin & Mật khẩu
+  //   /profile?tab=history   -> Lịch sử làm bài (học viên)
+  //   /profile?tab=courses   -> Khóa học phụ trách (giảng viên)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get('tab');
+  const tab = ['account', 'history', 'courses'].includes(requestedTab) ? requestedTab : 'account';
+  const setTab = (next) => setSearchParams({ tab: next });
   const [toasts, setToasts] = useState([]);
   const [savedProfile, setSavedProfile] = useState(null);
   const isStudent = role === 'student';
@@ -395,8 +403,8 @@ function ProfilePage() {
         <div className="pf-main">
           {(isStudent || isTeacher) && (
             <div className="pf-tabs" role="tablist">
-              <button type="button" role="tab" aria-selected={tab === 'info'}
-                className={`pf-tab ${tab === 'info' ? 'active' : ''}`} onClick={() => setTab('info')}>
+              <button type="button" role="tab" aria-selected={tab === 'account'}
+                className={`pf-tab ${tab === 'account' ? 'active' : ''}`} onClick={() => setTab('account')}>
                 Thông tin &amp; Mật khẩu
               </button>
               {isStudent ? (
@@ -413,7 +421,7 @@ function ProfilePage() {
             </div>
           )}
 
-          {tab === 'info' || (tab === 'history' && !isStudent) || (tab === 'courses' && !isTeacher) ? (
+          {tab === 'account' || (tab === 'history' && !isStudent) || (tab === 'courses' && !isTeacher) ? (
             <section>
               {profile && <ProfileInfoForm key={profile.id} profile={profile} onSaved={handleSaved} notify={notify} />}
               <ChangePasswordForm notify={notify} onPasswordChanged={handlePasswordChanged} />
