@@ -148,6 +148,23 @@ const requireCourseManager = async (courseId, userId, role) => {
   if (role !== 'admin' && Number(course.user_id) !== Number(userId)) {
     throw createHttpError('Bạn không có quyền quản lý khóa học này.', 403);
   }
+  return course;
+};
+
+// Gỡ bài công khai cuối cùng sẽ tự đưa khóa học về bản nháp (setDraftIfNoPublicLessons).
+// Khóa học công khai đang có học viên theo học thì không được về bản nháp,
+// nên phải giữ lại ít nhất một bài học công khai.
+const assertKeepsPublicLessonForStudents = async (course, lesson) => {
+  if (lesson.status !== 'public' || course?.status !== 'public') return;
+  const publicLessonCount = await courseRepository.countPublicLessons(lesson.course_id);
+  if (publicLessonCount > 1) return;
+  const studentCount = await courseRepository.countEnrollments(lesson.course_id);
+  if (studentCount > 0) {
+    throw createHttpError(
+      `Khóa học đang có ${studentCount} học viên theo học nên cần giữ ít nhất một bài học công khai.`,
+      409
+    );
+  }
 };
 
 const normalizeLessonInput = (data) => {
@@ -265,7 +282,7 @@ const createLesson = async (courseId, userId, role, data) => {
 const updateLesson = async (lessonId, userId, role, updates) => {
   const lesson = await lessonRepository.findById(lessonId);
   if (!lesson) throw createHttpError('Không tìm thấy bài học.', 404);
-  await requireCourseManager(lesson.course_id, userId, role);
+  const course = await requireCourseManager(lesson.course_id, userId, role);
   if (!updates || typeof updates !== 'object' || Array.isArray(updates) ||
       Object.keys(updates).length === 0) {
     throw createHttpError('Cần gửi ít nhất một trường để cập nhật.', 400);
@@ -292,6 +309,9 @@ const updateLesson = async (lessonId, userId, role, updates) => {
   if (Number(merged.position) !== Number(lesson.position)) {
     await assertPositionFree(lesson.course_id, merged.position, lessonId);
   }
+  if (merged.status !== 'public') {
+    await assertKeepsPublicLessonForStudents(course, lesson);
+  }
   await lessonRepository.update(lessonId, {
     ...merged,
     title: merged.title.trim()
@@ -306,7 +326,8 @@ const updateLesson = async (lessonId, userId, role, updates) => {
 const deleteLesson = async (lessonId, userId, role) => {
   const lesson = await lessonRepository.findById(lessonId);
   if (!lesson) throw createHttpError('Không tìm thấy bài học.', 404);
-  await requireCourseManager(lesson.course_id, userId, role);
+  const course = await requireCourseManager(lesson.course_id, userId, role);
+  await assertKeepsPublicLessonForStudents(course, lesson);
   await lessonRepository.remove(lessonId);
   await removeStoredPdf(lesson.file_path);
   await courseRepository.setDraftIfNoPublicLessons(lesson.course_id);
@@ -374,7 +395,10 @@ const updateLessonStatus = async (lessonId, userId, role, status) => {
   }
   const lesson = await lessonRepository.findById(lessonId);
   if (!lesson) throw createHttpError('Không tìm thấy bài học.', 404);
-  await requireCourseManager(lesson.course_id, userId, role);
+  const course = await requireCourseManager(lesson.course_id, userId, role);
+  if (status !== 'public') {
+    await assertKeepsPublicLessonForStudents(course, lesson);
+  }
   await lessonRepository.updateStatus(lessonId, status);
   await courseRepository.setDraftIfNoPublicLessons(lesson.course_id);
   return lessonRepository.findById(lessonId);

@@ -2,7 +2,7 @@
 import axiosClient from '../api/axiosClient';
 import { mockGetLearnData, mockCompleteLesson } from '../mocks/lessonApi';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 // 1. Lấy dữ liệu bài học & tiến độ cho học viên học bài (HT-05)
 export const getLearnData = ({ courseId }, signal) =>

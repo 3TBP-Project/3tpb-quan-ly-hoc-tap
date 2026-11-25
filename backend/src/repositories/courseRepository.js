@@ -12,6 +12,15 @@ class CourseRepository {
     return Number(rows[0].total);
   }
 
+  // Số học viên đã ghi danh khóa học (dùng để chặn xóa / chuyển về bản nháp)
+  async countEnrollments(courseId) {
+    const [rows] = await pool.query(
+      `SELECT COUNT(*) AS total FROM enrollments WHERE course_id = ?`,
+      [courseId]
+    );
+    return Number(rows[0].total);
+  }
+
   async setDraftIfNoPublicLessons(courseId) {
     const [result] = await pool.query(
       `UPDATE courses
@@ -144,14 +153,15 @@ class CourseRepository {
          c.user_id AS userId,
          c.price_course,
          c.quiz_minutes,
-         c.status
+         c.status,
+         (SELECT COUNT(*) FROM enrollments AS e WHERE e.course_id = c.id) AS studentCount
        FROM courses AS c
        LEFT JOIN categories AS category ON category.id = c.category_id
        WHERE c.user_id = ?
        ORDER BY c.id DESC`,
       [userId]
     );
-    return rows;
+    return rows.map((course) => ({ ...course, studentCount: Number(course.studentCount) }));
   }
 
   async findById(id) {
@@ -262,9 +272,12 @@ class CourseRepository {
   // 5. DELETE - Xóa khóa học theo id
   // ==========================================
   async remove(id) {
+    // Điều kiện NOT EXISTS chặn trường hợp học viên vừa ghi danh ngay trước khi xóa
     const [result] = await pool.query(
-      `DELETE FROM courses WHERE id = ?`,
-      [id]
+      `DELETE FROM courses
+       WHERE id = ?
+         AND NOT EXISTS (SELECT 1 FROM enrollments WHERE course_id = ?)`,
+      [id, id]
     );
     return result.affectedRows;
   }

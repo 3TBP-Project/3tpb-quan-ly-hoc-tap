@@ -200,6 +200,17 @@ class CourseService {
       }
     }
 
+    // Học viên đã ghi danh đang học thì không được đưa khóa học về bản nháp
+    if (validated.status === 'draft' && course.status !== 'draft') {
+      const studentCount = await courseRepository.countEnrollments(courseId);
+      if (studentCount > 0) {
+        throw createCourseError(
+          `Khóa học đang có ${studentCount} học viên theo học nên không thể chuyển về bản nháp.`,
+          409
+        );
+      }
+    }
+
     if (validated.status === 'public') {
       const publicLessonCount = await courseRepository.countPublicLessons(courseId);
       if (publicLessonCount < 1) {
@@ -286,11 +297,23 @@ class CourseService {
       throw createCourseError('Bạn không có quyền xóa khóa học này!', 403);
     }
 
+    // Đã có học viên ghi danh thì không cho xóa (xóa sẽ mất luôn tiến độ, bài làm của học viên)
+    const studentCount = await courseRepository.countEnrollments(courseId);
+    if (studentCount > 0) {
+      throw createCourseError(
+        `Khóa học đã có ${studentCount} học viên đăng ký nên không thể xóa.`,
+        409
+      );
+    }
+
     const affectedRows = await courseRepository.remove(courseId);
-    if (affectedRows > 0 && course.thumbnail) {
+    if (affectedRows === 0) {
+      throw createCourseError('Khóa học vừa có học viên đăng ký nên không thể xóa.', 409);
+    }
+    if (course.thumbnail) {
       removeCourseThumbnailFile(course.thumbnail, courseId);
     }
-    return affectedRows > 0;
+    return true;
   }
 }
 

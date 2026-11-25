@@ -10,7 +10,7 @@ import {
 import { withCourseProgress } from '../utils/progress';
 import { getCompletedCountMap } from '../utils/progressStorage';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 const courseMemoryCache = new Map(mockCourses.map((c) => [Number(c.id), c]));
 
 const clean = (params = {}) =>

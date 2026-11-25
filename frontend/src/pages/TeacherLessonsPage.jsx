@@ -439,6 +439,10 @@ function TeacherLessonsPage() {
   const hasChapters = chapters.length > 0;
   const existingFilePath = getLessonFilePath(editingLesson);
   const publicLessonCount = lessons.filter((lesson) => lesson.status === 'public').length;
+  // Khóa học đã có học viên ghi danh: không được xóa, đang công khai thì không được về bản nháp
+  const studentCount = Number(selectedCourse?.studentCount ?? 0);
+  const hasStudents = studentCount > 0;
+  const lockDraft = hasStudents && selectedCourse?.status === 'public';
   const lessonTotalPages = Math.ceil(lessons.length / LESSONS_PER_PAGE);
   const pagedLessons = lessons.slice(
     (lessonPage - 1) * LESSONS_PER_PAGE,
@@ -729,6 +733,10 @@ function TeacherLessonsPage() {
                       size="sm"
                       variant="outline-danger"
                       onClick={() => setDeleteCourseTarget(selectedCourse)}
+                      disabled={hasStudents}
+                      title={hasStudents
+                        ? `Khóa học đã có ${studentCount} học viên đăng ký nên không thể xóa.`
+                        : undefined}
                     >
                       Xóa khóa học
                     </Button>
@@ -757,7 +765,9 @@ function TeacherLessonsPage() {
                       onChange={(e) => handleStatusChange(e.target.value)}
                       disabled={savingStatus}
                     >
-                      <option value="draft">Bản nháp (draft) - học viên chưa thấy</option>
+                      <option value="draft" disabled={lockDraft}>
+                        Bản nháp (draft) - học viên chưa thấy
+                      </option>
                       <option value="public" disabled={publicLessonCount < 1}>
                         Công khai (public) - hiển thị cho học viên
                       </option>
@@ -765,6 +775,12 @@ function TeacherLessonsPage() {
                     {publicLessonCount < 1 && (
                       <Form.Text className="text-danger">
                         Hãy công khai ít nhất một bài học trước khi công khai khóa học.
+                      </Form.Text>
+                    )}
+                    {hasStudents && (
+                      <Form.Text className="text-muted d-block">
+                        Khóa học đã có {studentCount} học viên đăng ký nên không thể xóa
+                        {lockDraft ? ' hoặc chuyển về bản nháp' : ''}.
                       </Form.Text>
                     )}
                   </>
