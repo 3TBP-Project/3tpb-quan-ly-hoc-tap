@@ -1,4 +1,4 @@
-/* AI-assisted [AI-17] — Figma "HT-02 · Chi tiết khóa học (chưa ghi danh / đã ghi danh)" */
+/* AI-assisted [AI-17] [AI-23] — Figma "HT-02 · Chi tiết khóa học (chưa ghi danh / đã ghi danh)" */
 .ht-detail {
   display: flex;
   flex-direction: column;
@@ -311,4 +311,23 @@
   .ht-lesson-row__status {
     font-size: 0; /* điện thoại: chỉ hiện icon ổ khóa như Figma, chữ vẫn có cho trình đọc màn hình */
   }
+}
+
+/* ---------- Phân trang danh sách bài học (8 bài / trang) — AI-23 ---------- */
+.ht-lesson-paged {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ht-lesson-pager {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.ht-lesson-pager__info {
+  margin: 0;
+  color: var(--ht-text-secondary);
 }
