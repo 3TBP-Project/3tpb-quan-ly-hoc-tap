@@ -1,7 +1,7 @@
-// AI-assisted [AI-06]
+// AI-assisted [AI-06] [AI-25]
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export default function QuizTimer({ startedAt, quizDurationMinutes, disabled, onTimeUp }) {
+export default function QuizTimer({ startedAt, quizDurationMinutes, disabled, onTimeUp, variant = 'pill' }) {
   const hasTriggeredRef = useRef(false);
 
   const calculateRemainingSeconds = useCallback(() => {
@@ -47,19 +47,31 @@ export default function QuizTimer({ startedAt, quizDurationMinutes, disabled, on
   const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
   const seconds = String(secondsLeft % 60).padStart(2, '0');
 
-  let timerClass = 'quiz-timer';
+  // Figma "Đồng hồ": viên thuốc "Còn 12:45"; còn ≤ 2 phút chuyển đỏ, ≤ 30 giây nhấp nháy nhẹ.
+  // variant="chip": dạng nhỏ dùng trong hộp xác nhận nộp bài.
+  let timerClass = `ht-quiz-timer ht-quiz-timer--${variant}`;
   if (secondsLeft <= 30) {
-    timerClass += ' quiz-timer--danger';
+    timerClass += ' is-danger';
   } else if (secondsLeft <= 120) {
-    timerClass += ' quiz-timer--warning';
+    timerClass += ' is-warning';
   }
 
   return (
-    <div className={timerClass} role="timer" aria-live="polite" title="Thời hạn chính thức được kiểm tra tại máy chủ">
-      <span className="quiz-timer__label">Thời gian còn lại:</span>
-      <strong className="quiz-timer__value">
-        {minutes}:{seconds}
-      </strong>
-    </div>
+    <span
+      className={timerClass}
+      role="timer"
+      aria-label={`Thời gian còn lại ${minutes} phút ${seconds} giây`}
+      title="Thời hạn chính thức được kiểm tra tại máy chủ"
+    >
+      {variant === 'chip' && <ClockIcon />}
+      Còn {minutes}:{seconds}
+    </span>
   );
 }
+
+const ClockIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <circle cx="8" cy="8" r="6.5" />
+    <path d="M8 4.5V8l2.5 1.5" strokeLinecap="round" />
+  </svg>
+);
