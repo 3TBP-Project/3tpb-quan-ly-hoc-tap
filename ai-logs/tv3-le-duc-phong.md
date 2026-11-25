@@ -27,6 +27,7 @@
 | AI-14 | 19/11 | Lập trình | Nút xem chi tiết, làm bài kiểm tra và thông báo đăng nhập trên thẻ khóa học (HT-01) | #44 |
 | AI-15 | 19/11 | Lập trình | Responsive trang học bài và trang làm bài ở 360 px ([FE] Responsive) | #48 |
 | AI-16 | 25/11 | Lập trình | Code lại giao diện trang chủ theo mockup Figma "Trang chủ – thiết kế" (HT-01) | #83 |
+| AI-17 | 25/11 | Lập trình | Code lại giao diện trang chi tiết khóa học theo mockup Figma (HT-02) | #84 |
 
 ---
 
@@ -351,10 +352,27 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 + `CourseFilter` có nhãn "Danh mục", "Giảng viên"; `Pagination` mới (điện thoại hiện "Trang x / y").
 + `CourseListPage`: khối giới thiệu, lưới 3 cột, khung chờ tải, trạng thái trống / lỗi có nút "Thử lại", modal "Cần đăng nhập" theo Figma.
 - Đánh giá: Đúng bố cục Figma (đo bằng trình duyệt: khung 1206 px, thẻ 386 × 426 px ở 1366 px; 328 × 482 px ở 360 px; không tràn ngang). Lệch có chủ ý: bỏ ô tìm kiếm trên Header (trùng với ô tìm trong bộ lọc), thêm nút đổi sáng/tối (Figma chưa vẽ). Trang khác (đăng nhập, quản trị…) vẫn giao diện Bootstrap cũ, chỉ đổi font, màu nền, Header/Footer.
-- Đã chỉnh sửa gì: Không có
+- Đã chỉnh sửa gì: Giao diện của trang chủ
 - Cách kiểm chứng: `npm run lint` (không lỗi mới; 5 lỗi có sẵn ở useFetch, MyCoursesPage, TeacherLessonsPage, TeacherQuestionsPage), `npm run build`; chạy `npm run dev` với dữ liệu giả: 1366 px và 360 px, sáng/tối, mở menu ☰, khách bấm "Làm bài kiểm tra" hiện modal.
-- Tỷ lệ mã AI còn giữ lại (ước lượng): <bạn tự ước lượng>%
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Đọc biến Figma thành biến CSS để đổi sáng/tối chỉ bằng 1 thuộc tính `data-theme`; dùng `stretched-link` + `z-index` để cả thẻ bấm được mà nút bên trong vẫn hoạt động.
+
+### [AI-17] Code lại giao diện trang chi tiết khóa học theo mockup Figma (HT-02)
+- Ngày / Người dùng: 2026-11-25 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5) + Figwright MCP
+- Giai đoạn: Lập trình
+- Task / Commit / PR: [HT-02] Chi tiết khóa học / cd48fa12707f5113e934a8e189b9caba78ec0ab0 / #84
+- Mục đích: Đưa mockup "HT-02 · Chi tiết khóa học (chưa ghi danh / đã ghi danh) · Desktop/Mobile · Sáng/Tối" vào code trên nhánh `feature/HT-02-giao-dien-chi-tiet` (tạo từ `feature/HT-01-giao-dien-trang-chu` để dùng chung bộ màu, không sửa file của PR #83).
+- Prompt chính (nguyên văn): "Tiếp tục thiết kế lại giao diện (code) của trang chi tiết khóa học dựa theo Mockup đã có trong Figma trên nhánh develop mà không gây xung đột với nhánh feature/HT-01-giao-dien-trang-chu chưa được Review PR"
+- Kết quả AI trả về (tóm tắt):
++ `CourseDetailPage`: banner màu danh mục tràn ngang (tên khóa, giảng viên, số bài, số học viên), thẻ "Bắt đầu học ngay" / "Tiếp tục học" (✓ Đã ghi danh), 2 cột 760 px + 398 px: giới thiệu, nội dung khóa học, thẻ giảng viên, thẻ bài kiểm tra cuối khóa; nội dung thẻ đổi theo khách / học viên / giảng viên sở hữu.
++ `LessonList`: hàng bài học có số thứ tự tròn, icon ổ khóa + "Cần ghi danh" khi chưa ghi danh; giữ nhóm theo chương.
++ `EnrollButton`: nút `ht-btn` rộng hết thẻ (Đăng nhập để ghi danh / Ghi danh / Vào học).
+- Đánh giá: Đúng bố cục Figma (đo bằng trình duyệt: banner cao 338 px, thẻ ghi danh 380 × 242 px, cột 760 px + 398 px ở 1366 px; 1 cột, tiêu đề 34 px, không tràn ngang ở 360 px). Không làm phần chưa có dữ liệu trong API: tiến độ "3/10 bài", trạng thái Đã học / Đang học từng bài, thời lượng bài, giới thiệu giảng viên, số câu và thời gian bài kiểm tra, bình luận (HT-08).
+- Đã chỉnh sửa gì: Giao diện của trang chi tiết khóa học
+- Cách kiểm chứng: `npm run lint` (không lỗi ở các file đã sửa), `npm run build`; `npm run dev` với dữ liệu giả: khách, học viên chưa ghi danh → bấm Ghi danh → thẻ đổi "Tiếp tục học", bài hết khóa, nút làm bài kiểm tra bấm được; F5 vẫn đã ghi danh; 1366 / 360 px, sáng / tối.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Dùng `box-shadow` + `clip-path` để nền banner tràn hết chiều ngang mà không phải sửa Layout dùng chung và không làm trang cuộn ngang.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
