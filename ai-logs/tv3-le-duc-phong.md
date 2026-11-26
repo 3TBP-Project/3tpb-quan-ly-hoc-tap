@@ -52,6 +52,7 @@
 | AI-39 | 25/11 | Tài liệu | Báo cáo mục 5.4 "Thiết kế giao diện (wireframe → giao diện thật)" kèm 6 hình | #101 |
 | AI-40 | 25/11 | Lập trình | Sửa lỗi giao diện: tràn chữ ở mọi trang, giới hạn form tạo giảng viên, avatar giảng viên từ CSDL | #100 |
 | AI-41 | 26/11 | Lập trình / Kiểm thử | Sửa lượt làm bài bỏ dở bị kẹt "doing": làm tiếp lượt dở, tự đóng lượt quá giờ, lịch sử hiện lượt bỏ dở (HT-06, HT-07) | #107 |
+| AI-42 | 26/11 | Lập trình / Kiểm thử | Hết giờ làm bài thì từ chối nộp thay vì tự động nộp; sửa UC06 cho khớp (HT-06) | #109 |
 ---
 
 ### [AI-01] Đọc và tổng hợp tài liệu đề tài, xác định phần việc Frontend
@@ -778,6 +779,25 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: `node --test` 3 tệp `quizService`, `quizRepository`, `profile`: 16/16 đạt; cả bộ test 121 test, 115 đạt, 6 lỗi đều có sẵn trên develop (trước khi sửa 111/117); `npx eslint` 2 trang đã sửa, `npm run build`. Chạy thật local với tài khoản thử: lượt `doing` quá hạn tự thành `expired`, màn giới thiệu báo đúng "1/3"; bắt đầu, chọn 2 đáp án, tải lại trang, bấm bắt đầu lại → cùng lượt #45, đồng hồ chạy tiếp, 2 đáp án còn nguyên, CSDL không sinh lượt thừa; nộp bài chấm đúng 2 câu, bản lưu tạm bị xóa; lịch sử hiện "Bỏ dở".
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 95%
 - Điều học được: PR chồng nhau (merge vào nhánh fix khác thay vì develop) có thể khiến bản sửa đã "merge" mà không bao giờ tới develop – kiểm tra bằng `git merge-base --is-ancestor <nhánh> origin/develop` trước khi coi lỗi là đã sửa.
+
+### [AI-42] Hết giờ làm bài thì từ chối nộp thay vì tự động nộp (HT-06)
+- Ngày / Người dùng: 2026-11-26 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5)
+- Giai đoạn: Phân tích yêu cầu / Lập trình / Kiểm thử
+- Task / Commit / PR: [HT-06] Hết giờ từ chối nộp / 5ed496cfcd0d026213781ef06aa0439853613819 / #109
+- Mục đích: Đổi cách xử lý khi hết giờ: trước đây đồng hồ về 0 thì giao diện tự nộp các đáp án đã chọn; nhóm chọn cách "hết giờ là từ chối nộp" cho khớp HT-NFR1 ("nộp trễ bị từ chối") và nhắc học viên phải chủ động nộp trước khi hết giờ.
+- Prompt chính (nguyên văn): "Nếu thay vì tự động nộp thành từ chối nộp hết thời gian thì có ảnh hưởng đến các luồng khác hay không, nếu không thì có thể thay đổi luồng này mà không ảnh hưởng đến các luồng khác hay không" → "Kiểm tra luồng hiện tại là làm bài kiểm tra là tự động nộp đúng không?" → "Cập nhật hết giờ làm bài thì từ chối nộp bài, kèm AI-log + tên Commit, PR, mô tả PR giúp tôi"
+- Kết quả AI trả về (tóm tắt):
++ Phân tích: đặc tả HT-NFR1 chỉ yêu cầu "nộp trễ bị từ chối", không bắt buộc tự nộp; chỉ cần sửa giao diện (`QuizPage`), backend và unit test giữ nguyên; phải sửa kèm tài liệu UC06 (đang ghi "hoặc hệ thống tự nộp khi hết giờ"). Trước khi đổi, đã thử thật trên trình duyệt để xác nhận bản cũ đúng là tự nộp (đồng hồ 00:00 → hộp "Bài làm đang được nộp tự động" → kết quả).
++ `QuizPage`: `handleTimeUp` không gọi `executeSubmit` nữa, chỉ bật trạng thái hết giờ và xóa bản lưu tạm đáp án; `executeSubmit` bỏ qua khi đã hết giờ; khóa chọn đáp án và các nút "Nộp bài"; tắt cảnh báo `beforeunload` sau khi hết giờ.
++ Hộp "Đã hết giờ làm bài" mới: báo "Bài làm không được ghi nhận … Lượt này vẫn được tính vào số lượt làm bài", có nút "Quay lại khóa học" và "Xem lịch sử làm bài"; bỏ thanh chạy "đang nộp tự động" và CSS không còn dùng.
++ Màn giới thiệu: đổi "Bài sẽ tự nộp khi hết giờ" thành "Hãy nộp bài trước khi hết giờ: hết giờ mà chưa nộp thì bài làm không được ghi nhận".
++ `docs/bang-dac-ta-use-case.md` (UC06): sửa luồng chính và ngoại lệ cho khớp.
+- Đánh giá: Đúng. Server giữ nguyên 1 phút dung sai độ trễ mạng (`GRACE_PERIOD_MINUTES`) để học viên bấm nộp sát giờ vẫn được nhận; sau khi hết giờ giao diện không gửi bài nữa, server tự đóng lượt (trạng thái `expired`, nhãn "Bỏ dở") khi quá hạn + 1 phút nhờ bản sửa AI-41. Đây là đổi hành vi, không phải sửa lỗi; tự nộp có lợi cho học viên hơn nhưng nhóm chọn từ chối cho khớp đặc tả.
+- Đã chỉnh sửa gì: Tự viết lại nội dung thông báo cho rõ hậu quả (mất bài, vẫn trừ lượt); giữ dung sai 1 phút ở server để không phải sửa báo cáo chương 6 và slide.
+- Cách kiểm chứng: `npx eslint src/pages/QuizPage.jsx` (0 lỗi), `npm run build` thành công. Chạy thật local, tài khoản thử, khóa demo MySQL: chọn 1 đáp án, đẩy đồng hồ còn ~17 giây rồi để yên → 00:00 hiện hộp "Đã hết giờ làm bài – Bài làm không được ghi nhận", **không có request `/submit` nào**, nút "Nộp bài" bị khóa, bản lưu tạm bị xóa; CSDL lượt #51 vẫn `doing`, không có điểm; giả lập qua thêm 90 giây rồi bấm "Xem lịch sử làm bài" → lượt 3 hiện "Bỏ dở", 0 điểm, "3/3 lượt". Màn giới thiệu hiện câu nhắc mới.
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Điều học được: Đổi hành vi ở giao diện phải rà cả chữ hướng dẫn trên màn hình và tài liệu đặc tả (UC06) cùng lúc, nếu không sản phẩm và báo cáo sẽ nói hai điều khác nhau; trước khi đổi nên thử thật để chắc mình hiểu đúng hành vi hiện tại.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
