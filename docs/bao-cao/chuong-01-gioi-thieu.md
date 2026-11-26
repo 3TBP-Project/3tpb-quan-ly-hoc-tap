@@ -76,7 +76,6 @@ Theo đề cương, nhóm dự kiến làm thêm `HT-08` (Hỏi đáp trong bài
 | HT-08 | Hỏi đáp trong bài học | Đã có API backend cho bình luận khóa học và thảo luận trong bài học; **chưa có giao diện** |
 | HT-12 | Theo dõi học viên     | Chưa làm                                                                                   |
 
-> [Nháp – cần nhóm xác nhận lại trước khi nộp: nếu kịp làm giao diện HT-08 thì cập nhật bảng trên.]
 
 Ngoài 12 chức năng bắt buộc, nhóm bổ sung một số điểm mở rộng trong quá trình làm:
 

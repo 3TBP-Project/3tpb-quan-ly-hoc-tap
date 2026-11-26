@@ -4,7 +4,7 @@
 
 Cơ sở dữ liệu `db_quanlyhoctap` được thiết kế chuẩn hóa theo dạng chuẩn **3NF**, gồm **12 bảng dữ liệu nghiệp vụ** (và 2 bảng hệ thống `knex_migrations`, `knex_migrations_lock` phục vụ quản lý phiên bản migration).
 
-> *[Chèn hình ảnh sơ đồ ERD: `docs/database/erd-final.png`]*
+![Hình 5.2. ERD cơ sở dữ liệu db_quanlyhoctap](../database/erd-final.png)
 
 ---
 
@@ -145,7 +145,7 @@ Lưu thông tin mỗi lượt thi của học viên cho một khóa học.
 | `user_id` | `INT UNSIGNED` | `NOT NULL`, `FK` → `users.id` | Học viên làm bài |
 | `course_id` | `INT UNSIGNED` | `NOT NULL`, `FK` → `courses.id` | Khóa học kiểm tra |
 | `score` | `FLOAT` | `NULL` | Điểm số đạt được (NULL khi đang làm) |
-| `status` | `VARCHAR(50)` | `NOT NULL`, `DEFAULT 'doing'` | Trạng thái (`doing`, `submitted`) |
+| `status` | `VARCHAR(50)` | `NOT NULL`, `DEFAULT 'doing'` | Trạng thái: `doing` (đang làm), `submitted` (đã nộp), `expired` (bỏ dở quá giờ, hệ thống tự đóng với 0 điểm) |
 | `started_at` | `DATETIME` | `NULL` | Thời điểm bắt đầu làm bài |
 | `submitted_at` | `DATETIME` | `NULL` | Thời điểm nộp bài |
 
