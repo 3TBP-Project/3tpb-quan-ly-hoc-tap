@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const bcrypt = require('bcrypt');
 const userRepository = require('../src/repositories/userRepository');
+const quizRepository = require('../src/repositories/quizRepository');
 const userService = require('../src/services/userService');
 
 const stubMethods = (t, repository, stubs) => {
@@ -59,6 +60,10 @@ test('từ chối đổi mật khẩu khi sai mật khẩu hiện tại hoặc m
 });
 
 test('lịch sử làm bài gom theo khóa học, đánh số lượt và lấy điểm cao nhất', async (t) => {
+  let closedFor = null;
+  stubMethods(t, quizRepository, {
+    closeExpiredAttempts: async ({ userId }) => { closedFor = userId; return 0; }
+  });
   stubMethods(t, userRepository, {
     // Repository trả về mới nhất trước
     listQuizHistory: async () => [
@@ -82,4 +87,5 @@ test('lịch sử làm bài gom theo khóa học, đánh số lượt và lấy 
   assert.equal(node.bestScore, 9);
   assert.deepEqual(node.attempts.map((a) => a.attemptNumber), [1, 2], 'bỏ qua lượt chưa nộp');
   assert.deepEqual(node.attempts.map((a) => a.durationMinutes), [22, 19]);
+  assert.equal(closedFor, 5, 'đóng lượt bỏ dở quá giờ trước khi đọc lịch sử');
 });

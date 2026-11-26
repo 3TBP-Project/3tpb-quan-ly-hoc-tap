@@ -143,6 +143,9 @@
 .ht-quiz-note.is-info strong { color: var(--ht-primary); }
 .ht-quiz-note.is-info .ht-quiz-note__icon { background: var(--ht-primary); color: var(--ht-text-on-primary); }
 
+/* Thông báo "đang làm tiếp lượt dở" nằm giữa thanh đồng hồ và nội dung bài */
+.ht-quiz-resume { margin-top: 24px; }
+
 .ht-quiz-actions {
   display: flex;
   flex-wrap: wrap;

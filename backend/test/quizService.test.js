@@ -223,3 +223,49 @@ test('submit rejects an attempt that has already been submitted', async (t) => {
     (error) => error.statusCode === 400 && /đã được nộp/i.test(error.message)
   );
 });
+
+// =========================================================================
+// Lượt làm dở: F5 / đóng tab không mất lượt
+// =========================================================================
+test('start resumes an unfinished attempt with the saved option order', async (t) => {
+  const startedAt = new Date(Date.now() - 5 * 60 * 1000);
+  stubRepository(t, {
+    findCourseById: async () => ({ id: 12, status: 'public', title: 'Test course', quiz_duration: 30 }),
+    getQuestionsByCourseId: async () => [{
+      id: 1, content: 'Question', correct_answer: 'correct',
+      false_answer: 'wrong 1', false_answer_2: 'wrong 2', false_answer_3: 'wrong 3'
+    }],
+    createAttemptWithLock: async () => ({
+      attempt: { id: 55, started_at: startedAt },
+      attemptNumber: 2,
+      resumed: true
+    }),
+    getAttemptAnswers: async () => [{
+      question_id: 1, position: 1, question_content: 'Question',
+      options: '["wrong 2","correct","wrong 3","wrong 1"]',
+      selected_answer: null, correct_answer: null, is_correct: 0
+    }]
+  });
+
+  const result = await quizService.start(7, 12);
+
+  assert.equal(result.resumed, true);
+  assert.equal(result.attemptId, 55);
+  assert.equal(result.startedAt, startedAt, 'giữ nguyên giờ bắt đầu để đồng hồ đếm tiếp');
+  assert.equal(result.remainingAttempts, 1);
+  assert.deepEqual(result.questions[0].options, ['wrong 2', 'correct', 'wrong 3', 'wrong 1']);
+});
+
+test('submit of an attempt closed by the system reports that time ran out', async (t) => {
+  stubRepository(t, {
+    findAttemptById: async () => ({
+      id: 56, user_id: 7, course_id: 12, status: 'expired',
+      started_at: new Date(Date.now() - 3600000), submitted_at: new Date()
+    })
+  });
+
+  await assert.rejects(
+    quizService.submit(56, 7, {}),
+    (error) => error.statusCode === 400 && /hết giờ/i.test(error.message)
+  );
+});

@@ -1,5 +1,5 @@
-// AI-assisted [AI-06] [AI-25]
-import { useCallback, useRef, useState } from 'react';
+// AI-assisted [AI-06] [AI-25] [AI-41]
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { startQuizApi, submitQuizApi } from '../services/quizApi';
@@ -12,6 +12,36 @@ import './QuizPage.css';
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 const MAX_ATTEMPTS = 3;
+
+// Lưu tạm đáp án đang chọn theo từng lượt để F5 / lỡ thoát rồi vào lại vẫn còn (server giữ lượt làm dở)
+const draftKey = (attemptId) => `quiz-draft-${attemptId}`;
+const readDraft = (attemptId, questions) => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(draftKey(attemptId))) || {};
+    // Chỉ giữ đáp án còn khớp với câu hỏi / lựa chọn của lượt này
+    return Object.fromEntries(
+      questions
+        .filter((q) => typeof saved[q.id] === 'string' && q.options?.includes(saved[q.id]))
+        .map((q) => [q.id, saved[q.id]])
+    );
+  } catch {
+    return {};
+  }
+};
+const writeDraft = (attemptId, answers) => {
+  try {
+    localStorage.setItem(draftKey(attemptId), JSON.stringify(answers));
+  } catch {
+    // Bộ nhớ trình duyệt bị chặn: vẫn làm bài bình thường, chỉ không khôi phục được khi F5
+  }
+};
+const clearDraft = (attemptId) => {
+  try {
+    localStorage.removeItem(draftKey(attemptId));
+  } catch {
+    // bỏ qua
+  }
+};
 
 const formatScore = (value) => Number(value).toFixed(2).replace(/\.?0+$/, '');
 
@@ -58,6 +88,17 @@ export default function QuizPage() {
   const courseTitle = attemptData?.courseTitle || courseReq.data?.title || history?.courseTitle || '';
   const outOfAttempts = Boolean(history) && usedAttempts >= MAX_ATTEMPTS && !resultData;
 
+  // Đang làm bài mà đóng tab / tải lại trang thì trình duyệt hỏi lại (lượt vẫn được giữ ở server)
+  useEffect(() => {
+    if (step !== 'taking') return undefined;
+    const warn = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [step]);
+
   const handleStartQuiz = async () => {
     setErrorMessage('');
     setLoading(true);
@@ -65,7 +106,8 @@ export default function QuizPage() {
       const data = await startQuizApi(courseId);
       setBestBefore(resultData ? Number(resultData.bestScore) : historyBest);
       setAttemptData(data);
-      setAnswers({});
+      // Làm tiếp lượt dở: khôi phục đáp án đã chọn trước đó trên máy này
+      setAnswers(data.resumed ? readDraft(data.attemptId, data.questions || []) : {});
       setResultData(null);
       setCurrent(0);
       setSubmitError(null);
@@ -80,10 +122,11 @@ export default function QuizPage() {
 
   const handleSelectOption = (questionId, optionValue) => {
     if (submitting) return;
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: optionValue,
-    }));
+    setAnswers((prev) => {
+      const next = { ...prev, [questionId]: optionValue };
+      if (attemptData?.attemptId) writeDraft(attemptData.attemptId, next);
+      return next;
+    });
   };
 
   const executeSubmit = useCallback(
@@ -96,6 +139,7 @@ export default function QuizPage() {
 
       try {
         const result = await submitQuizApi(attemptData.attemptId, answers);
+        clearDraft(attemptData.attemptId);
         setResultData(result);
         setConfirmOpen(false);
         setTimeUp(false);
@@ -285,6 +329,16 @@ export default function QuizPage() {
           onTimeUp={handleTimeUp}
         />
       </div>
+
+      {attemptData.resumed && (
+        <p className="ht-quiz-note is-info ht-quiz-resume" role="status">
+          <span className="ht-quiz-note__icon" aria-hidden="true">i</span>
+          <span>
+            <strong>Bạn đang làm tiếp lượt {attemptData.attemptNumber} còn dở</strong>
+            Đồng hồ vẫn tính từ lúc bạn bắt đầu lượt này; các đáp án đã chọn trên máy này được giữ lại.
+          </span>
+        </p>
+      )}
 
       <div className="ht-quiz-body">
         {question && (
