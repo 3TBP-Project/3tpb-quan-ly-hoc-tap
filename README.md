@@ -109,6 +109,6 @@ Sau khi chạy xong npx knex seed:run ở Bước 3, có thể đăng nhập tr�
 
 | Vai trò | Email đăng nhập | Mật khẩu | Chức năng kiểm thử tiêu biểu |
 |---|---|---|---|
-| **Quản trị viên (Admin)** | `admin@gmail.com` | `password123` | Tạo tài khoản giảng viên, khóa/mở tài khoản người dùng, quản lý danh mục, duyệt/ẩn khóa học |
-| **Giảng viên (Teacher)** | `teacher1@gmail.com` | `password123` | Tạo/sửa/xóa khóa học của mình, quản lý chương & bài học, soạn câu hỏi trắc nghiệm, nhập CSV |
-| **Học viên (Student)** | `student1@gmail.com` | `password123` | Duyệt/tìm khóa học, ghi danh, học bài & lưu tiến độ, làm bài trắc nghiệm (tối đa 3 lượt), sửa hồ sơ |
+| **Quản trị viên (Admin)** | `admin@gmail.com` | `12345678` | Tạo tài khoản giảng viên, khóa/mở tài khoản người dùng, quản lý danh mục, duyệt/ẩn khóa học |
+| **Giảng viên (Teacher)** | `teacher1@gmail.com` | `12345678` | Tạo/sửa/xóa khóa học của mình, quản lý chương & bài học, soạn câu hỏi trắc nghiệm, nhập CSV |
+| **Học viên (Student)** | `student1@gmail.com` | `12345678` | Duyệt/tìm khóa học, ghi danh, học bài & lưu tiến độ, làm bài trắc nghiệm (tối đa 3 lượt), sửa hồ sơ |
