@@ -13,9 +13,9 @@ Tài liệu này hướng dẫn đầy đủ các bước thiết lập kết n�
 | Mã | Họ và tên | Vai trò |
 |---|---|---|
 | TV1 | Nguyễn Ngọc Trọng | Leader (LE) |
-| TV2 | Hà Hữu Thịnh | Backend 1 (BE1) |
+| TV2 | Nguyễn Quang Thông | Backend 1 (BE1) |
 | TV3 | Lê Đức Phong | Frontend (FE) |
-| TV4 | Nguyễn Quang Thông | Backend 2 (BE2) |
+| TV4 | Hà Hữu Thịnh | Backend 2 (BE2) |
 | TV5 | Trần Thanh Bình | Git & Tester (GT) |
 
 ---
@@ -38,7 +38,7 @@ Tài liệu này hướng dẫn đầy đủ các bước thiết lập kết n�
 └── README.md         # Hướng dẫn cài đặt và vận hành hệ thống
 
 *(Nếu khởi tạo mới từ đầu, chạy lần lượt: `npm init -y`, `npm install knex mysql2 dotenv`, `npx knex init`).*
-
+```
 ---
 
 ## 3. Hướng dẫn cài đặt và chạy trên máy sạch (≤ 15 phút)
