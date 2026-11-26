@@ -11,8 +11,8 @@ Nhóm gồm 5 thành viên, mỗi người giữ một vai trò chính nhưng đ
 | TV1 | Nguyễn Ngọc Trọng  | 0306241500 | LE – Trưởng nhóm       | Quản lý dự án, board Trello, chủ trì họp, tài liệu thiết kế, báo cáo   | HT-07, HT-14, HT-15 |
 | TV2 | Nguyễn Quang Thông | 0306241490 | BE1 – Backend 1        | Khung kiến trúc 3 lớp, xác thực JWT, phân quyền, nghiệp vụ trắc nghiệm | HT-03, HT-06        |
 | TV3 | Lê Đức Phong       | 0306241471 | FE – Frontend          | Wireframe, layout chung, giao diện phân hệ khách và học viên           | HT-01, HT-02, HT-05 |
-| TV4 | <br>Hà Hữu Thịnh   | 0306241492 | BE2 – Backend 2 (CSDL) | ERD, migration, dữ liệu mẫu, phân hệ giảng viên                        | HT-09, HT-10        |
-| TV5 | Hà Hữu Thịnh       | 0306241432 | GT – Git & Tester      | Quy tắc Git, mẫu PR, review PR, test case, unit test                   | HT-04, HT-11        |
+| TV4 | Hà Hữu Thịnh   | 0306241492 | BE2 – Backend 2 (CSDL) | ERD, migration, dữ liệu mẫu, phân hệ giảng viên                        | HT-09, HT-10        |
+| TV5 | Trần Thanh Bình       | 0306241432 | GT – Git & Tester      | Quy tắc Git, mẫu PR, review PR, test case, unit test                   | HT-04, HT-11        |
 
 > [Nháp – Biên bản họp 01, 02, 03 đang ghi TV2 là Nguyễn Quang Thông và TV4 là Hà Hữu Thịnh, ngược với đề cương và bảng trên. Nhóm cần chốt lại một cách gọi và sửa đồng bộ các tài liệu.]
 
