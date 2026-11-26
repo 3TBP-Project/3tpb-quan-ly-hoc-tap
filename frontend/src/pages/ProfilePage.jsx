@@ -282,7 +282,12 @@ function QuizHistory({ history, loading, error }) {
                   >
                     Lần {attempt.attemptNumber}
                   </Link>
-                  {attempt.score === course.bestScore && <span className="pf-best-mark">● Cao nhất</span>}
+                  {attempt.status === 'expired' && (
+                    <span className="pf-expired-tag" title="Lượt này bị bỏ dở và hệ thống tự đóng khi hết giờ">Bỏ dở</span>
+                  )}
+                  {attempt.status !== 'expired' && attempt.score === course.bestScore && (
+                    <span className="pf-best-mark">● Cao nhất</span>
+                  )}
                 </td>
                 <td className={`pf-score ${scoreClass(attempt.score)}`}>{formatScore(attempt.score)}</td>
                 <td className="pf-num">{attempt.durationMinutes ? `${attempt.durationMinutes} phút` : '—'}</td>

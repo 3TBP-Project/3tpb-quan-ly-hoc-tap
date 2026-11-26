@@ -1,13 +1,13 @@
 ### [AI-01] Kết nối cơ sở dữ liệu
 - Ngày / Người dùng: 2026-11-11 / Nguyễn Quang Thông
-- Công cụ: Gemini
+- Công cụ: Gemini,  GitHub Copilot (Copilot SDK trong VS Code)
 - Giai đoạn: Lập trình
 - Task / Commit / PR: Commit `chore :cau hinh ket noi csdl`
 - Mục đích:Kết nối csdl
-- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại):
-- Kết quả AI trả về (tóm tắt): 
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): Thực hiện công việc ngày 2 và 3 (Gemini), thực hiện kiểm tra lại mã nguồn vừa viết và đưa ra lỗi nếu có (GitHub Copilot (Copilot SDK trong VS Code)) 
+- Kết quả AI trả về (tóm tắt): (Gemini) trả về mã nguồn và vị trí code, (GitHub Copilot (Copilot SDK trong VS Code)) kiểm tra và trả về những lỗi liên quan đến tên cảu database và một số truy vấn chưa khớp với database. 
 - Đánh giá: Đủ
-- Đã chỉnh sửa gì: Không điều chỉnh gì cả
+- Đã chỉnh sửa gì: Có sai sót những không lớn và đã được sửa.
 - Cách kiểm chứng: Chạy test trên Terminal
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: Biết được cách cấu hình kết nối csdl
@@ -132,7 +132,7 @@
 - Prompt chính: Nếu khóa học có ít hơn một bài học thì không cho phép công khai, chỉ để ở trạng thái bản nháp; hãy thực hiện luồng này.
 - Kết quả AI trả về (tóm tắt): Bổ sung kiểm tra ở backend để chỉ cho công khai khóa học khi có bài học công khai; chặn học, ghi danh và làm bài với khóa học không công khai. Khóa không có bài công khai được loại khỏi danh sách công khai.
 - Đánh giá: Đủ kiểm tra được thực hiện ở backend, không chỉ dựa vào giao diện.
-- Đã chỉnh sửa gì: Thêm kiểm tra trạng thái và số bài học công khai khi tạo/cập nhật khóa học; chặn ghi danh, truy cập nội dung học và bài kiểm tra khi khóa học không công khai. Bổ sung luồng đưa khóa học về nháp khi không còn bài học công khai, cảnh báo ở giao diện giảng viên và cập nhật trạng thái các khóa cũ công khai nhưng không có bài.
+- Đã chỉnh sửa gì: Thêm kiểm tra trạng thái và số bài học công khai khi tạo/cập nhật khóa học, chặn ghi danh, truy cập nội dung học và bài kiểm tra khi khóa học không công khai. Bổ sung luồng đưa khóa học về nháp khi không còn bài học công khai, cảnh báo ở giao diện giảng viên và cập nhật trạng thái các khóa cũ công khai nhưng không có bài.
 - Cách kiểm chứng: `node --test --test-name-pattern="rejects publishing a course without public lessons" test/courseService.test.js` tại `backend` (1/1 đạt), kiểm thử ghi danh 6/6 đạt, build frontend thành công. Gọi API thực tế xác nhận khóa học không có bài công khai bị từ chối khi chuyển sang công khai.
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%.
 - Điều học được: Quy tắc công khai phải được xác thực ở backend và cần chặn đồng bộ ở danh sách khóa học, ghi danh, học bài và làm bài kiểm tra.

@@ -4,76 +4,78 @@ Tài liệu này hướng dẫn đầy đủ các bước thiết lập kết n�
 
 ---
 
-## 1. Khởi tạo Dự án & Cài đặt Thư viện
+## 1. Liên kết dự án & Thành viên nhóm
 
-Mở terminal tại thư mục `Database` (`cd Database`) và cài đặt các thư viện cần thiết:
+* **Repository GitHub:** https://github.com/3TBP-Project/3tpb-quan-ly-hoc-tap
+* **Bảng quản lý tiến độ (Trello):** https://trello.com/b/g7hXkb8I/3tpb-quan-ly-hoc-tap-web-2026
+* **Video demo sản phẩm:** https://youtu.be/sPGXJtrkaV4
 
-```bash
-# Cài đặt thư viện từ package.json sẵn có
-npm install
-```
-
-*(Nếu khởi tạo mới từ đầu, chạy lần lượt: `npm init -y`, `npm install knex mysql2 dotenv`, `npx knex init`).*
+| Mã | Họ và tên | Vai trò |
+|---|---|---|
+| TV1 | Nguyễn Ngọc Trọng | Leader (LE) |
+| TV2 | Nguyễn Quang Thông | Backend Lead (BE1) |
+| TV3 | Lê Đức Phong | Frontend (FE) |
+| TV4 | Hà Hữu Thịnh | Backend Database (BE2) |
+| TV5 | Trần Thanh Bình | Git & Tester (GT) |
 
 ---
 
-## 2. Cấu hình Môi trường & Kết nối
+## 2. Công nghệ sử dụng & Cấu trúc thư mục
 
-### Bước 1: Tạo file `.env`
-Tạo file `.env` trong thư mục `Database/.env` (hoặc dùng chung `backend/.env`) và khai báo thông tin kết nối MySQL:
+* **Frontend:** React (Vite), React Router, CSS Modules / Tailwind CSS (`frontend/`)
+* **Backend:** Node.js, Express 5, JSON Web Token (`jsonwebtoken`), `bcrypt` (`backend/`)
+* **Cơ sở dữ liệu:** MySQL 8.0+, Knex.js Migration & Seed (`Database/`)
+* **Kiểm thử:** `node:test` và `node:assert/strict` tích hợp sẵn trong Node.js (`backend/test/`)
 
-```env
+```text
+3tpb-quan-ly-hoc-tap/
+├── backend/          # API Server (Node.js + Express) và bộ Unit Test
+├── frontend/         # Giao diện người dùng (React + Vite)
+├── Database/         # Cấu hình Knex, Migrations (8 bảng) và Seeds dữ liệu mẫu
+├── docs/             # Tài liệu phân tích, thiết kế, test-cases.md và báo cáo
+├── ai-logs/          # Nhật ký sử dụng AI của 5 thành viên
+├── .env.example      # Tệp mẫu biến môi trường
+└── README.md         # Hướng dẫn cài đặt và vận hành hệ thống
+
+*(Nếu khởi tạo mới từ đầu, chạy lần lượt: `npm init -y`, `npm install knex mysql2 dotenv`, `npx knex init`).*
+```
+---
+
+## 3. Hướng dẫn cài đặt và chạy trên máy sạch (≤ 15 phút)
+Yêu cầu môi trường
+Node.js phiên bản >= 20.x và npm >= 10.x
+
+MySQL Server phiên bản 8.0+ (hoặc XAMPP / Laragon / Docker MySQL đang chạy)
+
+Bước 1: Clone mã nguồn: 
+git clone https://github.com/3TBP-Project/3tpb-quan-ly-hoc-tap.git
+cd 3tpb-quan-ly-hoc-tap
+
+Bước 2: Cấu hình biến môi trường (.env)
+1. Sao chép tệp mẫu cấu hình cho Backend và Frontend:
+cp .env.example backend/.env
+cp frontend/.env.example frontend/.env
+
+2. Mở tệp backend/.env và cập nhật thông tin kết nối MySQL của bạn:
+PORT=5000
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=mat_khau_cua_ban
+DB_PASSWORD=
 DB_NAME=db_quanlyhoctap
-```
+JWT_SECRET=chuoi_bi_mat_lms_3tpb_2026
+JWT_EXPIRES_IN=1d
 
-Nếu `Database/.env` chưa tồn tại, `knexfile.js` sẽ tự động đọc cấu hình từ `backend/.env`.
-
-### Bước 2: Cấu hình `Database/knexfile.js`
-Đảm bảo `Database/knexfile.js` đã khai báo đủ cả `migrations` và `seeds`:
-
-```javascript
-const path = require('path');
-const dotenv = require('dotenv');
-
-dotenv.config({ path: path.resolve(__dirname, '.env') });
-dotenv.config({ path: path.resolve(__dirname, '..', 'backend', '.env') });
-
-/** @type { Object.<string, import("knex").Knex.Config> } */
-module.exports = {
-  development: {
-    client: 'mysql2',
-    connection: {
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 3306,
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'db_quanlyhoctap'
-    },
-    migrations: {
-      tableName: 'knex_migrations',
-      directory: './migrations'
-    },
-    seeds: {
-      directory: './seeds'
-    }
-  }
-};
-```
-
----
-
-## 3. Các lệnh Thực thi & Quản lý Migration
-
-Chạy tại thư mục `Database`:
-
-```bash
-# Chạy toàn bộ Migration để tạo/cập nhật bảng trên MySQL
+Bước 3: Khởi tạo CSDL, chạy Migration và Seed dữ liệu mẫu
+1. Mở MySQL (phpMyAdmin / MySQL Workbench / MySQL CLI) và tạo database rỗng khớp với DB_NAME:
+CREATE DATABASE IF NOT EXISTS db_quanlyhoctap CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+2. Di chuyển vào thư mục Database, cài đặt thư viện (knex, mysql2, dotenv) và đồng bộ cấu trúc 8 bảng cùng dữ liệu mẫu:
+cd Database
+npm install
 npx knex migrate:latest
-
+npx knex seed:run
+cd ..
+Các lệnh quản lý Migration bổ sung (chạy trong thư mục Database/):
 # Kiểm tra trạng thái các file Migration
 npx knex migrate:status
 
@@ -82,52 +84,33 @@ npx knex migrate:rollback
 
 # Hoàn tác toàn bộ các bảng đã tạo
 npx knex migrate:rollback --all
-```
+
+Bước 4: Cài đặt thư viện và khởi chạy Backend & Frontend
+Mở Terminal 1 — Khởi chạy Backend (cổng 5000):
+cd backend
+npm install
+npm run dev
+
+Mở Terminal 2 — Khởi chạy Frontend (cổng 5173):
+cd frontend
+npm install
+npm run dev
 
 ---
 
-## 4. Tạo & Chạy Seeder (Dữ liệu mẫu & Dữ liệu Demo)
+## 4. Hướng dẫn chạy kiểm thử (Unit Test)
+Bộ kiểm thử đơn vị sử dụng node --test tích hợp sẵn của Node.js:
+cd backend
+npm test
 
-### 4.1. Tạo một file Seeder mới
-Để tạo thêm file seeder mới trong thư mục `Database/seeds/`:
+---
 
-```bash
-npx knex seed:make <ten_file_seed>
-# Ví dụ:
-npx knex seed:make 03_seed_custom
-```
+## 5. Tài khoản demo 3 vai trò
+Sau khi chạy xong npx knex seed:run ở Bước 3, có thể đăng nhập trực tiếp để kiểm tra đầy đủ 3 phân hệ:
+## Tài khoản demo 3 vai trò
 
-### 4.2. Chạy toàn bộ bộ Seeder sẵn có
-Lệnh dưới đây sẽ chạy lần lượt tất cả các file seeder trong `Database/seeds/` theo thứ tự bảng chữ cái (`01_seed_data.js` → `02_seed_demo.js`):
-
-```bash
-npx knex seed:run
-```
-
-### 4.3. Chạy riêng 1 file Seeder cụ thể
-Nếu chỉ muốn chạy một file seeder nhất định (không chạy các file khác):
-
-```bash
-# Chỉ chạy bộ dữ liệu mẫu đầy đủ (8 khóa học, 19 tài khoản)
-npx knex seed:run --specific=01_seed_data.js
-
-# Chỉ chạy bộ dữ liệu demo gọn nhẹ (2 khóa học đầy đủ bài học + câu hỏi, 3 tài khoản 3 vai trò)
-npx knex seed:run --specific=02_seed_demo.js
-```
-
-> **Lưu ý:** Cả hai file seeder đều được thiết kế **chạy lại được nhiều lần (idempotent)** — có thể chạy lại `npx knex seed:run` bất cứ lúc nào để làm sạch và khôi phục dữ liệu mẫu/demo mà không gây lỗi trùng khóa.
-
-### 4.4. Danh sách các bộ Seeder sẵn có trong `Database/seeds/`
-
-| File Seeder | Nội dung dữ liệu tạo ra |
-|---|---|
-| `01_seed_data.js` | 5 danh mục, 19 người dùng (1 admin, 3 giảng viên, 15 học viên), 8 khóa học, 24 chương, 40 bài học, 80 câu hỏi, dữ liệu ghi danh, tiến độ, lượt làm bài, bình luận & thảo luận mẫu. |
-| `02_seed_demo.js` | Dữ liệu demo chuẩn: **3 tài khoản cho 3 vai trò** + **2 khóa học công khai** đầy đủ chương, bài học (kèm link YouTube) và 10 câu hỏi trắc nghiệm/khóa, ghi danh sẵn cho học viên demo. |
-
-### 4.5. Tài khoản Demo 3 vai trò (Mật khẩu chung: `12345678`)
-
-| Vai trò | Bộ `01_seed_data.js` | Bộ `02_seed_demo.js` |
-|---|---|---|
-| **Quản trị viên (`admin`)** | `admin@gmail.com` | `admin.demo@gmail.com` |
-| **Giảng viên (`teacher`)** | `teacher1@gmail.com`, `teacher2@gmail.com`, `teacher3@gmail.com` | `teacher.demo@gmail.com` |
-| **Học viên (`student`)** | `student1@gmail.com` … `student15@gmail.com` | `student.demo@gmail.com` |
+| Vai trò | Email đăng nhập | Mật khẩu | Chức năng kiểm thử tiêu biểu |
+|---|---|---|---|
+| **Quản trị viên (Admin)** | `admin@gmail.com` | `12345678` | Tạo tài khoản giảng viên, khóa/mở tài khoản người dùng, quản lý danh mục, duyệt/ẩn khóa học |
+| **Giảng viên (Teacher)** | `teacher1@gmail.com` | `12345678` | Tạo/sửa/xóa khóa học của mình, quản lý chương & bài học, soạn câu hỏi trắc nghiệm, nhập CSV |
+| **Học viên (Student)** | `student1@gmail.com` | `12345678` | Duyệt/tìm khóa học, ghi danh, học bài & lưu tiến độ, làm bài trắc nghiệm (tối đa 3 lượt), sửa hồ sơ |
