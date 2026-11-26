@@ -1,4 +1,4 @@
-// AI-assisted [AI-06] [AI-25] [AI-41]
+// AI-assisted [AI-06] [AI-25] [AI-41] [AI-42]
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -66,7 +66,7 @@ export default function QuizPage() {
   // Dữ liệu kết quả nhận từ POST /api/quizzes/attempts/:attemptId/submit
   const [resultData, setResultData] = useState(null);
 
-  // Giao diện làm bài: câu đang xem, hộp xác nhận nộp, lỗi nộp, nộp tự động khi hết giờ
+  // Giao diện làm bài: câu đang xem, hộp xác nhận nộp, lỗi nộp, hết giờ (từ chối nộp)
   const [current, setCurrent] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitError, setSubmitError] = useState(null); // { message, status }
@@ -90,14 +90,14 @@ export default function QuizPage() {
 
   // Đang làm bài mà đóng tab / tải lại trang thì trình duyệt hỏi lại (lượt vẫn được giữ ở server)
   useEffect(() => {
-    if (step !== 'taking') return undefined;
+    if (step !== 'taking' || timeUp) return undefined;
     const warn = (event) => {
       event.preventDefault();
       event.returnValue = '';
     };
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
-  }, [step]);
+  }, [step, timeUp]);
 
   const handleStartQuiz = async () => {
     setErrorMessage('');
@@ -121,7 +121,7 @@ export default function QuizPage() {
   };
 
   const handleSelectOption = (questionId, optionValue) => {
-    if (submitting) return;
+    if (submitting || timeUp) return;
     setAnswers((prev) => {
       const next = { ...prev, [questionId]: optionValue };
       if (attemptData?.attemptId) writeDraft(attemptData.attemptId, next);
@@ -130,8 +130,9 @@ export default function QuizPage() {
   };
 
   const executeSubmit = useCallback(
-    async (isAutoSubmit = false) => {
-      if (!attemptData?.attemptId || isSubmittingRef.current) return;
+    async () => {
+      // Hết giờ thì không gửi bài nữa (server cũng từ chối bài nộp trễ)
+      if (!attemptData?.attemptId || isSubmittingRef.current || timeUp) return;
 
       isSubmittingRef.current = true;
       setSubmitting(true);
@@ -146,27 +147,27 @@ export default function QuizPage() {
         setStep('result');
         window.scrollTo({ top: 0 });
       } catch (err) {
-        const prefix = isAutoSubmit ? 'Hết giờ làm bài: ' : '';
         // Không có mã HTTP = lỗi mạng (fetch báo "Failed to fetch"): thay bằng câu dễ hiểu
         const message = err.statusCode
           ? err.message || 'Nộp bài thất bại.'
           : 'Không nộp được bài. Kiểm tra kết nối mạng rồi thử lại.';
-        setSubmitError({ message: `${prefix}${message}`, status: err.statusCode ?? 0 });
+        setSubmitError({ message, status: err.statusCode ?? 0 });
         setConfirmOpen(true);
-        setTimeUp(false);
       } finally {
         isSubmittingRef.current = false;
         setSubmitting(false);
       }
     },
-    [attemptData, answers]
+    [attemptData, answers, timeUp]
   );
 
+  // Hết giờ mà chưa nộp: KHÔNG tự nộp, khóa bài làm và báo bài không được ghi nhận.
+  // Lượt này vẫn tính vào số lượt; server tự đóng lượt (trạng thái "Bỏ dở") khi quá hạn.
   const handleTimeUp = useCallback(() => {
     setTimeUp(true);
     setConfirmOpen(false);
-    executeSubmit(true);
-  }, [executeSubmit]);
+    if (attemptData?.attemptId) clearDraft(attemptData.attemptId);
+  }, [attemptData]);
 
   const handleBackToCourse = () => {
     navigate(`/courses/${courseId}`);
@@ -244,7 +245,8 @@ export default function QuizPage() {
               <span className="ht-quiz-note__icon" aria-hidden="true">!</span>
               <span>
                 <strong>Đồng hồ chạy ngay khi bắt đầu</strong>
-                Bài sẽ tự nộp khi hết giờ. Mỗi lần làm được tính một lượt, hệ thống giữ điểm cao nhất.
+                Hãy nộp bài trước khi hết giờ: hết giờ mà chưa nộp thì bài làm không được ghi nhận. Mỗi lần làm
+                được tính một lượt, hệ thống giữ điểm cao nhất.
               </span>
             </div>
           )}
@@ -385,7 +387,7 @@ export default function QuizPage() {
                   Câu tiếp ›
                 </button>
               ) : (
-                <button type="button" className="ht-btn ht-btn--primary" onClick={openConfirm} disabled={submitting}>
+                <button type="button" className="ht-btn ht-btn--primary" onClick={openConfirm} disabled={submitting || timeUp}>
                   Nộp bài
                 </button>
               )}
@@ -418,7 +420,7 @@ export default function QuizPage() {
           <p className="ht-quiz-nav__legend">
             Đã trả lời {answeredCount}/{questions.length} · Ô tím đậm là câu đang làm, ô viền là câu chưa làm
           </p>
-          <button type="button" className="ht-btn ht-btn--primary ht-quiz-nav__submit" onClick={openConfirm} disabled={submitting}>
+          <button type="button" className="ht-btn ht-btn--primary ht-quiz-nav__submit" onClick={openConfirm} disabled={submitting || timeUp}>
             Nộp bài
           </button>
         </aside>
@@ -497,7 +499,7 @@ export default function QuizPage() {
               >
                 {submitError ? 'Tiếp tục làm bài' : unanswered.length > 0 ? 'Xem lại câu chưa làm' : 'Làm tiếp'}
               </button>
-              <button type="button" className="ht-btn ht-btn--primary" disabled={submitting} onClick={() => executeSubmit(false)}>
+              <button type="button" className="ht-btn ht-btn--primary" disabled={submitting || timeUp} onClick={() => executeSubmit()}>
                 {submitting ? 'Đang nộp bài...' : submitError ? 'Thử lại' : unanswered.length > 0 ? 'Vẫn nộp bài' : 'Nộp bài'}
               </button>
             </>
@@ -505,7 +507,7 @@ export default function QuizPage() {
         </div>
       </Modal>
 
-      {/* Hết giờ: tự nộp, không cho đóng (Figma "Xác nhận nộp bài (hết giờ)") */}
+      {/* Hết giờ: từ chối nộp, khóa bài làm, không cho đóng (Figma "Xác nhận nộp bài (hết giờ)") */}
       <Modal
         show={timeUp}
         centered
@@ -518,9 +520,21 @@ export default function QuizPage() {
         <span className="ht-quiz-modal__clock" aria-hidden="true">⏱</span>
         <h2 id="ht-quiz-timeup-title" className="ht-quiz-modal__title">Đã hết giờ làm bài</h2>
         {chips}
-        <p className="ht-quiz-modal__text" role="status">Bài làm đang được nộp tự động...</p>
-        <div className="ht-quiz-progress" aria-hidden="true"><span /></div>
-        <p className="ht-quiz-modal__hint">Đang chuyển đến trang kết quả...</p>
+        <p className="ht-quiz-note is-error" role="alert">
+          <span className="ht-quiz-note__icon" aria-hidden="true">✕</span>
+          <span>
+            <strong>Bài làm không được ghi nhận</strong>
+            Bạn chưa nộp bài trước khi hết giờ nên hệ thống từ chối nộp. Lượt này vẫn được tính vào số lượt làm bài.
+          </span>
+        </p>
+        <div className="ht-quiz-modal__actions">
+          <button type="button" className="ht-btn ht-btn--secondary" onClick={handleBackToCourse}>
+            Quay lại khóa học
+          </button>
+          <Link to="/profile?tab=history" className="ht-btn ht-btn--primary">
+            Xem lịch sử làm bài
+          </Link>
+        </div>
       </Modal>
     </div>
   );
