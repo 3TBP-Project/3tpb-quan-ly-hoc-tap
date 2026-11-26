@@ -267,4 +267,31 @@ Ngày 20/Tháng 11/Năm 2026
 - Mục đích: Kết nối toàn bộ các hàm API CRUD Lesson đã xây dựng ở backend vào giao diện React để đồng bộ với CSDL.
 Prompt chính: "Tôi muốn bạn kết nối các CRUD lesson của tôi vào các trang lesson. Nhớ là làm theo những nguồn có sẵn cấm lấy bên ngoài. Tôi là thành viên 4 nên là chỉ cần kết nối sao cho CRUD chạy được đồng bộ giao diện với backend và database. Cấm can thiệp hay chỉnh sửa lại các file cốt lỗi và chỉ cần thực hiện yêu cầu là kết nối mà thôi"
 Kết quả AI trả về (tóm tắt): Kết nối CRUD với giao diện và tự tạo một giao diện mới là TeacherLessonsPage.jsx
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Cách kiểm chứng: Đã được kiểm chứng bằng cách chạy dự án
 - Điều học được: Đồng bộ hóa chặt chẽ giữa tên trường dữ liệu backend và state form frontend giúp kết nối API hoạt động trơn tru.
+## [AI-016] Viết Chương 3 công nghệ; chương 5 CSDL: ERD, mô tả bảng, ràng buộc, cách tính tiến độ.
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Antigravity (Hydrogen)
+- Giai đoạn - Thời Gian: 
+Ngày 25/Tháng 11/Năm 2026
+- Task:
+- Mục đích: "Hãy viết cho tôi xem thử 2 file vào folder dự án v1 nhớ là viết ở docs\bao-cao\docs\chuong-3,chuong-5(chú ý 2 file này là riêng biệt), Tập trung toàn bộ vào TV4 cấm viết lan các thành viên khác"
+Kết quả AI trả về (tóm tắt): 
++ 2 File báo cáo ở đường dẫn:"D:\DoAnMon\v1\3tpb-quan-ly-hoc-tap\docs\bao-cao"
++ Nội dung đầy đủ của 2 báo cáo 
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Cách kiểm chứng: Đã được kiểm chứng bằng các biên bảng và dựa theo Trello
+- Điều học được: Cần phải có sự theo dõi liên tục của các dữ liệu và cần phải cho dữ liệu và tạo giới hạn khi để AI tạo sinh
+## [AI-017] Viết Demo-Seeder
+- Người dùng: Hà Hữu Thịnh
+- Công cụ: Antigravity (Hydrogen)
+- Giai đoạn - Thời Gian: 
+Ngày 25/Tháng 11/Năm 2026
+- Task:
+- Mục đích: "Tôi muốn bạn nhìn tổng thể lại folder v1, sau đó cập nhập giúp tôi phần readme thêm thông tin cho việc tạo seeder và cũng như cách chạy(1 và hoặc bộ seeder sẵn có)-> sau đó thực hiện việc tạo Dữ liệu demo: 2 khóa đầy đủ bài học, câu hỏi; tài khoản demo 3 vai trò; seed chạy lại
+được.(làm toàn bộ ở V1)"
++ Seeder Demo sinh ra đúng yêu cầu và chỉnh lại phần README.md phần còn thiếu
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
+- Cách kiểm chứng: Đã được kiểm chứng bằng cách chạy thử bằng unit test
+- Điều học được: Cần phải có sự theo dõi liên tục của các dữ liệu và cần phải cho dữ liệu và tạo giới hạn khi để AI tạo sinh

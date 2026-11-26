@@ -574,6 +574,7 @@ exports.seed = async function (knex) {
 
   await knex.transaction(async (trx) => {
     const tables = [
+      'quiz_attempt_answers',
       'lesson_progress',
       'quiz_attempts',
       'discussions',

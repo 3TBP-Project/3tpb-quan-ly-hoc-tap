@@ -264,3 +264,89 @@ Ngoài ra mình sửa tên “Làm Bài Tập Trắc Nghiệm” thành “Làm 
 - Đã chỉnh sửa gì: Chỉnh lại thành nét liền và
 - Cách kiểm chứng: Tài liệu trên mạng
 - Điều học được: Xây dựng và chỉnh sửa những điều thiếu sót ở usecase cũ
+
+# [AI-06] Danh mục và duyệt khóa học – HT-15
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude - (Opus 5.5)
+- Giai đoạn - Thời Gian: 
+    - Lập trình, Kiểm thử
+    - 21/11/2026 – 25/11/2026
+- Task / Commit / PR: HT-15 Danh mục và duyệt khóa học / `967c9a5`, `d0afcc5` / PR #52 (`feature/HT-15-danh-muc`)
+- Ghi chú mã AI: comment trong code và trailer commit `967c9a5` đang ghi `[AI-07]`; mục này là log của mã đó, đánh số lại thành AI-14 vì AI-07 đã dùng cho việc khác trong log ngày 24/11
+- Mục đích: Làm trọn chức năng quản trị danh mục khóa học và ẩn / bỏ ẩn khóa học vi phạm, từ API backend tới giao diện quản trị
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): [TV1 dán lại prompt gốc hoặc link hội thoại]
+- Kết quả AI trả về (tóm tắt):
+    - API quản trị `/api/admin/categories`: xem danh mục kèm số khóa học, thêm, sửa, xóa; chặn trùng tên.
+    - Chặn xóa danh mục đang có khóa học, kiểm tra cả trong câu lệnh DELETE để tránh trường hợp khóa học được thêm cùng lúc.
+    - API `/api/admin/courses`: xem tất cả khóa học, `PATCH .../hide` và `PATCH .../unhide`.
+    - Khóa học bị ẩn không hiện ở danh sách công khai, trang chi tiết trả 404 (trừ giảng viên sở hữu); giảng viên không tự bỏ ẩn hay tự đặt trạng thái ẩn.
+    - Trang `/admin/categories` gồm tab Danh mục khóa học và tab Duyệt khóa học.
+    - Unit test `backend/test/catalog.test.js`: chặn xóa, trùng tên, ẩn / bỏ ẩn, phân quyền admin, lọc khóa học bị ẩn.
+- Đánh giá: Đúng phần lớn. Bản đầu dùng thêm cột `courses.status_before_hidden` để bỏ ẩn thì khôi phục trạng thái cũ, cách này rườm rà so với nghiệp vụ
+- Đã chỉnh sửa gì: Commit `d0afcc5` (25/11): ẩn khóa học đổi thẳng trạng thái sang `hidden`, bỏ ẩn đưa về `public` và chỉ cho bỏ ẩn khi khóa còn ít nhất một bài học công khai. Giao diện trang quản trị sau đó được TV3 làm lại theo mockup Figma (log của TV3, mã `[AI-28]`)
+- Cách kiểm chứng: Chạy `npm test` trong `backend`; thử trên trình duyệt bằng tài khoản admin: thêm danh mục trùng tên, xóa danh mục đang có khóa học, ẩn khóa học rồi kiểm tra trang chủ và trang chi tiết; đối chiếu test case TC-29
+- Tỷ lệ mã AI còn giữ lại (ước lượng): [..]%
+- Điều học được: Kiểm tra điều kiện ngay trong câu lệnh SQL (xóa chỉ khi danh mục còn rỗng) an toàn hơn kiểm tra bằng một câu SELECT riêng trước đó
+
+# [AI-07] Quản lý người dùng – HT-14
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude - (Opus 5.5)
+- Giai đoạn - Thời Gian: 
+    - Lập trình, Kiểm thử
+    - 21/11/2026 – 22/11/2026
+- Task / Commit / PR: HT-14 Quản lý người dùng / `6a256a8`, `09f16a7` / PR #53 (`feature/HT-14-quan-ly-nguoi-dung-v2`)
+- Ghi chú mã AI: comment trong code và trailer commit đang ghi `[AI-08]`; mục này là log của mã đó, đánh số lại thành AI-15 vì AI-08 đã dùng cho việc khác trong log ngày 24/11
+- Mục đích: Cho quản trị viên quản lý tài khoản học viên và giảng viên: cấp tài khoản giảng viên, sửa họ tên, khóa / mở khóa, xóa
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): [TV1 dán lại prompt gốc hoặc link hội thoại]
+- Kết quả AI trả về (tóm tắt):
+    - `GET /api/admin/users`: lọc theo vai trò (học viên / giảng viên), tìm theo họ tên hoặc email, phân trang, đếm số lượng theo vai trò, số khóa ghi danh / giảng dạy, ngày đăng ký.
+    - `POST /api/admin/users`: tạo tài khoản giảng viên, kiểm tra email, chặn trùng, băm mật khẩu tạm.
+    - `PUT /api/admin/users/:id`: sửa họ tên (`{ name }`) hoặc khóa / mở khóa (`{ is_locked }`).
+    - `DELETE /api/admin/users/:id`: ban đầu chỉ xóa giảng viên chưa có khóa học; tài khoản admin không nằm trong phạm vi quản lý.
+    - Migration thêm cột `users.created_at`.
+    - Trang `/admin/users`: bộ lọc vai trò, tìm kiếm, bảng có phân trang, hộp thoại thêm / sửa, xem hồ sơ, giao diện thẻ trên điện thoại.
+    - Unit test `backend/test/userManagement.test.js`: tạo giảng viên, xóa, khóa / mở khóa, lọc danh sách, phân quyền.
+- Đánh giá: Đúng, nhưng thiếu chức năng xóa tài khoản học viên
+- Đã chỉnh sửa gì: Commit `09f16a7` (22/11): cho xóa cả tài khoản học viên (ghi danh, kết quả làm bài, tiến độ, bình luận, thảo luận bị xóa theo), hộp xác nhận cảnh báo mất dữ liệu học tập; giảng viên vẫn chỉ xóa được khi chưa có khóa học. Giao diện sau đó được TV3 làm lại theo mockup Figma (log của TV3, mã `[AI-27]`)
+- Cách kiểm chứng: Chạy `npm test` trong `backend`; thử trên trình duyệt: tạo giảng viên trùng email, khóa một học viên rồi đăng nhập bằng tài khoản đó, xóa giảng viên đang có khóa học; đối chiếu test case TC-27, TC-28
+- Tỷ lệ mã AI còn giữ lại (ước lượng): [..]%
+- Điều học được: Không tin trạng thái trong JWT; mỗi request phải đọc lại trạng thái khóa trong CSDL thì tài khoản bị khóa mới bị chặn ngay. Xóa người dùng cần tính tới dữ liệu liên quan (khóa ngoại `CASCADE`)
+
+# [AI-08] Viết bảng đặc tả use case cho 12 chức năng mức B
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian: 
+    - Tài liệu
+    - 25/11/2026
+- Task / Commit / PR: Đặc tả use case (`docs/bang-dac-ta-use-case.md`) / chưa commit / chưa có PR
+- Mục đích: Có bảng đặc tả use case cho 12 chức năng bắt buộc (HT-01 → HT-07, HT-09 → HT-11, HT-14, HT-15) để đưa vào báo cáo
+- Prompt chính (nguyên văn):
+    - Lần 1: "Bạn ơi dựa trên cái dựa án này (tất cả mọi thứ trên dựa án này) làm bảng use case cho 12 chức năng mức B (HT01 -> HT07, HT09->HT11, HT14 -> HT15) rồi ghi vào file với đường dẫn này "C:\idk\DAQLHT\n2\3tpb-quan-ly-hoc-tap\docs\bang-dac-ta-use-case.md""
+    - Lần 2: "Bạn ơi chỉ cần kể luồng nghiệp vụ thực tế là đc rồi không cần quá chi tiết vậy đâu"
+- Kết quả AI trả về (tóm tắt):
+    - Lần 1: AI đọc tài liệu trong `docs/` và mã nguồn backend/frontend, viết 12 use case (UC01–UC12), mỗi use case gồm tác nhân, điều kiện trước, luồng chính, luồng ngoại lệ, kết quả, ràng buộc, kèm API và mã lỗi HTTP. AI phát hiện hai chỗ tài liệu cũ khác mã nguồn: bài nộp trễ không bị chấm 0 điểm mà bị từ chối, và khóa ngoại danh mục trong migration là `CASCADE` chứ không phải `RESTRICT`.
+    - Lần 2: AI rút gọn lại, chỉ giữ luồng nghiệp vụ thực tế; bỏ API, mã lỗi, tên file.
+- Đánh giá: Đúng, nhưng bản đầu quá chi tiết so với yêu cầu báo cáo nên phải yêu cầu rút gọn
+- Đã chỉnh sửa gì: Yêu cầu AI rút gọn bản đặc tả còn luồng nghiệp vụ chính, ngoại lệ, kết quả, ràng buộc
+- Cách kiểm chứng: Đối chiếu từng use case với đề cương, `docs/test-cases.md` và chạy thử các chức năng trên trình duyệt
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): ~90%
+- Điều học được: Đặc tả use case trong báo cáo nên viết theo góc nhìn nghiệp vụ người dùng, không đưa chi tiết kỹ thuật (API, mã lỗi) vào
+
+# [AI-09] Viết nháp chương 1 và chương 2 của báo cáo
+- Người dùng: Nguyễn Ngọc Trọng
+- Công cụ: Claude Code - (Opus 5.5)
+- Giai đoạn - Thời Gian: 
+    - Tài liệu
+    - 25/11/2026
+- Task / Commit / PR: Báo cáo chương 1, 2 (`docs/bao-cao/chuong-01-gioi-thieu.md`, `docs/bao-cao/chuong-02-to-chuc-nhom.md`) / chưa commit / chưa có PR
+- Mục đích: Có bản nháp chương 1 (Giới thiệu đề tài) và chương 2 (Tổ chức nhóm và quản lý dự án) theo đúng các mục bắt buộc trong mẫu báo cáo
+- Prompt chính (nguyên văn): "Bạn ơi viết giùm mình nháp chương 1 và chương 2 (mỗi chương là một file .md) rồi tạo ra 2 file .md vào dự án nha ní đừng commit vội" (kèm ảnh chụp bảng yêu cầu nội dung chương 1, 2)
+- Kết quả AI trả về (tóm tắt):
+    - Chương 1: bối cảnh, lý do chọn đề tài; mục tiêu; phạm vi (bảng 4 phân hệ, 12 chức năng bắt buộc, chức năng cộng điểm, ngoài phạm vi); bố cục báo cáo.
+    - Chương 2: vai trò thành viên; quy trình Scrum rút gọn và board Trello; bảng kế hoạch / thực tế 5 sprint (suy ra từ lịch sử commit và PR); tổng hợp retrospective; ma trận phân công và đánh giá.
+    - AI đánh dấu `[Nháp]` / `[..]` ở các chỗ không có dữ liệu thật (ảnh Trello, ngày sprint, retrospective S5) và chỉ ra tên TV2/TV4 bị ghi ngược giữa đề cương và biên bản họp.
+- Đánh giá: Đúng phần lớn, còn thiếu dữ liệu thật về Trello và ý kiến retrospective của thành viên
+- Đã chỉnh sửa gì: [TV1 bổ sung: những phần đã sửa lại trong 2 chương]
+- Cách kiểm chứng: Đối chiếu với `docs/de-cuong.md`, `docs/moc-1.md`, biên bản họp trong `docs/mettings/`, board Trello và lịch sử Git
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): [..]%
+- Điều học được: Tiến độ sprint có thể lấy bằng chứng từ lịch sử commit / PR; cần thống nhất thông tin thành viên giữa các tài liệu

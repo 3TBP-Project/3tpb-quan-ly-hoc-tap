@@ -1,6 +1,6 @@
-# Website Quản Lý Học Tập Trực Tuyến (3TBP)
+# Hướng dẫn Thiết lập, Migration & Seeder Cơ sở dữ liệu (Node.js + MySQL)
 
-Hệ thống quản lý học tập trực tuyến hỗ trợ 4 phân hệ người dùng (**Khách**, **Học viên**, **Giảng viên**, **Quản trị viên**) với đầy đủ các chức năng nghiệp vụ: duyệt và tìm kiếm khóa học, đăng ký/đăng nhập phân quyền JWT, ghi danh khóa học, học bài theo chương và lưu tiến độ, làm bài trắc nghiệm chấm điểm tự động trên server, quản lý khóa học/bài học/ngân hàng câu hỏi, nhập câu hỏi từ CSV và quản trị người dùng/danh mục.
+Tài liệu này hướng dẫn đầy đủ các bước thiết lập kết nối, chạy **Migration** (14 file tạo/cập nhật 12 bảng dữ liệu) và tạo/chạy **Seeder** (dữ liệu mẫu & dữ liệu demo chạy lại được) cho hệ thống **Quản lý học tập trực tuyến (`db_quanlyhoctap`)**.
 
 ---
 
@@ -36,6 +36,8 @@ Hệ thống quản lý học tập trực tuyến hỗ trợ 4 phân hệ ngư�
 ├── ai-logs/          # Nhật ký sử dụng AI của 5 thành viên
 ├── .env.example      # Tệp mẫu biến môi trường
 └── README.md         # Hướng dẫn cài đặt và vận hành hệ thống
+
+*(Nếu khởi tạo mới từ đầu, chạy lần lượt: `npm init -y`, `npm install knex mysql2 dotenv`, `npx knex init`).*
 
 ---
 
