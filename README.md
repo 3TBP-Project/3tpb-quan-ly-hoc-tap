@@ -13,9 +13,9 @@ Tài liệu này hướng dẫn đầy đủ các bước thiết lập kết n�
 | Mã | Họ và tên | Vai trò |
 |---|---|---|
 | TV1 | Nguyễn Ngọc Trọng | Leader (LE) |
-| TV2 | Nguyễn Quang Thông | Backend 1 (BE1) |
+| TV2 | Nguyễn Quang Thông | Backend Leader (BE1) |
 | TV3 | Lê Đức Phong | Frontend (FE) |
-| TV4 | Hà Hữu Thịnh | Backend 2 (BE2) |
+| TV4 | Hà Hữu Thịnh | Backend Database (BE2) |
 | TV5 | Trần Thanh Bình | Git & Tester (GT) |
 
 ---
