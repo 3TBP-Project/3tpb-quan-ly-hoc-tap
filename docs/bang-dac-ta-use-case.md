@@ -84,8 +84,8 @@
 | Tác nhân        | Học viên |
 | Mô tả           | Học viên làm bài trắc nghiệm có giới hạn thời gian và được chấm điểm tự động |
 | Điều kiện trước | Học viên đã ghi danh; khóa học có câu hỏi và thời gian làm bài; còn lượt làm |
-| Luồng chính     | 1. Học viên bấm **Bắt đầu làm bài**.<br>2. Hệ thống kiểm tra số lượt, ghi giờ bắt đầu và gửi đề (không kèm đáp án đúng).<br>3. Học viên chọn đáp án trong thời gian cho phép.<br>4. Học viên bấm **Nộp bài** (hoặc hệ thống tự nộp khi hết giờ).<br>5. Hệ thống kiểm tra thời gian, chấm điểm và lưu kết quả.<br>6. Học viên xem điểm lần này, điểm cao nhất và có thể xem lại bài làm. |
-| Ngoại lệ        | Hết 3 lượt: không cho làm tiếp. Nộp quá giờ: hệ thống từ chối, bài không được tính điểm. |
+| Luồng chính     | 1. Học viên bấm **Bắt đầu làm bài**.<br>2. Hệ thống kiểm tra số lượt, ghi giờ bắt đầu và gửi đề (không kèm đáp án đúng).<br>3. Học viên chọn đáp án trong thời gian cho phép.<br>4. Học viên bấm **Nộp bài** trước khi hết giờ.<br>5. Hệ thống kiểm tra thời gian, chấm điểm và lưu kết quả.<br>6. Học viên xem điểm lần này, điểm cao nhất và có thể xem lại bài làm. |
+| Ngoại lệ        | Hết 3 lượt: không cho làm tiếp. Hết giờ mà chưa nộp: giao diện khóa bài làm, không gửi bài và báo bài không được ghi nhận; lượt đó vẫn tính vào 3 lượt và được hệ thống tự đóng ("Bỏ dở"). Nộp quá giờ (gọi API sau hạn): server từ chối, bài không được tính điểm. |
 | Kết quả         | Lượt làm bài và điểm được lưu |
 | Ràng buộc       | Tối đa 3 lượt mỗi khóa, lấy điểm cao nhất. Chấm điểm và tính giờ ở server (HT-NFR1) |
 
