@@ -179,3 +179,10 @@
   - Tích hợp hiển thị thanh tiến độ và con số `%` trực tiếp lên từng thẻ khóa học tại `frontend/src/pages/MyCoursesPage.jsx`.
 
   - **Dọn file thừa trước khi push:** Lúc chạy lệnh kiểm tra vô tình phát sinh file `package-lock.json` ở thư mục gốc, mình tự lọc ra không commit nhầm vào nhánh `feature/HT-04-ghi-danh`.
+
+## [AI-15] Viết nháp Chương 7 (Kiểm thử) và Chương 8 (Quản lý mã nguồn)
+- **Ngày:** 26/11/2026
+- **Công cụ:** Gemini
+- **Mục đích:** Tổng hợp cấu trúc báo cáo Chương 7 và Chương 8 theo mẫu quy định của giảng viên.
+- **Prompt chính:** Nhiệm vụ: 1. Sửa lỗi HT-04, HT-11. 2. Chương 7 kiểm thử; chương 8 Git (thống kê commit/PR/review).
+- **Kết quả & Kiểm tra:** Tạo khung 2 chương đầy đủ các đề mục 7.1–7.4 và 8.1–8.4; tự đối chiếu số liệu commit từ `git shortlog -sn --all` và chụp biểu đồ GitHub Insights để điền số liệu thật.

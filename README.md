@@ -1,109 +1,114 @@
-# Hướng dẫn Thiết lập & Chạy Migration Cơ sở dữ liệu (Node.js + MySQL)
+# Website Quản Lý Học Tập Trực Tuyến (3TBP)
 
-Tài liệu này hướng dẫn đầy đủ các bước từ khởi tạo dự án, cài đặt thư viện, cấu hình kết nối đến tạo và chạy migration để đồng bộ hệ thống 8 bảng cơ sở dữ liệu lên MySQL.
-
----
-
-## 1. Khởi tạo Dự án & Cài đặt Thư viện
-
-Mở terminal tại thư mục gốc của dự án (`Database`) và chạy lần lượt các lệnh sau:
-
-```bash
-# Khởi tạo file package.json
-npm init -y
-
-# Cài đặt các thư viện cần thiết
-npm install knex mysql2 dotenv
-
-# Khởi tạo file cấu hình knexfile.js
-npx knex init
-```
+Hệ thống quản lý học tập trực tuyến hỗ trợ 4 phân hệ người dùng (**Khách**, **Học viên**, **Giảng viên**, **Quản trị viên**) với đầy đủ các chức năng nghiệp vụ: duyệt và tìm kiếm khóa học, đăng ký/đăng nhập phân quyền JWT, ghi danh khóa học, học bài theo chương và lưu tiến độ, làm bài trắc nghiệm chấm điểm tự động trên server, quản lý khóa học/bài học/ngân hàng câu hỏi, nhập câu hỏi từ CSV và quản trị người dùng/danh mục.
 
 ---
 
-## 2. Cấu hình Môi trường & Kết nối
+## 1. Liên kết dự án & Thành viên nhóm
 
-### Bước 1: Tạo file `.env`
-Tạo file `.env` ở thư mục gốc (`Database/.env`) và khai báo thông tin kết nối MySQL:
+* **Repository GitHub:** https://github.com/3TBP-Project/3tpb-quan-ly-hoc-tap
+* **Bảng quản lý tiến độ (Trello):** https://trello.com/b/g7hXkb8I/3tpb-quan-ly-hoc-tap-web-2026
+* **Video demo sản phẩm:** 
 
-```env
+| Mã | Họ và tên | Vai trò |
+|---|---|---|
+| TV1 | Nguyễn Ngọc Trọng | Leader (LE) |
+| TV2 | Hà Hữu Thịnh | Backend 1 (BE1) |
+| TV3 | Lê Đức Phong | Frontend (FE) |
+| TV4 | Nguyễn Quang Thông | Backend 2 (BE2) |
+| TV5 | Trần Thanh Bình | Git & Tester (GT) |
+
+---
+
+## 2. Công nghệ sử dụng & Cấu trúc thư mục
+
+* **Frontend:** React (Vite), React Router, CSS Modules / Tailwind CSS (`frontend/`)
+* **Backend:** Node.js, Express 5, JSON Web Token (`jsonwebtoken`), `bcrypt` (`backend/`)
+* **Cơ sở dữ liệu:** MySQL 8.0+, Knex.js Migration & Seed (`Database/`)
+* **Kiểm thử:** `node:test` và `node:assert/strict` tích hợp sẵn trong Node.js (`backend/test/`)
+
+```text
+3tpb-quan-ly-hoc-tap/
+├── backend/          # API Server (Node.js + Express) và bộ Unit Test
+├── frontend/         # Giao diện người dùng (React + Vite)
+├── Database/         # Cấu hình Knex, Migrations (8 bảng) và Seeds dữ liệu mẫu
+├── docs/             # Tài liệu phân tích, thiết kế, test-cases.md và báo cáo
+├── ai-logs/          # Nhật ký sử dụng AI của 5 thành viên
+├── .env.example      # Tệp mẫu biến môi trường
+└── README.md         # Hướng dẫn cài đặt và vận hành hệ thống
+
+---
+
+## 3. Hướng dẫn cài đặt và chạy trên máy sạch (≤ 15 phút)
+Yêu cầu môi trường
+Node.js phiên bản >= 20.x và npm >= 10.x
+
+MySQL Server phiên bản 8.0+ (hoặc XAMPP / Laragon / Docker MySQL đang chạy)
+
+Bước 1: Clone mã nguồn: 
+git clone https://github.com/3TBP-Project/3tpb-quan-ly-hoc-tap.git
+cd 3tpb-quan-ly-hoc-tap
+
+Bước 2: Cấu hình biến môi trường (.env)
+1. Sao chép tệp mẫu cấu hình cho Backend và Frontend:
+cp .env.example backend/.env
+cp frontend/.env.example frontend/.env
+
+2. Mở tệp backend/.env và cập nhật thông tin kết nối MySQL của bạn:
+PORT=5000
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=mat_khau_cua_ban
-DB_NAME=ten_database_cua_ban
-```
+DB_PASSWORD=
+DB_NAME=db_quanlyhoctap
+JWT_SECRET=chuoi_bi_mat_lms_3tpb_2026
+JWT_EXPIRES_IN=1d
 
-Nếu `Database/.env` chưa tồn tại, cấu hình Knex sẽ dùng `backend/.env` để kết nối cùng cơ sở dữ liệu với backend.
-
-### Bước 2: Cập nhật file `knexfile.js`
-Mở file `knexfile.js` ở thư mục gốc và thay thế bằng nội dung sau:
-
-```javascript
-const path = require('path');
-const dotenv = require('dotenv');
-
-dotenv.config({ path: path.resolve(__dirname, '.env') });
-dotenv.config({ path: path.resolve(__dirname, '..', 'backend', '.env') });
-
-/** @type { Object.<string, import("knex").Knex.Config> } */
-module.exports = {
-  development: {
-    client: 'mysql2',
-    connection: {
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 3306,
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'db_quanlyhoctap'
-    },
-    migrations: {
-      tableName: 'knex_migrations',
-      directory: './migrations'
-    }
-  }
-};
-```
-
----
-
-## 3. Tạo các file Migration (Theo đúng thứ tự)
-
-Chạy lần lượt các lệnh sau để tạo 8 file migration trong thư mục `./migrations/`:
-
-```bash
-npx knex migrate:make create_categories_table
-npx knex migrate:make create_users_table
-npx knex migrate:make create_courses_table
-npx knex migrate:make create_enrollments_table
-npx knex migrate:make create_lessons_table
-npx knex migrate:make create_questions_table
-npx knex migrate:make create_quiz_attempts_table
-npx knex migrate:make create_lesson_progress_table
-```
-
-*(Sau khi tạo xong, copy nội dung định nghĩa từng bảng tương ứng vào các file vừa sinh ra).*
-
----
-
-## 4. Các lệnh Thực thi & Quản lý Migration
-
-### Chạy toàn bộ Migration để tạo bảng trên MySQL:
-```bash
+Bước 3: Khởi tạo CSDL, chạy Migration và Seed dữ liệu mẫu
+1. Mở MySQL (phpMyAdmin / MySQL Workbench / MySQL CLI) và tạo database rỗng khớp với DB_NAME:
+CREATE DATABASE IF NOT EXISTS db_quanlyhoctap CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+2. Di chuyển vào thư mục Database, cài đặt thư viện (knex, mysql2, dotenv) và đồng bộ cấu trúc 8 bảng cùng dữ liệu mẫu:
+cd Database
+npm install
 npx knex migrate:latest
-```
-
-### Kiểm tra trạng thái các file Migration:
-```bash
+npx knex seed:run
+cd ..
+Các lệnh quản lý Migration bổ sung (chạy trong thư mục Database/):
+# Kiểm tra trạng thái các file Migration
 npx knex migrate:status
-```
 
-### Hoàn tác (Rollback) lần chạy Migration gần nhất:
-```bash
+# Hoàn tác (Rollback) lần chạy Migration gần nhất
 npx knex migrate:rollback
-```
 
-### Hoàn tác toàn bộ các bảng đã tạo:
-```bash
+# Hoàn tác toàn bộ các bảng đã tạo
 npx knex migrate:rollback --all
-```
+
+Bước 4: Cài đặt thư viện và khởi chạy Backend & Frontend
+Mở Terminal 1 — Khởi chạy Backend (cổng 5000):
+cd backend
+npm install
+npm run dev
+
+Mở Terminal 2 — Khởi chạy Frontend (cổng 5173):
+cd frontend
+npm install
+npm run dev
+
+---
+
+## 4. Hướng dẫn chạy kiểm thử (Unit Test)
+Bộ kiểm thử đơn vị sử dụng node --test tích hợp sẵn của Node.js:
+cd backend
+npm test
+
+---
+
+## 5. Tài khoản demo 3 vai trò
+Sau khi chạy xong npx knex seed:run ở Bước 3, có thể đăng nhập trực tiếp để kiểm tra đầy đủ 3 phân hệ:
+## Tài khoản demo 3 vai trò
+
+| Vai trò | Email đăng nhập | Mật khẩu | Chức năng kiểm thử tiêu biểu |
+|---|---|---|---|
+| **Quản trị viên (Admin)** | `admin@gmail.com` | `password123` | Tạo tài khoản giảng viên, khóa/mở tài khoản người dùng, quản lý danh mục, duyệt/ẩn khóa học |
+| **Giảng viên (Teacher)** | `teacher1@gmail.com` | `password123` | Tạo/sửa/xóa khóa học của mình, quản lý chương & bài học, soạn câu hỏi trắc nghiệm, nhập CSV |
+| **Học viên (Student)** | `student1@gmail.com` | `password123` | Duyệt/tìm khóa học, ghi danh, học bài & lưu tiến độ, làm bài trắc nghiệm (tối đa 3 lượt), sửa hồ sơ |
