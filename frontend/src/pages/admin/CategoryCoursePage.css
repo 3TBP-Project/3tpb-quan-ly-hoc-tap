@@ -1,0 +1,492 @@
+/* AI-assisted [AI-07] [AI-28] – HT-15: Danh mục và duyệt khóa học
+ * Figma trang "03 – Quản trị": "HT-15 · Danh mục & duyệt khóa học" (Desktop / Mobile, Sáng / Tối),
+ * "Trạng thái bảng · HT-14/15". Dùng biến --ht-* và màu danh mục .ht-cat--* ở styles/theme.css.
+ */
+.category-course-page {
+  padding: 16px 0 32px;
+  color: var(--ht-text-primary);
+}
+
+/* ---------- Tiêu đề trang + nút ---------- */
+.cc-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cc-page-head h1 {
+  margin: 0;
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 42px;
+}
+
+.cc-page-head p {
+  margin: 4px 0 0;
+  color: var(--ht-text-secondary);
+  font-size: 17px;
+  line-height: 28px;
+}
+
+/* ---------- Chip danh mục: màu riêng mỗi danh mục ---------- */
+.cc-chip {
+  /* Tên danh mục dài: xuống dòng trong chip, tối đa 2 dòng rồi "…" */
+  display: -webkit-inline-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: var(--cat-bg, var(--ht-bg-surface-2));
+  color: var(--cat-fg, var(--ht-text-secondary));
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Chữ dài trong ô bảng: xuống dòng, tối đa 2 dòng rồi "…" */
+.cc-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Thẻ danh mục: 5 thẻ mỗi hàng ở 1366px ---------- */
+.cc-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 150ms ease-out;
+}
+
+.cc-cat-grid.is-loading,
+.cc-table.is-loading {
+  opacity: 0.6;
+}
+
+.cc-cat-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 20px 20px 12px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.cc-cat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--ht-shadow-primary);
+}
+
+.cc-cat-count {
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.cc-cat-card .cc-actions {
+  margin-left: -14px;
+}
+
+.cc-summary {
+  margin: 20px 0 0;
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* ---------- Thao tác dạng chữ (Figma Button Ghost) ---------- */
+.cc-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cc-link-btn {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: var(--ht-radius-md);
+  background: transparent;
+  color: var(--ht-primary);
+  font: inherit;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cc-link-btn:hover:not(:disabled) { background: var(--ht-primary-soft); color: var(--ht-primary); }
+.cc-link-btn:focus-visible { outline: 3px solid var(--ht-primary); outline-offset: 2px; }
+.cc-link-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cc-link-btn.danger { color: var(--ht-error-fg); }
+.cc-link-btn.danger:hover:not(:disabled) { background: var(--ht-error-bg); color: var(--ht-error-fg); }
+
+/* ---------- Tìm kiếm khóa học ---------- */
+.cc-search {
+  position: relative;
+  display: block;
+  margin: 0 0 20px;
+}
+
+.cc-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 21px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--ht-text-secondary);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.cc-search input,
+.cc-field input {
+  width: 100%;
+  height: 55px;
+  border: 1.5px solid var(--ht-border-strong);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+  font: inherit;
+  font-size: 17px;
+}
+
+.cc-search input {
+  padding: 0 20px 0 48px;
+  border-radius: var(--ht-radius-full);
+}
+
+.cc-search input:focus,
+.cc-field input:focus {
+  outline: none;
+  border: 2px solid var(--ht-primary);
+  box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+
+/* ---------- Bảng duyệt khóa học ---------- */
+.cc-table-card {
+  overflow: hidden;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+}
+
+.cc-table {
+  width: 100%;
+  border-collapse: collapse;
+  /* Cột cố định: tên khóa học / giảng viên / danh mục dài không đẩy cột khác ra ngoài */
+  table-layout: fixed;
+  transition: opacity 150ms ease-out;
+}
+
+.cc-table thead th {
+  padding: 12px 20px;
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: left;
+}
+
+.cc-table td {
+  padding: 12px 20px;
+  border-top: 1px solid var(--ht-border-default);
+  font-size: 17px;
+  line-height: 28px;
+  vertical-align: middle;
+}
+
+.cc-table th.c-teacher { width: 20%; }
+.cc-table th.c-category { width: 20%; }
+.cc-table th.c-status { width: 160px; }
+.cc-table th.c-actions { width: 170px; }
+.cc-table .c-title { font-weight: 600; }
+.cc-table .c-teacher { color: var(--ht-text-secondary); }
+.cc-table .c-actions { text-align: right; }
+.cc-table .c-actions .cc-actions { justify-content: flex-end; }
+
+.cc-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--ht-radius-full);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.cc-badge.public { background: var(--ht-success-bg); color: var(--ht-success-fg); }
+.cc-badge.draft { background: var(--ht-warning-bg); color: var(--ht-warning-fg); }
+.cc-badge.hidden {
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+  box-shadow: inset 0 0 0 1px var(--ht-border-strong);
+}
+
+/* ---------- Trạng thái: đang tải / trống / lỗi ---------- */
+.cc-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+}
+
+.cc-table-card .cc-skeleton { border: 0; }
+
+.cc-skeleton span {
+  height: 44px;
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-bg-surface-2);
+  animation: cc-pulse 1.2s ease-in-out infinite;
+}
+
+.cc-skeleton span:first-child { height: 20px; }
+
+@keyframes cc-pulse {
+  50% { opacity: 0.5; }
+}
+
+.cc-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 24px;
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+  text-align: center;
+}
+
+.cc-state-icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: var(--ht-primary-soft);
+  color: var(--ht-primary);
+  font-weight: 800;
+  font-size: 28px;
+}
+
+.cc-state-icon.error {
+  background: var(--ht-error-bg);
+  color: var(--ht-error-fg);
+}
+
+.cc-state-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 28px;
+}
+
+.cc-state .cc-muted {
+  max-width: 46ch;
+  margin: 0 0 8px;
+}
+
+.cc-muted {
+  color: var(--ht-text-secondary);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.cc-toast .toast-body { overflow-wrap: anywhere; }
+
+/* ---------- Hộp thoại ---------- */
+.cc-modal-dialog {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 16px;
+}
+
+.cc-modal {
+  border: 0;
+  border-radius: var(--ht-radius-xl);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+}
+
+.cc-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 32px;
+}
+
+.cc-modal-title {
+  margin: 0;
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 34px;
+}
+
+.cc-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.cc-field label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+}
+
+.cc-field input {
+  padding: 0 16px;
+  border-radius: var(--ht-radius-md);
+}
+
+.cc-field.has-error input { border: 2px solid var(--ht-error-fg); }
+
+.cc-hint,
+.cc-err {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.cc-hint { color: var(--ht-text-secondary); font-weight: 500; }
+.cc-err { color: var(--ht-error-fg); font-weight: 600; }
+
+.cc-btn-danger {
+  border-width: 0;
+  background: var(--ht-error-fg);
+  color: #fff;
+}
+
+.cc-btn-danger:hover { color: #fff; }
+
+:root[data-theme='dark'] .cc-btn-danger,
+:root[data-theme='dark'] .cc-btn-danger:hover { color: var(--ht-bg-page); }
+
+/* ---------- Thông báo góc phải trên ---------- */
+.cc-toasts { z-index: 1080; }
+
+.cc-toast {
+  --bs-toast-bg: var(--ht-bg-surface);
+  --bs-toast-header-bg: var(--ht-bg-surface);
+  --bs-toast-header-color: var(--ht-text-primary);
+  --bs-toast-color: var(--ht-text-secondary);
+  --bs-toast-border-color: var(--ht-border-default);
+  --bs-toast-border-radius: var(--ht-radius-md);
+  border-left: 4px solid var(--ht-success-fg);
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+}
+
+.cc-toast.warn { border-left-color: var(--ht-warning-fg); }
+.cc-toast.info { border-left-color: var(--ht-primary); }
+.cc-toast.error { border-left-color: var(--ht-error-fg); }
+
+/* ---------- Điện thoại (Figma Mobile): thẻ danh mục 2 cột, mỗi khóa học một thẻ ---------- */
+@media (max-width: 991.98px) {
+  .cc-table thead th,
+  .cc-table td { padding-left: 12px; padding-right: 12px; }
+  .cc-table th.c-status { width: 140px; }
+  .cc-table th.c-actions { width: 130px; }
+}
+
+@media (max-width: 767.98px) {
+  .cc-page-head h1 { font-size: 28px; line-height: 36px; }
+  .cc-page-head .ht-btn { width: 100%; }
+
+  .cc-cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .cc-cat-card { padding: 16px 14px 8px; }
+
+  .cc-table-card {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .cc-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .cc-table,
+  .cc-table tbody {
+    display: block;
+  }
+
+  /* Thẻ: tên khóa / "Giảng viên · danh mục" / trạng thái + thao tác */
+  .cc-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid var(--ht-border-default);
+    border-radius: var(--ht-radius-lg);
+    background: var(--ht-bg-surface);
+  }
+
+  .cc-table td { padding: 0; border: 0; }
+  .cc-table .c-title { flex: 0 0 100%; font-size: 17px; }
+  .cc-table .c-teacher { font-size: 14px; line-height: 20px; }
+  .cc-table .c-teacher { display: flex; gap: 4px; max-width: 100%; min-width: 0; }
+  .cc-table .c-teacher::after { content: '·'; flex: none; }
+  /* Điện thoại: tên giảng viên 1 dòng, cắt "…" để dấu "·" luôn đứng ngay sau tên */
+  .cc-table .c-teacher .cc-clamp { display: block; min-width: 0; white-space: nowrap; text-overflow: ellipsis; }
+  /* Danh mục chiếm ít nhất hơn nửa thẻ nên trạng thái luôn xuống hàng mới */
+  .cc-table .c-category { flex: 1 1 auto; min-width: 58%; }
+  .cc-table .c-status { padding-top: 8px; }
+  .cc-table .c-actions { margin-left: auto; padding-top: 8px; }
+
+  .cc-link-btn { padding: 8px 8px; font-size: 15px; }
+
+  .cc-state,
+  .cc-table-card .cc-skeleton {
+    border: 1px solid var(--ht-border-default);
+    border-radius: var(--ht-radius-lg);
+  }
+
+  .cc-modal-body { padding: 24px 20px; }
+  .cc-modal-actions .ht-btn { flex: 1 1 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-skeleton span { animation: none; }
+  .cc-cat-card,
+  .cc-cat-card:hover { transition: none; transform: none; }
+}

@@ -1,0 +1,407 @@
+/* AI-assisted [AI-26]
+ * Xem lại bài làm (HT-07). Figma chưa có frame riêng cho trang này nên dùng cùng kiểu của
+ * "HT-06 · Kết quả bài kiểm tra": thẻ trắng bo 28px, ô số liệu tím nhạt, dòng đáp án xanh / đỏ có ✓ / ✕.
+ * Dùng biến --ht-* ở styles/theme.css nên tự đổi theo chế độ sáng / tối.
+ */
+.quiz-review-page {
+  padding: 8px 0 32px;
+  color: var(--ht-text-primary);
+}
+
+.qr-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  margin-left: -12px;
+  border-radius: var(--ht-radius-sm);
+  color: var(--ht-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.qr-back:hover {
+  background: var(--ht-primary-soft);
+  color: var(--ht-primary);
+}
+
+.qr-back:focus-visible {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.qr-title {
+  margin: 8px 0 4px;
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 42px;
+}
+
+.qr-sub {
+  margin: 0 0 24px;
+  color: var(--ht-text-secondary);
+  font-size: 17px;
+  line-height: 28px;
+}
+
+/* Bố cục: cột tóm tắt 340px + danh sách câu */
+.qr-layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.qr-side {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.qr-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.qr-card {
+  padding: 24px;
+  border-radius: var(--ht-radius-xl);
+  background: var(--ht-bg-surface);
+}
+
+.qr-card-title {
+  margin: 0 0 16px;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+}
+
+/* ---------- Tóm tắt điểm ---------- */
+.qr-score {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.qr-score b {
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 56px;
+  line-height: 60px;
+}
+
+.qr-score span {
+  color: var(--ht-text-secondary);
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.qr-score.high b { color: var(--ht-success-fg); }
+.qr-score.mid b { color: var(--ht-warning-fg); }
+.qr-score.low b { color: var(--ht-error-fg); }
+
+.qr-score-why {
+  margin: 4px 0 16px;
+  color: var(--ht-text-secondary);
+  font-size: 16px;
+}
+
+/* Ô số liệu tím nhạt (Figma "Stat box") */
+.qr-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.qr-stats > div {
+  padding: 10px 14px;
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-bg-surface-2);
+}
+
+.qr-stats dt {
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.qr-stats dt.correct::before { content: '✓ '; color: var(--ht-success-fg); }
+.qr-stats dt.wrong::before { content: '✕ '; color: var(--ht-error-fg); }
+.qr-stats dt.unanswered::before { content: '— '; }
+
+.qr-stats dd {
+  margin: 2px 0 0;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 26px;
+}
+
+/* ---------- Bảng câu hỏi: xanh = đúng, đỏ = sai, viền = bỏ trống ---------- */
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 44px);
+  gap: 8px;
+}
+
+.qr-grid-cell {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--ht-border-strong);
+  border-radius: var(--ht-radius-sm);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-secondary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 100ms ease-out;
+}
+
+.qr-grid-cell:hover { transform: translateY(-2px); }
+.qr-grid-cell:focus-visible { outline: 3px solid var(--ht-primary); outline-offset: 2px; }
+
+.qr-grid-cell.correct {
+  border-color: transparent;
+  background: var(--ht-success-bg);
+  color: var(--ht-success-fg);
+}
+
+.qr-grid-cell.wrong {
+  border-color: transparent;
+  background: var(--ht-error-bg);
+  color: var(--ht-error-fg);
+}
+
+/* ---------- Bộ lọc dạng viên thuốc ---------- */
+.qr-filters {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 6px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: 16px;
+  background: var(--ht-bg-surface);
+}
+
+.qr-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ht-text-secondary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.qr-filter:hover { background: var(--ht-primary-soft); color: var(--ht-primary); }
+.qr-filter:focus-visible { outline: 3px solid var(--ht-primary); outline-offset: 2px; }
+
+.qr-filter.active {
+  background: var(--ht-primary);
+  color: var(--ht-text-on-primary);
+}
+
+.qr-filter b { font-weight: 700; }
+
+.qr-filter-mark.correct { color: var(--ht-success-fg); }
+.qr-filter-mark.wrong { color: var(--ht-error-fg); }
+.qr-filter.active .qr-filter-mark { color: inherit; }
+
+/* ---------- Thẻ câu hỏi ---------- */
+.qr-question {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-left: 6px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+  scroll-margin-top: 16px;
+}
+
+.qr-question.correct { border-left-color: var(--ht-success-fg); }
+.qr-question.wrong { border-left-color: var(--ht-error-fg); }
+
+.qr-question-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.qr-question-number {
+  color: var(--ht-text-secondary);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.qr-pill {
+  padding: 4px 12px;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.qr-pill.correct { background: var(--ht-success-bg); color: var(--ht-success-fg); }
+.qr-pill.wrong { background: var(--ht-error-bg); color: var(--ht-error-fg); }
+
+.qr-question-content {
+  margin: 0;
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  overflow-wrap: anywhere;
+}
+
+/* Lựa chọn: đáp án đúng nền xanh, đáp án chọn sai nền đỏ (cùng kiểu Figma "Kết quả") */
+.qr-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qr-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-md);
+}
+
+.qr-option.is-correct { border: 2px solid var(--ht-success-fg); background: var(--ht-success-bg); }
+.qr-option.is-wrong { border: 2px solid var(--ht-error-fg); background: var(--ht-error-bg); }
+
+.qr-option-label {
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--ht-bg-surface-2);
+  font-weight: 700;
+}
+
+.qr-option.is-correct .qr-option-label { background: var(--ht-success-fg); color: var(--ht-success-bg); }
+.qr-option.is-wrong .qr-option-label { background: var(--ht-error-fg); color: var(--ht-error-bg); }
+
+.qr-option-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+.qr-option-tag {
+  flex: 0 0 auto;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.qr-option-tag.correct { color: var(--ht-success-fg); }
+.qr-option-tag.wrong { color: var(--ht-error-fg); }
+
+/* Dòng tóm tắt dưới mỗi câu: đáp án đúng + bong bóng A–D */
+.qr-answer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ht-border-default);
+}
+
+.qr-answer-key {
+  color: var(--ht-success-fg);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.qr-bubbles {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.qr-bubble {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--ht-border-default);
+  border-radius: 50%;
+  color: var(--ht-text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.qr-bubble.key { border-color: var(--ht-success-fg); color: var(--ht-success-fg); }
+.qr-bubble.chosen-correct { border-color: var(--ht-success-fg); background: var(--ht-success-fg); color: var(--ht-success-bg); }
+.qr-bubble.chosen-wrong { border-color: var(--ht-error-fg); background: var(--ht-error-fg); color: var(--ht-error-bg); }
+
+/* Ghi chú / trống */
+.qr-fallback-note {
+  border: 1px solid var(--ht-warning-fg);
+  background: var(--ht-warning-bg);
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.qr-empty,
+.qr-muted {
+  color: var(--ht-text-secondary);
+  text-align: center;
+}
+
+.qr-muted {
+  margin: 0;
+  text-align: left;
+}
+
+/* ---------- Màn nhỏ ---------- */
+@media (max-width: 991.98px) {
+  .qr-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .qr-side {
+    position: static;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .qr-title { font-size: 28px; line-height: 36px; }
+  .qr-card,
+  .qr-question { padding: 20px 16px; }
+  .qr-filters { display: flex; }
+  .qr-filter { flex: 1 1 auto; justify-content: center; padding: 8px 10px; }
+  .qr-option { flex-wrap: wrap; }
+  .qr-option-tag { flex-basis: 100%; padding-left: 48px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qr-grid-cell { transition: none; }
+  .qr-grid-cell:hover { transform: none; }
+}

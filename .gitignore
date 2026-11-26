@@ -147,3 +147,7 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Tệp người dùng tải lên (ảnh đại diện, PDF bài học) - không commit
+backend/uploads/
+backend/storage/

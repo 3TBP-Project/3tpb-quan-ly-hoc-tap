@@ -1,0 +1,280 @@
+/* AI-assisted [AI-16] — Header, footer theo Figma "Header · Trang chủ" / "Footer · Trang chủ" */
+
+/* ---------- Logo ---------- */
+.ht-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Ảnh logo dọc (259×311): giữ tỉ lệ, chỉ đặt chiều cao */
+.ht-logo__img {
+  display: block;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.ht-logo__text {
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+/* ---------- Header ---------- */
+.ht-header {
+  background: var(--ht-bg-surface);
+  border-bottom: 1px solid var(--ht-border-default);
+  padding: 14px 0;
+}
+
+.ht-header__inner {
+  gap: 24px;
+}
+
+.ht-header__brand {
+  margin-right: 8px;
+  padding: 0;
+}
+
+.ht-nav {
+  gap: 8px;
+}
+
+.ht-nav .ht-nav__link {
+  padding: 8px 16px;
+  border-radius: var(--ht-radius-full);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-secondary);
+  transition: background-color 150ms ease-out;
+}
+
+.ht-nav .ht-nav__link:hover {
+  color: var(--ht-text-primary);
+  background: var(--ht-bg-surface-2);
+}
+
+.ht-nav .ht-nav__link.active {
+  color: var(--ht-primary);
+  background: var(--ht-primary-soft);
+}
+
+.ht-nav .ht-nav__link:focus-visible {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ht-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--ht-radius-full);
+  border: 1px solid var(--ht-border-default);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-secondary);
+  transition: background-color 150ms ease-out;
+}
+
+.ht-icon-btn:hover {
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-primary);
+}
+
+.ht-icon-btn:focus-visible {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ht-user__avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-primary-soft);
+  color: var(--ht-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+.ht-user__avatar-img {
+  display: block;
+  object-fit: cover;
+  border: 1px solid var(--ht-border-default);
+}
+
+.ht-user__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+/* Tên dài trên thanh điều hướng: 1 dòng, cắt "…" (di chuột để xem đủ) */
+.ht-user__name {
+  max-width: 180px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ht-text-primary);
+}
+
+.ht-user__role {
+  font-size: 13px;
+  color: var(--ht-text-secondary);
+}
+
+/* Nút ☰ (Figma: "Nút menu ☰" 44×44, 3 vạch 18×2) */
+.ht-header__toggle {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ht-header__toggle:focus {
+  box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+
+.ht-burger {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ht-burger span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ht-text-primary);
+}
+
+/* Điện thoại / máy tính bảng: ☰ trái, logo giữa, nút đổi giao diện phải */
+@media (max-width: 991.98px) {
+  .ht-header {
+    padding: 10px 0;
+  }
+
+  .ht-header__inner {
+    gap: 0;
+  }
+
+  .ht-header__toggle { order: 1; }
+  .ht-header__brand { order: 2; margin: 0 auto; }
+  .ht-header__theme-mobile { order: 3; }
+
+  #main-nav { order: 4; }
+
+  .ht-nav {
+    padding-top: 12px;
+  }
+
+  .ht-header__actions {
+    flex-wrap: wrap;
+    padding: 12px 0 4px;
+    border-top: 1px solid var(--ht-border-default);
+    margin-top: 12px;
+  }
+
+  .ht-header__actions .ht-btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* ---------- Footer ---------- */
+.ht-footer {
+  background: var(--ht-bg-surface);
+  border-top: 1px solid var(--ht-border-default);
+  padding: 28px 0;
+}
+
+.ht-footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.ht-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ht-footer__name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ht-footer__tagline {
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-secondary);
+}
+
+.ht-footer__copy {
+  color: var(--ht-text-secondary);
+  margin: 0;
+}
+
+.ht-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+.ht-footer__links a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ht-footer__links a:hover {
+  color: var(--ht-primary);
+}
+
+@media (max-width: 767.98px) {
+  .ht-footer {
+    padding: 24px 0;
+  }
+
+  .ht-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .ht-footer__name {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

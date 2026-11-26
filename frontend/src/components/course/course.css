@@ -1,0 +1,316 @@
+/* AI-assisted [AI-16] [AI-20] — Thẻ khóa học và bộ lọc theo Figma "Course card · Trang chủ", "Bộ lọc" */
+
+/* ---------- Thẻ khóa học ---------- */
+.ht-course-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--ht-bg-surface);
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-lg);
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+  overflow: hidden;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+/* Giao diện tối: bóng tỏa đều quanh thẻ (Figma "HT/Shadow/Card · Tối") */
+:root[data-theme='dark'] .ht-course-card {
+  box-shadow: 0 0 24px var(--ht-shadow-primary);
+}
+
+/* Hover (chỉ máy có chuột): nhấc 4px + bóng đổ màu theo danh mục */
+@media (hover: hover) {
+  .ht-course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--cat-solid) 40%, transparent);
+  }
+}
+
+.ht-course-card:focus-within {
+  box-shadow: 0 0 0 3px var(--ht-primary), 0 8px 24px var(--ht-shadow-primary);
+}
+
+.ht-course-card__cover {
+  position: relative;
+  height: 160px;
+  flex-shrink: 0;
+  background: var(--cat-bg);
+  overflow: hidden;
+}
+
+.ht-course-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ht-course-card__blob {
+  position: absolute;
+  top: -50px;
+  right: -40px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: var(--cat-solid);
+  opacity: 0.4;
+}
+
+.ht-course-card__blob--small {
+  top: auto;
+  right: auto;
+  left: 150px;
+  bottom: -24px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.28;
+}
+
+.ht-course-card__sticker {
+  position: absolute;
+  left: 28px;
+  top: 44px;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: var(--ht-bg-surface);
+  color: var(--cat-fg);
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 34px;
+  transform: rotate(6deg);
+}
+
+.ht-course-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  padding: 18px;
+}
+
+.ht-badge {
+  /* Tên danh mục dài: xuống dòng trong nhãn, tối đa 2 dòng rồi "…" */
+  display: -webkit-inline-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: var(--cat-bg);
+  color: var(--cat-fg);
+}
+
+/* Tên khóa học: tối đa 2 dòng, giữ cao 56px để các thẻ thẳng hàng */
+.ht-course-card__title {
+  width: 100%;
+  min-height: 56px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.ht-course-card__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ht-course-card__title a:focus-visible {
+  outline: none;
+}
+
+.ht-course-card__teacher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+  color: var(--ht-text-primary);
+}
+
+/* Tên giảng viên dài: 1 dòng, cắt "…" */
+.ht-course-card__teacher > .ht-caption:last-child {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ht-course-card__teacher .ht-avatar { flex: none; }
+
+.ht-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--ht-radius-full);
+  background: var(--cat-bg);
+  color: var(--cat-fg);
+}
+.ht-avatar-img {
+  display: block;
+  object-fit: cover;
+  border: 1px solid var(--ht-border-default);
+}
+
+.ht-course-card__meta {
+  color: var(--ht-text-secondary);
+}
+
+/* Nút / tiến độ nằm trên lớp link phủ thẻ để bấm được */
+.ht-course-card__extra {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+/* Hai nút luôn rộng bằng nhau: đủ chỗ thì 2 cột chia đôi, thẻ hẹp (vd. 360 px) thì mỗi nút 1 hàng rộng hết thẻ.
+   Chỉ có 1 nút (giảng viên, quản trị viên) thì nút đó rộng hết thẻ. */
+.ht-course-card__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 162px), 1fr));
+  align-items: start; /* nút chính 48px + bóng 4px, không kéo giãn bằng nút viền 52px */
+  gap: 8px;
+}
+
+/* Lề ngang 14px (thay vì 22px) để "Làm bài kiểm tra" vừa nửa thẻ ở máy tính (thẻ 386 px) */
+.ht-course-card__actions .ht-btn {
+  width: 100%;
+  min-width: 0;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ht-course-card,
+  .ht-course-card:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Thẻ chờ tải (skeleton) */
+.ht-course-card--skeleton {
+  box-shadow: none;
+}
+
+.ht-skeleton {
+  display: block;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-bg-surface-2);
+}
+
+.ht-skeleton--cover {
+  height: 160px;
+  border-radius: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ht-skeleton {
+    animation: ht-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes ht-pulse {
+  50% { opacity: 0.55; }
+}
+
+/* ---------- Bộ lọc ---------- */
+.ht-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.ht-search {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: var(--ht-radius-full);
+  border: 1.5px solid var(--ht-border-strong);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-secondary);
+}
+
+.ht-search:focus-within {
+  border-color: var(--ht-primary);
+  box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+
+.ht-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+.ht-search input::placeholder {
+  color: var(--ht-text-secondary);
+}
+
+.ht-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 360px;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.ht-field label {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+.ht-field .form-select {
+  padding: 12px 40px 12px 16px;
+  border-radius: var(--ht-radius-md);
+  border: 1.5px solid var(--ht-border-strong);
+  background-color: var(--ht-bg-surface);
+  font-size: 17px;
+  line-height: 28px;
+  color: var(--ht-text-primary);
+}
+
+.ht-field .form-select:focus {
+  border-color: var(--ht-primary);
+  box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+
+/* Điện thoại: ô tìm rộng cả hàng, 2 ô chọn chung 1 hàng, nút xóa bên dưới */
+@media (max-width: 767.98px) {
+  .ht-filter {
+    flex-wrap: wrap;
+    gap: 20px 8px;
+  }
+
+  .ht-search {
+    flex-basis: 100%;
+  }
+
+  .ht-field {
+    flex: 1 1 calc(50% - 4px);
+    width: auto;
+  }
+}

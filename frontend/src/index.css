@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  background-color: var(--ht-bg-page);
+  /* Lưới an toàn: từ quá dài (tên, email, tiêu đề không có khoảng trắng) tự xuống dòng thay vì tràn khỏi khung */
+  overflow-wrap: break-word;
+}
+
+/* Nút rộng cả hàng trên điện thoại, co lại từ 768px */
+@media (min-width: 768px) {
+  .w-md-auto { width: auto !important; }
+}

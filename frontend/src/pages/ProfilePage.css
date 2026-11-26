@@ -1,0 +1,375 @@
+/* AI-assisted [AI-06] [AI-19] – HT-07: Hồ sơ và kết quả học tập
+ * Giao diện theo Figma "HT-07 · Hồ sơ giảng viên" (trang 02 – Giảng viên); dùng biến màu --ht-* ở styles/theme.css
+ * nên tự đổi theo chế độ sáng / tối.
+ */
+.profile-page {
+  color: var(--ht-text-primary);
+  font-size: 16px;
+  padding-bottom: 24px;
+}
+
+.pf-title {
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 42px;
+  margin: 16px 0 24px;
+}
+
+.pf-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Cảnh báo bắt buộc đổi mật khẩu (Figma "bắt buộc đổi mật khẩu") */
+.pf-password-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  border: 1px solid var(--ht-warning-fg);
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-warning-bg);
+  color: var(--ht-text-primary);
+}
+.pf-password-warning-icon { color: var(--ht-warning-fg); font-size: 20px; line-height: 24px; }
+.pf-password-warning b { display: block; font-weight: 700; }
+.pf-password-warning span { font-size: 15px; }
+
+/* Bố cục: thẻ hồ sơ 320px + vùng chính, cách 32px */
+.pf-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.pf-main { min-width: 0; }
+
+/* ---------- Thẻ hồ sơ bên trái ---------- */
+.pf-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 24px 24px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-xl);
+  background: var(--ht-bg-surface);
+  text-align: center;
+}
+
+.pf-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.pf-avatar-box { position: relative; width: 96px; height: 96px; }
+.pf-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ht-primary-soft);
+  color: var(--ht-primary);
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 42px;
+}
+.pf-avatar-img { display: block; object-fit: cover; }
+.pf-avatar-cam {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--ht-bg-surface);
+  border-radius: 50%;
+  background: var(--ht-primary);
+  color: var(--ht-text-on-primary);
+}
+.pf-avatar-choose { position: relative; cursor: pointer; }
+.pf-avatar-choose:focus-within { outline: 3px solid var(--ht-primary); outline-offset: 2px; }
+.pf-avatar-actions { display: flex; justify-content: center; gap: 8px; }
+.pf-btn-sm { padding: 8px 16px; font-size: 15px; }
+.pf-avatar-hint { color: var(--ht-text-secondary); font-size: 14px; line-height: 20px; font-weight: 500; }
+
+.pf-name { max-width: 100%; overflow-wrap: anywhere; text-align: center; font-family: var(--ht-font-heading); font-weight: 700; font-size: 20px; line-height: 28px; }
+.pf-email { max-width: 100%; text-align: center; color: var(--ht-text-secondary); font-size: 17px; line-height: 28px; overflow-wrap: anywhere; }
+.pf-role {
+  padding: 4px 12px;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-primary-soft);
+  color: var(--ht-primary);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+}
+
+.pf-stats { display: flex; gap: 10px; width: 100%; padding-top: 8px; }
+.pf-stat {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--ht-bg-surface-2);
+  text-align: left;
+}
+.pf-stat b {
+  color: var(--ht-primary);
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+}
+.pf-stat span { color: var(--ht-text-secondary); font-size: 14px; line-height: 20px; font-weight: 500; }
+
+/* ---------- Thanh tab dạng viên thuốc ---------- */
+.pf-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 20px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: 16px;
+  background: var(--ht-bg-surface);
+}
+.pf-tab {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ht-text-secondary);
+  font: inherit;
+  font-weight: 600;
+  line-height: 24px;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
+}
+.pf-tab:hover { background: var(--ht-primary-soft); color: var(--ht-primary); }
+.pf-tab.active { background: var(--ht-primary); color: var(--ht-text-on-primary); }
+.pf-tab:focus-visible { outline: 3px solid var(--ht-primary); outline-offset: 2px; }
+
+/* ---------- Hộp nội dung ---------- */
+.pf-box {
+  padding: 28px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-xl);
+  background: var(--ht-bg-surface);
+}
+.pf-box h3 {
+  font-family: var(--ht-font-heading);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  margin: 0 0 16px;
+}
+
+/* Tab Thông tin & Mật khẩu: 2 cột như Figma */
+.pf-account {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.pf-field { margin-bottom: 16px; }
+.pf-field label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 17px; line-height: 28px; }
+.pf-field input {
+  width: 100%;
+  height: 54px;
+  padding: 0 16px;
+  border: 1.5px solid var(--ht-border-strong);
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+  font: inherit;
+  font-size: 17px;
+}
+.pf-field input:focus {
+  outline: none;
+  border: 2px solid var(--ht-primary);
+  box-shadow: 0 0 0 3px var(--ht-primary-soft);
+}
+.pf-field input:disabled {
+  border-color: var(--ht-border-default);
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+}
+.pf-field.has-error input { border: 2px solid var(--ht-error-fg); }
+.pf-hint { margin-top: 6px; color: var(--ht-text-secondary); font-size: 14px; line-height: 20px; font-weight: 500; }
+.pf-err { margin-top: 6px; color: var(--ht-error-fg); font-size: 14px; line-height: 20px; font-weight: 600; }
+.pf-form-foot { display: flex; gap: 10px; margin-top: 8px; }
+
+/* ---------- Khóa học phụ trách (giảng viên) ---------- */
+.pf-courses h3 { margin-left: 20px; }
+.pf-course-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; }
+.pf-course-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 12px 12px 16px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-bg-surface);
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+.pf-course-item:hover { border-color: var(--ht-primary); box-shadow: 0 4px 16px var(--ht-shadow-primary); }
+.pf-course-dot { flex: 0 0 6px; align-self: stretch; border-radius: var(--ht-radius-full); background: var(--cat-solid); }
+.pf-course-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.pf-course-title { font-weight: 600; font-size: 17px; line-height: 28px; overflow-wrap: anywhere; }
+.pf-course-meta { color: var(--ht-text-secondary); font-size: 14px; line-height: 20px; font-weight: 500; }
+.pf-course-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding-top: 4px; }
+.pf-course-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+.pf-course-actions a {
+  padding: 4px 12px;
+  border-radius: var(--ht-radius-sm);
+  color: var(--ht-primary);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 24px;
+  text-decoration: none;
+}
+.pf-course-actions a:hover { background: var(--ht-primary-soft); }
+.pf-course-actions a:focus-visible { outline: 3px solid var(--ht-primary); outline-offset: 1px; }
+
+.pf-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--ht-radius-full);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.pf-badge.is-public { background: var(--ht-success-bg); color: var(--ht-success-fg); }
+.pf-badge.is-draft { background: var(--ht-warning-bg); color: var(--ht-warning-fg); }
+.pf-badge.is-hidden {
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+  box-shadow: inset 0 0 0 1px var(--ht-border-strong);
+}
+.pf-courses .ht-pagination { margin-top: 16px; }
+
+/* Trạng thái trống */
+.pf-empty { text-align: center; color: var(--ht-text-secondary); }
+.pf-empty h3 { margin-bottom: 8px; color: var(--ht-text-primary); }
+.pf-empty p { max-width: 46ch; margin: 0 auto 20px; line-height: 1.6; }
+.pf-empty-art {
+  display: inline-grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 12px;
+  border-radius: 24px;
+  background: var(--ht-primary-soft);
+  font-size: 34px;
+  transform: rotate(-6deg);
+}
+
+/* ---------- Lịch sử làm bài (học viên) ---------- */
+.pf-course-group {
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+}
+.pf-course-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--ht-bg-surface-2);
+  font-weight: 700;
+}
+.pf-best { color: var(--ht-text-secondary); font-size: 14px; font-weight: 600; }
+.pf-best b { color: var(--ht-success-fg); font-size: 16px; }
+.pf-table-wrap { overflow-x: auto; }
+.pf-course-group table { width: 100%; border-collapse: collapse; }
+.pf-course-group thead th {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--ht-border-default);
+  color: var(--ht-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+.pf-course-group tbody td { padding: 12px 20px; border-bottom: 1px solid var(--ht-border-default); white-space: nowrap; }
+.pf-course-group tbody tr:last-child td { border-bottom: 0; }
+.pf-num { font-variant-numeric: tabular-nums; }
+.pf-score { font-weight: 700; }
+.pf-score.high { color: var(--ht-success-fg); }
+.pf-score.mid { color: var(--ht-warning-fg); }
+.pf-score.low { color: var(--ht-error-fg); }
+.pf-attempt-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-primary-soft);
+  color: var(--ht-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+.pf-attempt-link { text-decoration: none; }
+.pf-attempt-link:hover { background: var(--ht-primary); color: var(--ht-text-on-primary); }
+.pf-best-mark { margin-left: 8px; color: var(--ht-success-fg); font-size: 13px; font-weight: 700; }
+.pf-expired-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-bg-surface-2);
+  border: 1px solid var(--ht-border-default);
+  color: var(--ht-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---------- Thông báo góc phải trên ---------- */
+.pf-toasts { z-index: 1080; }
+.pf-toast {
+  --bs-toast-bg: var(--ht-bg-surface);
+  --bs-toast-header-bg: var(--ht-bg-surface);
+  --bs-toast-header-color: var(--ht-text-primary);
+  --bs-toast-color: var(--ht-text-secondary);
+  --bs-toast-border-color: var(--ht-border-default);
+  --bs-toast-border-radius: var(--ht-radius-md);
+  border-left: 4px solid var(--ht-success-fg);
+  box-shadow: 0 8px 24px var(--ht-shadow-primary);
+}
+
+/* ---------- Màn nhỏ ---------- */
+@media (max-width: 1199.98px) {
+  .pf-account { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 991.98px) {
+  .pf-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .pf-title { font-size: 28px; line-height: 36px; margin-top: 8px; }
+}
+
+@media (max-width: 575.98px) {
+  .pf-box { padding: 20px 16px; }
+  .pf-courses h3 { margin-left: 0; }
+  .pf-tabs { display: flex; }
+  .pf-tab { flex: 1 1 0; padding: 10px 8px; font-size: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-tab,
+  .pf-course-item { transition: none; }
+}

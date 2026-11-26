@@ -1,0 +1,709 @@
+/* AI-assisted [AI-21] [AI-22] [AI-23] [AI-24]
+ * Trang học (HT-05) theo Figma "HT-05 · Trang học · v2 (chương học)" (Desktop 1366 / Mobile 360, Sáng / Tối).
+ * Dùng biến --ht-* ở styles/theme.css nên tự đổi theo chế độ sáng / tối.
+ */
+
+/* ---------- Thanh tiến độ: nền trắng tràn hết chiều ngang, sát dưới Header ---------- */
+.ht-learn-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  min-height: 78px;
+  margin-top: -1.5rem; /* bỏ khoảng py-4 của <main> để thanh dính sát Header */
+  padding: 14px 0;
+  background: var(--ht-bg-surface);
+  /* Nền + viền dưới tràn ra 2 bên màn hình mà không làm trang cuộn ngang */
+  box-shadow: 0 0 0 100vmax var(--ht-bg-surface), 0 1px 0 100vmax var(--ht-border-default);
+  clip-path: inset(0 -100vmax -1px);
+}
+
+.ht-learn-bar__crumb {
+  flex: 1 1 320px;
+  min-width: 0;
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.ht-learn-bar__course {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ht-text-secondary);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.ht-learn-bar__course:hover {
+  color: var(--ht-primary);
+  text-decoration-color: currentColor;
+}
+
+.ht-learn-bar__course:focus-visible,
+.ht-chapter:focus-visible,
+.ht-lesson-item:focus-visible,
+.ht-learn-toc__toggle:focus-visible {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-learn-bar__lesson {
+  overflow-wrap: anywhere;
+  color: var(--ht-text-primary);
+}
+
+.ht-learn-progress {
+  flex: 0 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.ht-learn-progress__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+}
+
+.ht-learn-progress__label strong {
+  color: var(--ht-primary);
+  font-weight: 600;
+}
+
+.ht-learn-progress__track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: var(--ht-radius-full);
+  background: var(--ht-bg-surface-2);
+}
+
+.ht-learn-progress__track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ht-primary);
+  transition: width 400ms ease-out;
+}
+
+.ht-learn-bar__focus {
+  flex: 0 0 auto;
+}
+
+/* ---------- Thân: mục lục 300px (nền trắng tràn sang trái) + vùng đọc ---------- */
+.ht-learn-body {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 0 48px;
+  align-items: start;
+}
+
+.ht-learn.is-focus .ht-learn-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ht-learn-side {
+  align-self: stretch;
+  padding: 24px 20px 32px 0;
+  background: var(--ht-bg-surface);
+  /* Cột mục lục trắng kéo sang mép trái và xuống thêm đúng 1.5rem (lề dưới py-4 của <main>)
+     để chạm Footer, không kéo xa hơn kẻo đè lên Footer */
+  box-shadow: 0 0 0 100vmax var(--ht-bg-surface);
+  clip-path: inset(0 0 -1.5rem -100vmax);
+}
+
+.ht-learn-main {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 0 24px;
+}
+
+/* ---------- Mục lục ---------- */
+.ht-learn-toc__title {
+  margin: 0 0 8px;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+}
+
+.ht-learn-toc__toggle {
+  display: none;
+}
+
+.ht-learn-toc__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ht-chapter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Thẻ chương: đang mở thì nền tím nhạt + viền 2px (Figma Chương · mở) */
+.ht-chapter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.ht-chapter:hover {
+  border-color: var(--ht-primary);
+}
+
+.ht-chapter.is-open {
+  padding: 11px 15px;
+  border: 2px solid var(--ht-primary);
+  background: var(--ht-primary-soft);
+}
+
+.ht-chapter__chevron {
+  flex: 0 0 20px;
+  transition: transform 150ms ease-out;
+}
+
+.ht-chapter.is-open .ht-chapter__chevron {
+  transform: rotate(90deg);
+}
+
+.ht-chapter__title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+}
+
+.ht-chapter__count {
+  flex: 0 0 auto;
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ht-lesson-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Thẻ bài học (Figma "Lesson row"): số tròn 36px, tên bài, trạng thái ở dòng dưới tên */
+.ht-lesson-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px 12px 14px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-primary);
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+  transition: border-color 150ms ease-out, transform 150ms ease-out;
+}
+
+a.ht-lesson-item:hover {
+  border-color: var(--ht-primary);
+  color: var(--ht-text-primary);
+  transform: translateX(2px);
+}
+
+.ht-lesson-item.is-current {
+  padding: 11px 15px 11px 13px;
+  border: 2px solid var(--ht-primary);
+  background: var(--ht-primary-soft);
+}
+
+.ht-lesson-item.is-locked {
+  cursor: not-allowed;
+}
+
+.ht-lesson-item__num {
+  flex: 0 0 36px;
+  display: grid;
+  place-items: center;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ht-bg-surface-2);
+  color: var(--ht-text-secondary);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.ht-lesson-item.is-current .ht-lesson-item__num {
+  background: var(--ht-primary);
+  color: var(--ht-text-on-primary);
+}
+
+.ht-lesson-item.is-done:not(.is-current) .ht-lesson-item__num {
+  background: var(--ht-success-bg);
+  color: var(--ht-success-fg);
+}
+
+/* Tên bài + trạng thái xếp dọc: tên dùng hết chiều ngang thẻ, tối đa 2 hàng (AI-23) */
+.ht-lesson-item__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ht-lesson-item__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+.ht-lesson-item__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ht-lesson-item__status.is-current,
+.ht-lesson-item__status.is-next {
+  color: var(--ht-primary);
+}
+
+.ht-lesson-item__status.is-done {
+  color: var(--ht-success-fg);
+}
+
+/* Lời nhắc khi bấm bài đang khóa (Figma "Toast · Bài đang khóa"): nền tối, chữ sáng */
+.ht-locked-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--ht-text-primary);
+  color: var(--ht-bg-page);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  box-shadow: 0 8px 17px var(--ht-shadow-primary);
+  animation: ht-hint-in 180ms ease-out;
+}
+
+@keyframes ht-hint-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.ht-learn-toc__total {
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+}
+
+/* Phân trang mục lục: gọn cho cột 300px — ‹  Bài 1–8 · Trang 1/2  › */
+.ht-toc-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.ht-toc-pager__btn {
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  height: 40px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-sm);
+  background: var(--ht-bg-surface);
+  color: var(--ht-primary);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.ht-toc-pager__btn:hover:not(:disabled) {
+  border-color: var(--ht-primary);
+  background: var(--ht-primary-soft);
+}
+
+.ht-toc-pager__btn:focus-visible {
+  outline: 3px solid var(--ht-primary);
+  outline-offset: 2px;
+}
+
+.ht-toc-pager__btn:disabled {
+  color: var(--ht-text-secondary);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ht-toc-pager__info {
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.ht-learn-toc__quiz {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* ---------- Vùng đọc: nền dịu, chữ tối, mỗi dòng tối đa ~70 ký tự ---------- */
+.ht-learn-alert {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border: 1px solid;
+  border-radius: var(--ht-radius-md);
+  color: var(--ht-text-primary);
+}
+
+.ht-learn-alert.is-warning { border-color: var(--ht-warning-fg); background: var(--ht-warning-bg); }
+.ht-learn-alert.is-error { border-color: var(--ht-error-fg); background: var(--ht-error-bg); }
+
+.ht-lesson-read__title {
+  margin: 0 0 20px;
+  font-family: var(--ht-font-heading);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 42px;
+  color: var(--ht-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.ht-lesson-read__video {
+  aspect-ratio: 16 / 9;
+  margin-bottom: 20px;
+  overflow: hidden;
+  border-radius: var(--ht-radius-lg);
+  background: #0e1330;
+}
+
+.ht-lesson-read__video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.ht-lesson-read__text {
+  max-width: 70ch;
+  margin-bottom: 20px;
+  color: var(--ht-text-primary);
+  font-size: 17px;
+  line-height: 28px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.ht-lesson-read__empty {
+  margin-bottom: 20px;
+  color: var(--ht-text-secondary);
+}
+
+/* Thẻ tài liệu PDF */
+.ht-pdf-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid var(--ht-border-default);
+  border-radius: var(--ht-radius-lg);
+  background: var(--ht-bg-surface);
+}
+
+.ht-pdf-card__icon {
+  flex: 0 0 56px;
+  display: grid;
+  place-items: center;
+  height: 56px;
+  border-radius: var(--ht-radius-md);
+  background: var(--ht-error-bg);
+  color: var(--ht-error-fg);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.ht-pdf-card__file {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ht-pdf-card__name {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 28px;
+  overflow-wrap: anywhere;
+}
+
+.ht-pdf-card__meta {
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ht-pdf-card__error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--ht-error-fg);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ---------- Hoàn thành + chuyển bài ---------- */
+.ht-lesson-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* Đã hoàn thành: nền xanh nhạt + ✓ (không chỉ dựa vào màu) */
+.ht-btn--done:disabled {
+  opacity: 1;
+  border-width: 0;
+  background: var(--ht-success-bg);
+  color: var(--ht-success-fg);
+}
+
+.ht-lesson-nav__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.ht-lesson-nav__prev,
+.ht-lesson-nav__next {
+  min-width: 0;
+  max-width: 50%;
+}
+
+.ht-lesson-nav__next {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.ht-lesson-nav__row .ht-btn {
+  max-width: 100%;
+}
+
+.ht-lesson-nav__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ht-lesson-nav .ht-btn--locked:disabled {
+  opacity: 1;
+  border-color: var(--ht-border-default);
+  background: var(--ht-bg-surface);
+  color: var(--ht-text-secondary);
+}
+
+.ht-lesson-nav__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--ht-text-secondary);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: right;
+}
+
+/* ---------- Màn vừa: mục lục hẹp lại ---------- */
+@media (max-width: 1199.98px) {
+  .ht-learn-body {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 0 32px;
+  }
+}
+
+/* ---------- Điện thoại / máy tính bảng: 1 cột, mục lục gập được nằm trên vùng đọc ---------- */
+@media (max-width: 991.98px) {
+  .ht-learn-bar {
+    gap: 12px;
+  }
+
+  .ht-learn-progress {
+    flex: 1 1 100%;
+  }
+
+  .ht-learn-bar__focus {
+    display: none;
+  }
+
+  .ht-learn-body,
+  .ht-learn.is-focus .ht-learn-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ht-learn-side {
+    padding: 20px 0 0;
+    background: transparent;
+    box-shadow: none;
+    clip-path: none;
+  }
+
+  .ht-learn-toc__title {
+    display: none;
+  }
+
+  .ht-learn-toc__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--ht-primary);
+    border-radius: var(--ht-radius-md);
+    background: var(--ht-primary-soft);
+    color: var(--ht-text-primary);
+    font: inherit;
+    font-weight: 600;
+    font-size: 17px;
+    text-align: left;
+  }
+
+  .ht-learn-toc__toggle .ht-chapter__chevron {
+    transform: rotate(90deg);
+  }
+
+  .ht-learn-toc__toggle[aria-expanded='true'] .ht-chapter__chevron {
+    transform: rotate(-90deg);
+  }
+
+  .ht-learn-toc__list {
+    display: none;
+    margin-top: 8px;
+  }
+
+  .ht-learn-toc__list.is-open {
+    display: flex;
+  }
+
+  .ht-learn-main {
+    padding-top: 20px;
+  }
+
+  .ht-lesson-read__title {
+    font-size: 26px;
+    line-height: 34px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .ht-lesson-nav__complete {
+    width: 100%;
+  }
+
+  /* Hai nút chia đôi hàng (Figma Mobile), lời nhắc khóa nằm hàng dưới */
+  .ht-lesson-nav__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .ht-lesson-nav__prev {
+    max-width: none;
+  }
+
+  .ht-lesson-nav__next {
+    display: contents;
+  }
+
+  .ht-lesson-nav__next .ht-btn {
+    grid-column: 2;
+  }
+
+  .ht-lesson-nav__row .ht-btn {
+    width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Điện thoại: chỉ ghi "Bài trước / Bài sau", bỏ tên bài cho gọn (Figma Mobile) */
+  .ht-lesson-nav__name {
+    display: none;
+  }
+
+  .ht-lesson-nav__hint {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .ht-pdf-card__btn {
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ht-learn-progress__track span,
+  .ht-chapter,
+  .ht-chapter__chevron,
+  .ht-lesson-item,
+  .ht-locked-hint {
+    transition: none;
+    animation: none;
+  }
+
+  a.ht-lesson-item:hover {
+    transform: none;
+  }
+}

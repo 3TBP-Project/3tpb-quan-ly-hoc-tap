@@ -1,0 +1,55 @@
+.lesson-confirm-modal {
+  --lesson-confirm-primary: #2563eb;
+  --lesson-confirm-border: #d0d4da;
+}
+
+.lesson-confirm-modal .modal-content {
+  border: 0;
+  border-radius: 8px;
+}
+
+.lesson-confirm-modal .modal-header {
+  padding: 16px 20px;
+}
+
+.lesson-confirm-modal .lesson-confirm-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.lesson-confirm-modal .modal-body {
+  padding: 20px;
+  line-height: 1.55;
+}
+
+.lesson-confirm-modal .modal-footer {
+  padding: 12px 20px;
+  gap: 8px;
+}
+
+/* Ảnh bìa trong modal tạo / sửa khóa học */
+.course-thumbnail-preview {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border: 1px solid #d0d4da;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f6f8;
+}
+
+.course-thumbnail-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.course-thumbnail-preview--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 14px;
+  border-style: dashed;
+}
