@@ -6,7 +6,7 @@ Ngày bảo vệ: Thứ 6 tuần 1, 13/11/2026 · Thời lượng khoảng 10 ph
 
 | Repository    | `3TBP-Project/3tpb-quan-ly-hoc-tap` |     |
 | ------------- | ----------------------------------- | --- |
-| Trello        | [điền link board]                   |     |
+| Trello        | https://trello.com/b/g7hXkb8I/3tpb-quan-ly-hoc-tap-web-2026 |     |
 | Tag phiên bản | `v0.1` (gắn cuối buổi Ngày 5)       |     |
 
 ## 1. Thành viên và vai trò
@@ -14,9 +14,9 @@ Ngày bảo vệ: Thứ 6 tuần 1, 13/11/2026 · Thời lượng khoảng 10 ph
 | Mã  | Họ tên             | MSSV       | Vai trò                         |
 | --- | ------------------ | ---------- | ------------------------------- |
 | TV1 | Nguyễn Ngọc Trọng  | 0306241500 | Trưởng nhóm, quản lý dự án      |
-| TV2 | Hà Hữu Thịnh       | 0306241490 | Backend 1 – xác thực, nghiệp vụ |
+| TV2 | Nguyễn Quang Thông | 0306241492 | Backend 1 – xác thực, nghiệp vụ |
 | TV3 | Lê Đức Phong       | 0306241471 | Frontend                        |
-| TV4 | Nguyễn Quang Thông | 0306241492 | Backend 2 – cơ sở dữ liệu       |
+| TV4 | Hà Hữu Thịnh       | 0306241490 | Backend 2 – cơ sở dữ liệu       |
 | TV5 | Trần Thanh Bình    | 0306241432 | Git và kiểm thử                 |
 
 Mỗi người làm trọn chức năng của mình từ giao diện xuống cơ sở dữ liệu, theo đúng mục G của Đặc tả.
@@ -66,9 +66,9 @@ React  →  Controller  →  Service  →  Repository  →  MySQL
 
 | Đường dẫn                     | Ai vào được                     |
 | ----------------------------- | ------------------------------- |
-| `/api/courses`, `/api/auth/*` | Mọi người, kể cả chưa đăng nhập |
-| `/api/student/*`              | Đã đăng nhập                    |
-| `/api/teacher/*`              | Chỉ giảng viên                  |
+| `GET /api/courses`, `/api/auth/*` | Mọi người, kể cả chưa đăng nhập |
+| `/api/users/*`, `/api/enrollments/*`, `/api/quizzes/*` | Đã đăng nhập (ghi danh, học bài, làm bài chỉ cho học viên) |
+| `/api/teacher/*`, quản lý khóa học / chương / bài học / câu hỏi | Giảng viên (quản trị viên được phép ở một số route quản lý) |
 | `/api/admin/*`                | Chỉ quản trị                    |
 
 Ẩn menu ở giao diện chỉ là tiện ích. Quyền thật do middleware quyết định.
@@ -95,13 +95,15 @@ React  →  Controller  →  Service  →  Repository  →  MySQL
 
 2. **Chặn ghi danh trùng bằng ràng buộc `UNIQUE (user_id, course_id)` ở cơ sở dữ liệu**, không kiểm tra bằng câu `SELECT` trước khi `INSERT`. Hai người bấm cùng lúc thì cách kiểm tra trước vẫn lọt, còn ràng buộc thì không.
 
-3. **Xóa danh mục dùng `RESTRICT`, không dùng `CASCADE`.** Xóa danh mục đang có khóa học thì cơ sở dữ liệu chặn lại và báo lỗi, thay vì xóa sạch khóa học bên trong.
+3. **Không cho xóa danh mục đang có khóa học.** Khóa ngoại `courses.category_id` trong migration là `ON DELETE CASCADE`, nên việc chặn được làm ở server: trước khi xóa, service đếm số khóa học của danh mục và trả lỗi `409` nếu còn khóa học, thay vì để cơ sở dữ liệu xóa sạch khóa học bên trong.
 
-ERD: [`docs/database/erd-final.png`](database/erd-final.png) · Mô tả từng bảng: [`docs/database/mo-ta-bang.md`](database/mo-ta-bang.md)
+> Cập nhật sau Mốc 1: CSDL được bổ sung thêm 4 bảng (`chapters`, `quiz_attempt_answers`, `comments`, `discussions`), hiện có 12 bảng. ERD dưới đây là bản cuối.
+
+ERD: [`docs/database/erd-final.png`](database/erd-final.png) · Mô tả từng bảng: [`docs/bao-cao/chuong-5-CSDL-ERD.md`](bao-cao/chuong-5-CSDL-ERD.md)
 
 ## 6. Yêu cầu chức năng
 
-**16 chức năng**, gồm 12 bắt buộc (mức B) và 2 cộng điểm (mức C).
+Đặc tả có **16 chức năng**, gồm 12 bắt buộc (mức B) và 4 cộng điểm (mức C). Nhóm làm đủ 12 chức năng bắt buộc và dự kiến 2 chức năng cộng điểm HT-08, HT-12 (bảng dưới).
 
 | Mã    | Chức năng                   | Phân hệ        | Mức | Người làm      |
 | ----- | --------------------------- | -------------- | --- | -------------- |
@@ -132,7 +134,7 @@ Mỗi chức năng là một thẻ trên Trello, có user story, tiêu chí ch�
 | HT-NFR3 | Giảng viên chỉ sửa được khóa học của mình, kiểm tra ở server | HT-09, HT-10, HT-11 |
 | HT-NFR4 | Không lưu tệp video trên server, chỉ nhúng link | HT-05, HT-10 |
 
-Use case: [`docs/use-case.png`](use-case.png) · Wireframe: [`docs/wireframes/`](wireframes/)
+Use case: [`docs/usecase.png`](usecase.png) · Đặc tả: [`docs/bang-dac-ta-use-case.md`](bang-dac-ta-use-case.md) · Wireframe: [`docs/wireframes/`](wireframes/)
 
 ## 7. Luồng xử lý chính
 
@@ -144,7 +146,7 @@ Sơ đồ tuần tự cho chức năng phức tạp nhất – **HT-06 Làm bài
 
 Điểm cần nhấn: đồng hồ đếm ngược trên giao diện chỉ để người dùng nhìn. Toàn bộ việc ghi giờ, giấu đáp án, kiểm tra giờ và chấm điểm đều làm ở server, nên học viên sửa đồng hồ máy hay mở công cụ trình duyệt đều không gian lận được.
 
-Sơ đồ: [`docs/sequence-lam-bai-trac-nghiem.md`](sequence-lam-bai-trac-nghiem.md)
+Sơ đồ: [`docs/sequence-lam-bai-trac-nghiem.png`](sequence-lam-bai-trac-nghiem.png)
 
 ## 8. Phân công trình bày (khoảng 10 phút)
 
@@ -161,11 +163,11 @@ Sơ đồ: [`docs/sequence-lam-bai-trac-nghiem.md`](sequence-lam-bai-trac-nghiem
 | Tài liệu               | Đường dẫn                              |
 | ---------------------- | -------------------------------------- |
 | Đề cương               | `docs/de-cuong.md`                     |
-| Use case diagram       | `docs/use-case.png`                    |
+| Use case diagram       | `docs/usecase.png`                     |
 | Wireframe 6 màn hình   | `docs/wireframes/`                     |
 | ERD bản cuối           | `docs/database/erd-final.png`          |
-| Mô tả các bảng         | `docs/database/mo-ta-bang.md`          |
-| Sequence diagram HT-06 | `docs/sequence-lam-bai-trac-nghiem.md` |
+| Mô tả các bảng         | `docs/bao-cao/chuong-5-CSDL-ERD.md`    |
+| Sequence diagram HT-06 | `docs/sequence-lam-bai-trac-nghiem.png` |
 | Quy tắc Git            | `docs/git-rules.md`                    |
-| Biên bản họp 01, 02    | `docs/meetings/`                       |
+| Biên bản họp 01, 02    | `docs/mettings/`                       |
 | Nhật ký dùng AI        | `ai-logs/`                             |

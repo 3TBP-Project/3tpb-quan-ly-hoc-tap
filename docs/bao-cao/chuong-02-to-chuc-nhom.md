@@ -9,12 +9,10 @@ Nhóm gồm 5 thành viên, mỗi người giữ một vai trò chính nhưng đ
 | Mã  | Họ tên             | MSSV       | Vai trò                | Trách nhiệm chính                                                      | Chức năng phụ trách |
 | --- | ------------------ | ---------- | ---------------------- | ---------------------------------------------------------------------- | ------------------- |
 | TV1 | Nguyễn Ngọc Trọng  | 0306241500 | LE – Trưởng nhóm       | Quản lý dự án, board Trello, chủ trì họp, tài liệu thiết kế, báo cáo   | HT-07, HT-14, HT-15 |
-| TV2 | Nguyễn Quang Thông | 0306241490 | BE1 – Backend 1        | Khung kiến trúc 3 lớp, xác thực JWT, phân quyền, nghiệp vụ trắc nghiệm | HT-03, HT-06        |
+| TV2 | Nguyễn Quang Thông | 0306241492 | BE1 – Backend 1        | Khung kiến trúc 3 lớp, xác thực JWT, phân quyền, nghiệp vụ trắc nghiệm | HT-03, HT-06        |
 | TV3 | Lê Đức Phong       | 0306241471 | FE – Frontend          | Wireframe, layout chung, giao diện phân hệ khách và học viên           | HT-01, HT-02, HT-05 |
-| TV4 | Hà Hữu Thịnh   | 0306241492 | BE2 – Backend 2 (CSDL) | ERD, migration, dữ liệu mẫu, phân hệ giảng viên                        | HT-09, HT-10        |
-| TV5 | Trần Thanh Bình       | 0306241432 | GT – Git & Tester      | Quy tắc Git, mẫu PR, review PR, test case, unit test                   | HT-04, HT-11        |
-
-> [Nháp – Biên bản họp 01, 02, 03 đang ghi TV2 là Nguyễn Quang Thông và TV4 là Hà Hữu Thịnh, ngược với đề cương và bảng trên. Nhóm cần chốt lại một cách gọi và sửa đồng bộ các tài liệu.]
+| TV4 | Hà Hữu Thịnh       | 0306241490 | BE2 – Backend 2 (CSDL) | ERD, migration, dữ liệu mẫu, phân hệ giảng viên                        | HT-09, HT-10        |
+| TV5 | Trần Thanh Bình    | 0306241432 | GT – Git & Tester      | Quy tắc Git, mẫu PR, review PR, test case, unit test                   | HT-04, HT-11        |
 
 ## 2.2. Quy trình Scrum rút gọn
 
@@ -41,23 +39,16 @@ Do thời gian làm đồ án ngắn (khoảng 3 tuần, 6 buổi học), nhóm 
 
 **Board Trello:** board có 7 cột theo luồng công việc. Mỗi chức năng là một thẻ có user story, tiêu chí chấp nhận, checklist, nhãn và người phụ trách. Thẻ di chuyển dần từ trái sang phải khi công việc tiến triển.
 
-| Cột                 | Ý nghĩa                                       |
-| ------------------- | --------------------------------------------- |
-| [Product Backlog]   | [Toàn bộ user story chưa đưa vào sprint]      |
-| [Sprint Backlog]    | [Thẻ đã chọn cho sprint hiện tại]             |
-| [Đang làm]          | [Thẻ đang được thực hiện]                     |
-| [Chờ review]        | [Đã mở Pull Request, chờ review]              |
-| [Kiểm thử]          | [Đã merge vào `develop`, đang kiểm thử]       |
-| [Hoàn thành]        | [Đạt tiêu chí chấp nhận]                      |
+| Cột                   | Ý nghĩa                                     |
+| --------------------- | ------------------------------------------- |
+| [Product Backlog]     | [Toàn bộ user story chưa đưa vào sprint]    |
+| [Đang làm]            | [Thẻ đang được thực hiện]                   |
+| [Chờ review]          | [Đã mở Pull Request, chờ review]            |
+| [Kiểm thử]            | [Đã merge vào `develop`, đang kiểm thử]     |
+| [Hoàn thành]          | [Đạt tiêu chí chấp nhận]                    |
 | [Tài liệu & Biên bản] | [Đề cương, biên bản họp, tài liệu thiết kế] |
 
 > [Nháp – điền đúng tên 7 cột như trên board thật.]
-
-**Hình 2.1. Board Trello của nhóm**
-
-![Board Trello](../images/trello-board.png)
-
-> [Nháp – chụp ảnh board Trello và lưu vào `docs/images/trello-board.png`. Link board: https://trello.com/b/g7hXkb8I/3tpb-quan-ly-hoc-tap-web-2026]
 
 ## 2.3. Kế hoạch và tiến độ thực tế từng sprint
 
@@ -106,15 +97,15 @@ Ký hiệu: **C** – phụ trách chính, **H** – hỗ trợ, **R** – revie
 | Đề cương, quản lý Trello, họp   | C   |     |     |     |     |
 | Use case, đặc tả, sơ đồ tuần tự | C   | H   |     |     |     |
 | Wireframe, layout chung         |     |     | C   |     | R   |
-| ERD, migration, dữ liệu mẫu     | H   |     |     | C   | R   |
+| ERD, migration, dữ liệu mẫu     |     |     |     | C   | R   |
 | Kiến trúc 3 lớp, xác thực JWT   |     | C   |     | H   | R   |
-| Quy tắc Git, mẫu PR             | H   |     |     |     | C   |
+| Quy tắc Git, mẫu PR             |     |     |     |     | C   |
 | HT-01, HT-02, HT-05             |     |     | C   |     | R   |
 | HT-03, HT-06                    |     | C   | H   |     | R   |
 | HT-04, HT-11                    |     |     | H   |     | C   |
-| HT-07, HT-14, HT-15             | C   |     | H   |     | R   |
+| HT-07, HT-14, HT-15             | C   | H   | H   |     | R   |
 | HT-09, HT-10                    |     |     | H   | C   | R   |
-| Unit test, test case            | H   | H   |     |     | C   |
+| Unit test, test case            |     |     |     |     | C   |
 | Kiểm thử chéo                   | H   | H   | H   | H   | C   |
 | Báo cáo                         | C   | H   | H   | H   | H   |
 

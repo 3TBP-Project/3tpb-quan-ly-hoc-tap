@@ -2,20 +2,20 @@
 
 Đồ án Lập trình Web · Đề tài **Quản lý học tập** · Nhóm 2
 
-| Mã UC | Mã chức năng | Tên use case                | Tác nhân                 |
-| ----- | ------------ | --------------------------- | ------------------------ |
-| UC01  | HT-01        | Xem danh sách khóa học      | Khách vãng lai, Học viên |
-| UC02  | HT-02        | Xem chi tiết khóa học       | Khách vãng lai, Học viên |
+| Mã UC | Mã chức năng | Tên use case                | Tác nhân                       |
+| ----- | ------------ | --------------------------- | ------------------------------ |
+| UC01  | HT-01        | Xem danh sách khóa học      | Khách vãng lai, Học viên       |
+| UC02  | HT-02        | Xem chi tiết khóa học       | Khách vãng lai, Học viên       |
 | UC03  | HT-03        | Đăng ký, đăng nhập          | Khách vãng lai, mọi người dùng |
-| UC04  | HT-04        | Ghi danh, khóa học của tôi  | Học viên                 |
-| UC05  | HT-05        | Học bài                     | Học viên                 |
-| UC06  | HT-06        | Làm bài trắc nghiệm         | Học viên                 |
-| UC07  | HT-07        | Hồ sơ và kết quả học tập    | Học viên                 |
-| UC08  | HT-09        | Quản lý khóa học            | Giảng viên               |
-| UC09  | HT-10        | Quản lý bài học             | Giảng viên               |
-| UC10  | HT-11        | Quản lý câu hỏi trắc nghiệm | Giảng viên               |
-| UC11  | HT-14        | Quản lý người dùng          | Quản trị viên            |
-| UC12  | HT-15        | Danh mục và duyệt khóa học  | Quản trị viên            |
+| UC04  | HT-04        | Ghi danh, khóa học của tôi  | Học viên                       |
+| UC05  | HT-05        | Học bài                     | Học viên                       |
+| UC06  | HT-06        | Làm bài trắc nghiệm         | Học viên                       |
+| UC07  | HT-07        | Hồ sơ và kết quả học tập    | Học viên                       |
+| UC08  | HT-09        | Quản lý khóa học            | Giảng viên                     |
+| UC09  | HT-10        | Quản lý bài học             | Giảng viên                     |
+| UC10  | HT-11        | Quản lý câu hỏi trắc nghiệm | Giảng viên                     |
+| UC11  | HT-14        | Quản lý người dùng          | Quản trị viên                  |
+| UC12  | HT-15        | Danh mục và duyệt khóa học  | Quản trị viên                  |
 
 ## UC01 – Xem danh sách khóa học (HT-01)
 
@@ -55,15 +55,15 @@
 
 ## UC04 – Ghi danh, khóa học của tôi (HT-04)
 
-| Mục             | Nội dung |
-| --------------- | -------- |
-| Tác nhân        | Học viên |
-| Mô tả           | Học viên ghi danh khóa học và xem các khóa đã ghi danh |
-| Điều kiện trước | Học viên đã đăng nhập; khóa học đang công khai |
+| Mục             | Nội dung                                                                                                                                                                                                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tác nhân        | Học viên                                                                                                                                                                                                                                                    |
+| Mô tả           | Học viên ghi danh khóa học và xem các khóa đã ghi danh                                                                                                                                                                                                      |
+| Điều kiện trước | Học viên đã đăng nhập; khóa học đang công khai                                                                                                                                                                                                              |
 | Luồng chính     | 1. Học viên bấm **Ghi danh** ở trang chi tiết khóa học.<br>2. Hệ thống kiểm tra khóa học và học viên chưa ghi danh.<br>3. Hệ thống lưu ghi danh, nút đổi thành **Vào học**.<br>4. Học viên vào **Khóa học của tôi** để xem các khóa đã ghi danh và tiến độ. |
-| Ngoại lệ        | Khách chưa đăng nhập: chuyển sang trang đăng nhập. Đã ghi danh rồi: hệ thống báo đã ghi danh. |
-| Kết quả         | Khóa học xuất hiện trong **Khóa học của tôi** với tiến độ 0% |
-| Ràng buộc       | Mỗi học viên chỉ ghi danh một khóa một lần |
+| Ngoại lệ        | Khách chưa đăng nhập: chuyển sang trang đăng nhập. Đã ghi danh rồi: hệ thống báo đã ghi danh.                                                                                                                                                               |
+| Kết quả         | Khóa học xuất hiện trong **Khóa học của tôi** với tiến độ 0%                                                                                                                                                                                                |
+| Ràng buộc       | Mỗi học viên chỉ ghi danh một khóa một lần                                                                                                                                                                                                                  |
 
 ## UC05 – Học bài (HT-05)
 

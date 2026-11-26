@@ -6,16 +6,16 @@ Hệ thống **Website Quản lý học tập trực tuyến** được xây d�
 
 ## 3.1. Công nghệ Backend
 
-| Công nghệ / Thư viện | Phiên bản | Vai trò trong hệ thống |
-|---|---|---|
-| **Node.js & Express.js** | `^5.3.0` | Xây dựng RESTful API theo mô hình phân tầng (`Routes` → `Controllers` → `Services` → `Repositories`). |
-| **MySQL2** | `^3.24.6` | Kết nối và thực thi truy vấn SQL bất đồng bộ thông qua Connection Pool với MySQL. |
-| **JSON Web Token (`jsonwebtoken`)** | `^9.0.3` | Tạo và xác thực token JWT phục vụ đăng nhập và kiểm soát phân quyền theo 3 vai trò (`student`, `teacher`, `admin`). |
-| **Bcrypt (`bcrypt`)** | `^6.0.0` | Băm mật khẩu một chiều trước khi lưu trữ vào cơ sở dữ liệu và đối chiếu khi đăng nhập. |
-| **Multer (`multer`)** | `^2.5.0` | Xử lý tải lên tệp (`multipart/form-data`) cho ảnh đại diện, ảnh bìa khóa học và tài liệu PDF đính kèm bài học. |
-| **CORS (`cors`)** | `^2.8.6` | Cấu hình cho phép Frontend giao tiếp với API Backend khác cổng/tên miền. |
-| **Dotenv (`dotenv`)** | `^18.0.10` | Quản lý cấu hình nhạy cảm và biến môi trường (thông tin CSDL, `JWT_SECRET`, cổng chạy server). |
-| **Nodemon (`nodemon`)** | `^3.1.11` | Tự động khởi động lại server Backend trong quá trình phát triển. |
+| Công nghệ / Thư viện                | Phiên bản  | Vai trò trong hệ thống                                                                                              |
+| ----------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Node.js & Express.js**            | `^5.3.0`   | Xây dựng RESTful API theo mô hình phân tầng (`Routes` → `Controllers` → `Services` → `Repositories`).               |
+| **MySQL2**                          | `^3.24.6`  | Kết nối và thực thi truy vấn SQL bất đồng bộ thông qua Connection Pool với MySQL.                                   |
+| **JSON Web Token (`jsonwebtoken`)** | `^9.0.3`   | Tạo và xác thực token JWT phục vụ đăng nhập và kiểm soát phân quyền theo 3 vai trò (`student`, `teacher`, `admin`). |
+| **Bcrypt (`bcrypt`)**               | `^6.0.0`   | Băm mật khẩu một chiều trước khi lưu trữ vào cơ sở dữ liệu và đối chiếu khi đăng nhập.                              |
+| **Multer (`multer`)**               | `^2.5.0`   | Xử lý tải lên tệp (`multipart/form-data`) cho ảnh đại diện, ảnh bìa khóa học và tài liệu PDF đính kèm bài học.      |
+| **CORS (`cors`)**                   | `^2.8.6`   | Cấu hình cho phép Frontend giao tiếp với API Backend khác cổng/tên miền.                                            |
+| **Dotenv (`dotenv`)**               | `^18.0.10` | Quản lý cấu hình nhạy cảm và biến môi trường (thông tin CSDL, `JWT_SECRET`, cổng chạy server).                      |
+| **Nodemon (`nodemon`)**             | `^3.1.11`  | Tự động khởi động lại server Backend trong quá trình phát triển.                                                    |
 
 ---
 

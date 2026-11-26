@@ -89,26 +89,28 @@ Dự án áp dụng mô hình Git Flow rút gọn (quy định chi tiết tại 
         -Mọi Pull Request đều sử dụng mẫu chuẩn .github/pull_request_template.md gồm 5 mục bắt buộc (mô tả thay đổi, mã thẻ Trello/chức năng, mã AI log, bằng chứng kiểm thử và ảnh chụp giao diện) và phải có ít nhất 1 thành viên review trước khi merge vào develop.
 
 8.2. Thống kê commit, PR và review theo thành viên
-Số liệu đóng góp mã nguồn của 5 thành viên được trích xuất từ lịch sử Git của repository 3tpb-quan-ly-hoc-tap:
-| Mã | Thành viên | Vai trò | Số Commit | Số PR đã tạo | Số PR đã Review | Phần công việc đóng góp chính |
-|---|---|---|---|---|---|---|
-| TV1 | Nguyễn Ngọc Trọng | Leader (LE) | `[75]` | `[36]` | `[24]` | Tài liệu thiết kế, Use Case, Sequence, chức năng `HT-07`, `HT-14`, `HT-15` |
-| TV2 | Hà Hữu Thịnh | Backend 1 (BE1) | `[41]` | `[14]` | `[13]` | Kiến trúc 3 lớp, xác thực JWT (`HT-03`), làm bài trắc nghiệm (`HT-06`), unit test |
-| TV3 | Lê Đức Phong | Frontend (FE) | `[41]` | `[10]` | `[10]` | Wireframe Figma, layout chung, giao diện `HT-01`, `HT-02`, `HT-03`, `HT-05` |
-| TV4 | Nguyễn Quang Thông | Backend 2 (BE2) | `[69]` | `[12]` | `[9]` | Thiết kế ERD 8 bảng, migration/seed Knex, CRUD khóa học & bài học (`HT-09`, `HT-10`) |
-| TV5 | Trần Thanh Bình | Git & Tester (GT) | `[56]` | `[10]` | `[5]` | Quy tắc Git, mẫu PR, `HT-04`, `HT-11`, bộ 29 test case, unit test & review PR |
-| **Tổng** | **Cả nhóm (5 TV)** | | **`[282]`** | **`[82]`** | **`[61]`** | |
+Số commit đếm trên nhánh `develop` (`git log origin/develop`, cập nhật ngày 26/11/2026, gộp các email của cùng một người); commit merge của TV1 và TV5 phần lớn là thao tác merge PR trên GitHub. Cột PR lấy từ trang Pull requests của GitHub.
 
-![alt text](image-1.png)
+| Mã | Thành viên | Vai trò | Commit (không merge) | Commit merge | Tổng commit | PR đã tạo | PR đã review | Phần công việc đóng góp chính |
+|---|---|---|---|---|---|---|---|---|
+| TV1 | Nguyễn Ngọc Trọng | Leader (LE) | 36 | 56 | 92 | 36 | 24 | Tài liệu thiết kế, Use Case, Sequence, chức năng `HT-07`, `HT-14`, `HT-15` |
+| TV2 | Nguyễn Quang Thông | Backend 1 (BE1) | 20 | 4 | 24 | 14 | 13 | Kiến trúc 3 lớp, xác thực JWT (`HT-03`), làm bài trắc nghiệm (`HT-06`), unit test |
+| TV3 | Lê Đức Phong | Frontend (FE) | 61 | 5 | 66 | 10 | 10 | Wireframe Figma, layout chung, giao diện `HT-01`, `HT-02`, `HT-05` |
+| TV4 | Hà Hữu Thịnh | Backend 2 (BE2) | 38 | 7 | 45 | 12 | 9 | Thiết kế ERD 12 bảng, migration/seed Knex, CRUD khóa học & bài học (`HT-09`, `HT-10`) |
+| TV5 | Trần Thanh Bình | Git & Tester (GT) | 34 | 38 | 72 | 10 | 5 | Quy tắc Git, mẫu PR, `HT-04`, `HT-11`, bộ 29 test case, unit test & review PR |
+| **Tổng** | **Cả nhóm (5 TV)** | | **189** | **110** | **299** | **82** | **61** | |
+
+> [Nháp – chèn ảnh biểu đồ GitHub Insights → Contributors; đối chiếu lại cột PR với GitHub trước khi nộp.]
+
 ---
 
 8.3. Các tag phiên bản
-Nhóm thực hiện đóng gói và đánh dấu các cột mốc hoàn thành quan trọng trực tiếp trên nhánh main:
+Các tag được gắn trên nhánh `main`. Đến 26/11/2026 repository mới có tag `v0.1`; `v0.5` chưa được gắn đúng mốc, `v1.0` sẽ gắn khi nộp:
 | Tag | Nhánh gắn | Thời điểm | Nội dung cột mốc đạt được |
 |---|---|---|---|
 | `v0.1` | `main` | Kết thúc Sprint S1 (Mốc 1) | Hoàn thiện tài liệu thiết kế (Đề cương, Use Case, ERD 8 bảng, Sequence Diagram, Wireframe), khung kiến trúc 3 lớp Backend và layout Frontend. |
-| `v0.5` | `main` | Kết thúc Sprint S3 (Mốc giữa kỳ) | Hoàn thành các chức năng nghiệp vụ chính (`HT-01` → `HT-15`), bộ unit test `EnrollmentService`, `QuizService` và bảng 29 test case cho 12 chức năng bắt buộc. |
-| `v1.0` | `main` | Kết thúc Sprint S5 (Nộp cuối kỳ) | Hoàn tất khắc phục toàn bộ lỗi kiểm thử chéo (`HT-04`, `HT-11`), hoàn thiện báo cáo cuối kỳ và sẵn sàng bảo vệ sản phẩm. |
+| `v0.5` | `main` (chưa gắn) | Kết thúc Sprint S3 (Mốc giữa kỳ) | Hoàn thành các chức năng nghiệp vụ chính (`HT-01` → `HT-15`), bộ unit test `EnrollmentService`, `QuizService` và bảng 29 test case cho 12 chức năng bắt buộc. |
+| `v1.0` | `main` (gắn khi nộp) | Kết thúc Sprint S5 (Nộp cuối kỳ) | Hoàn tất khắc phục toàn bộ lỗi kiểm thử chéo (`HT-04`, `HT-11`), hoàn thiện báo cáo cuối kỳ và sẵn sàng bảo vệ sản phẩm. |
 
 ---
 

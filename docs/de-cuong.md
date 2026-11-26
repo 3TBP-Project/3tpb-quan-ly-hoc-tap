@@ -1,37 +1,35 @@
-# Đề cương đồ án – Nhóm [2]
-
-> Mẫu đề cương 1 trang, nộp ở tiết 5 buổi 1 để giảng viên duyệt. Thay mọi chỗ trong `[...]`, xóa các dòng ghi chú bắt đầu bằng `>` trước khi commit.
+# Đề cương đồ án – Nhóm 2
 
 ## 1. Thông tin chung
 
 | Mục | Nội dung |
 | --- | --- |
-| Đề tài | [Quản lý học tập] |
-| Tên sản phẩm | [Website quản lý học tập] |
-| Lớp, nhóm | [CĐ CNTT 24WEBD] – Nhóm [3TBP] |
-| Repository | [https://github.com/NGtrongSNG/3tbp-quan-ly-hoc-tap] (Private, đã mời GV) |
-| Board Trello | [https://trello.com/b/g7hXkb8I/3tpb-quan-ly-hoc-tap-web-2026] (đã mời GV) |
-| Ngày lập | [09/11/2026] |
+| Đề tài | Quản lý học tập |
+| Tên sản phẩm | Website quản lý học tập |
+| Lớp, nhóm | CĐ CNTT 24WEBD – Nhóm 2 (3TBP) |
+| Repository | https://github.com/3TBP-Project/3tpb-quan-ly-hoc-tap (Private, đã mời GV) |
+| Board Trello | https://trello.com/b/g7hXkb8I/3tpb-quan-ly-hoc-tap-web-2026 (đã mời GV) |
+| Ngày lập | 09/11/2026 |
 
 ## 2. Thành viên và vai trò
 
 | Mã  | Họ tên               | MSSV         | Vai trò                   | Email                        | Phụ trách chính                        |
 | --- | -------------------- | ------------ | ------------------------- | ---------------------------- | -------------------------------------- |
-| TV1 | [Nguyễn Ngọc Trọng]  | [0306241500] | LE – Leader (trưởng nhóm) | [0306241500@caothang.edu.vn] | Quản lý dự án, Trello, [mã chức năng]  |
-| TV2 | [Nguyễn Quang Thông] | [0306241490] | BE 1 – Backend 1          | [0306241490@caothang.edu.vn] | Xác thực, nghiệp vụ chính, [mã]        |
-| TV3 | [Lê Đức Phong]       | [0306241471] | FE – Frontend             | [0306241471@caothang.edu.vn] | Giao diện người dùng, [mã]             |
-| TV4 | [Hà Hữu Thịnh]       | [0306241492] | BE 2 – Backend 2 (CSDL)   | [0306241492@caothang.edu.vn] | ERD, migration, quản trị, [mã]         |
-| TV5 | [Trần Thanh Bình]    | [0306241432] | GT – Git & Tester         | [0306241432@caothang.edu.vn] | Quy tắc Git, review PR, kiểm thử, [mã] |
+| TV1 | Nguyễn Ngọc Trọng  | 0306241500 | LE – Leader (trưởng nhóm) | 0306241500@caothang.edu.vn | Quản lý dự án, Trello, HT-07, HT-14, HT-15  |
+| TV2 | Nguyễn Quang Thông | 0306241492 | BE 1 – Backend 1          | 0306241492@caothang.edu.vn | Xác thực, nghiệp vụ chính, HT-03, HT-06        |
+| TV3 | Lê Đức Phong       | 0306241471 | FE – Frontend             | 0306241471@caothang.edu.vn | Giao diện người dùng, HT-01, HT-02, HT-05             |
+| TV4 | Hà Hữu Thịnh       | 0306241490 | BE 2 – Backend 2 (CSDL)   | 0306241490@caothang.edu.vn | ERD, migration, phân hệ giảng viên, HT-09, HT-10         |
+| TV5 | Trần Thanh Bình    | 0306241432 | GT – Git & Tester         | 0306241432@caothang.edu.vn | Quy tắc Git, review PR, kiểm thử, HT-04, HT-11 |
 
 ## 3. Công nghệ
 
 | Thành phần    | Lựa chọn                                            | Lý do chọn                                                                                                                |
 | ------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Backend       | [Node.js + Express]                                 | [Năng lực của nhóm: Trung Bình,<br>Tài liệu: Giáo trình/Slide môn Lập trình ứng dụng với NodeJS]                          |
-| Frontend      | [ReactJS] + [Bootstrap / Tailwind]                  | [Đã học trong chương trình chính khóa ở học kỳ 5. Tài Liệu: Slide môn lập trình Front End]                                |
-| Cơ sở dữ liệu | [MySQL]                                             | [Đã học trong chương trình chính khóa ở học kỳ 2 và 3. Tài Liệu: Giáo trình/Slide môm Cơ Sở Dữ Liệu và HQT Cơ Sở Dữ Liệu] |
+| Backend       | Node.js + Express                                 | Năng lực của nhóm: Trung Bình,<br>Tài liệu: Giáo trình/Slide môn Lập trình ứng dụng với NodeJS                          |
+| Frontend      | ReactJS + Bootstrap / Tailwind                  | Đã học trong chương trình chính khóa ở học kỳ 5. Tài Liệu: Slide môn lập trình Front End                                |
+| Cơ sở dữ liệu | MySQL                                             | Đã học trong chương trình chính khóa ở học kỳ 2 và 3. Tài Liệu: Giáo trình/Slide môm Cơ Sở Dữ Liệu và HQT Cơ Sở Dữ Liệu |
 | Kiến trúc     | Client - Server                                     | Đã được đề cập trong chương trình chính khóa                                                                              |
-| Công cụ       | Git/GitHub, Trello, [VS Code], [AI: ChatGPT/Claude] |                                                                                                                           |
+| Công cụ       | Git/GitHub, Trello, VS Code, AI: ChatGPT/Claude |                                                                                                                           |
 
 ## 4. Phạm vi chức năng
 
@@ -54,17 +52,17 @@ Bắt buộc (Must) – mã theo đặc tả đề tài:
 | HT14 | Quản lý người dùng          | Nguyễn Ngọc Trọng - TV1  | B   |
 | HT15 | Danh mục và duyệt khóa học  | Nguyễn Ngọc Trọng - TV1  | B   |
 
-Cộng điểm (Could), làm khi còn thời gian: [HT-12, HT-08]
+Cộng điểm (Could), làm khi còn thời gian: HT-12, HT-08
 
-Ngoài phạm vi (không làm): [thanh toán thật, ứng dụng di động, ...]
+Ngoài phạm vi (không làm): thanh toán thật, ứng dụng di động, ...
 
 ## 5. Rủi ro và cách xử lý
 
 | Rủi ro | Mức độ | Cách phòng tránh / xử lý |
 | --- | --- | --- |
-| [Thành viên chưa quen công nghệ đã chọn] | [Cao] | [Pair-programming tuần 1, dùng mẫu khung dự án chung] |
-| [Xung đột Git khi nhiều người sửa cùng tệp] | [Trung bình] | [Nhánh nhỏ theo chức năng, pull `develop` mỗi ngày] |
-| [Trễ tiến độ chức năng nghiệp vụ chính] | [Cao] | [Ưu tiên làm sớm ở sprint S2, có người dự phòng] |
+| Thành viên chưa quen công nghệ đã chọn | Cao | Pair-programming tuần 1, dùng mẫu khung dự án chung |
+| Xung đột Git khi nhiều người sửa cùng tệp | Trung bình | Nhánh nhỏ theo chức năng, pull `develop` mỗi ngày |
+| Trễ tiến độ chức năng nghiệp vụ chính | Cao | Ưu tiên làm sớm ở sprint S2, có người dự phòng |
 
 ## 6. Kế hoạch sprint
 
@@ -76,5 +74,5 @@ Ngoài phạm vi (không làm): [thanh toán thật, ứng dụng di động, ..
 
 ## 7. Duyệt đề cương
 
-- Ý kiến giảng viên: [...]
+- Ý kiến giảng viên: …
 - Kết quả: ☐ Duyệt  ☐ Duyệt có chỉnh sửa  ☐ Làm lại
