@@ -51,6 +51,7 @@
 | AI-38 | 25/11 | Thiết kế | Figma: wireframe 04–06 từ mockup và rà soát wireframe chưa đồng bộ | Figma |
 | AI-39 | 25/11 | Tài liệu | Báo cáo mục 5.4 "Thiết kế giao diện (wireframe → giao diện thật)" kèm 6 hình | #101 |
 | AI-40 | 25/11 | Lập trình | Sửa lỗi giao diện: tràn chữ ở mọi trang, giới hạn form tạo giảng viên, avatar giảng viên từ CSDL | #100 |
+| AI-41 | 26/11 | Lập trình / Kiểm thử | Sửa lượt làm bài bỏ dở bị kẹt "doing": làm tiếp lượt dở, tự đóng lượt quá giờ, lịch sử hiện lượt bỏ dở (HT-06, HT-07) | #107 |
 ---
 
 ### [AI-01] Đọc và tổng hợp tài liệu đề tài, xác định phần việc Frontend
@@ -759,6 +760,24 @@ Bài 1: Giới thiệu Python has subsections like 1. Lý thuyết, 2. Nội dun
 - Cách kiểm chứng: `npx eslint` các tệp đã sửa, `vite build`; script Chrome headless thay chuỗi trong phản hồi API bằng tên / tiêu đề / email rất dài (chỉ trong trình duyệt, không ghi CSDL), đo phần tử tràn khỏi khung và chụp 13 trang ở 1366 px và 360 px; avatar thử với một ảnh tồn tại (hiện ảnh) và một ảnh mất tệp (hiện chữ viết tắt).
 - Tỷ lệ mã AI còn giữ lại (ước lượng): 100%
 - Điều học được: `overflow-wrap: anywhere` khác `break-word` ở chỗ làm nhỏ độ rộng tối thiểu của phần tử, nên mới cứu được ô bảng và phần tử flex; bảng cần `table-layout: fixed` thì độ rộng cột mới không bị nội dung kéo giãn.
+
+### [AI-41] Sửa lượt làm bài bỏ dở bị kẹt "doing" (HT-06, HT-07)
+- Ngày / Người dùng: 2026-11-26 / Lê Đức Phong
+- Công cụ: Claude Code (Opus 5.5)
+- Giai đoạn: Lập trình / Kiểm thử
+- Task / Commit / PR: [BUG] Lượt làm bài bỏ dở (HT-06, HT-07) / f85c6f1267890a60e9675c95482acb7d125aa55e / #107
+- Mục đích: Học viên đang làm bài kiểm tra mà lỡ thoát (đóng tab, F5, bấm sang trang khác) thì lượt đó nằm mãi ở `status = 'doing'`, vẫn bị tính vào 3 lượt nhưng không hiện trong lịch sử, nên màn giới thiệu báo còn lượt trong khi server từ chối (403 "hết lượt"); vào lại thì bị tạo lượt mới thay vì làm tiếp.
+- Prompt chính (nguyên văn): "Kiểm tra nhánh develop lỗi nằm ở đâu, cụ thể là khi học viên đang làm kiểm tra mà lỡ tay thoát khỏi làm bài kiểm tra thì trên database cột status là doing" → "Sửa trên nhánh mới"
+- Kết quả AI trả về (tóm tắt):
++ Chỉ ra 4 chỗ gây lỗi: không có bước đóng lượt quá hạn (`status` chỉ có `doing` → `submitted`); `createAttemptWithLock` luôn tạo lượt mới; `QuizPage` không cảnh báo khi rời trang, không lưu đáp án; lịch sử (`userService.getMyQuizzes`) chỉ lấy lượt đã nộp nên số lượt còn lại ở giao diện lệch với server. Tái hiện trên CSDL local: giao diện báo "còn 2/3", server chỉ còn 1.
++ Phát hiện TV1 đã sửa đúng lỗi này (commit `d4c0689`, `e3aa4c0`, `59732ec`, `dde6117`, ghi `AI-assisted … [AI-10]` của TV1) nhưng PR #78 merge vào nhánh `fix/HT-06-an-dap-an-khi-con-luot` chứ không vào develop, nên bản sửa bị "kẹt". AI đề xuất đem lại các commit đó lên nhánh mới từ develop thay vì viết lại.
++ Backend: `closeExpiredAttemptsWith` đóng lượt quá giờ (0 điểm, `expired`, điền đáp án đúng để xem lại được); `createAttemptWithLock` trả lại lượt `doing` còn hạn (`resumed`); `start` giữ nguyên `startedAt` và thứ tự lựa chọn đã lưu; `submit` báo "đã hết giờ và được hệ thống tự đóng"; `getMyQuizzes` đóng lượt quá giờ trước khi đọc, trả thêm `status`.
++ Frontend: lưu tạm đáp án theo lượt (`localStorage`, xóa khi nộp xong), khôi phục khi làm tiếp; thông báo "Bạn đang làm tiếp lượt … còn dở"; cảnh báo `beforeunload` khi đang làm bài; nhãn "Bỏ dở" trong lịch sử hồ sơ.
+- Đánh giá: Đúng. Commit của TV1 không áp thẳng được vì develop đã đổi: xung đột ở `quizRepository.js` (do commit giấu đáp án `ad973fa` chưa vào develop), `ProfilePage` đã thiết kế lại, `QuizPage` đổi cấu trúc. Không mang theo phần giấu đáp án `ad973fa` vì ngoài phạm vi lỗi.
+- Đã chỉnh sửa gì: Giữ nguyên phần backend của TV1 (chỉ gỡ xung đột); chuyển tay phần lịch sử và `QuizPage` sang giao diện hiện tại (dùng biến màu `--ht-*`, hộp `ht-quiz-note is-info`); không đánh dấu "Cao nhất" cho lượt bỏ dở; thêm cảnh báo `beforeunload`; trong `quizService.test.js` chỉ lấy 2 test mới, bỏ các test của tính năng giấu đáp án.
+- Cách kiểm chứng: `node --test` 3 tệp `quizService`, `quizRepository`, `profile`: 16/16 đạt; cả bộ test 121 test, 115 đạt, 6 lỗi đều có sẵn trên develop (trước khi sửa 111/117); `npx eslint` 2 trang đã sửa, `npm run build`. Chạy thật local với tài khoản thử: lượt `doing` quá hạn tự thành `expired`, màn giới thiệu báo đúng "1/3"; bắt đầu, chọn 2 đáp án, tải lại trang, bấm bắt đầu lại → cùng lượt #45, đồng hồ chạy tiếp, 2 đáp án còn nguyên, CSDL không sinh lượt thừa; nộp bài chấm đúng 2 câu, bản lưu tạm bị xóa; lịch sử hiện "Bỏ dở".
+- Tỷ lệ mã AI còn giữ lại (ước lượng): 95%
+- Điều học được: PR chồng nhau (merge vào nhánh fix khác thay vì develop) có thể khiến bản sửa đã "merge" mà không bao giờ tới develop – kiểm tra bằng `git merge-base --is-ancestor <nhánh> origin/develop` trước khi coi lỗi là đã sửa.
 
 <!-- Mẫu mục mới: chép khối dưới, đổi mã AI-xx
 
