@@ -8,7 +8,7 @@ Tài liệu này hướng dẫn đầy đủ các bước thiết lập kết n�
 
 * **Repository GitHub:** https://github.com/3TBP-Project/3tpb-quan-ly-hoc-tap
 * **Bảng quản lý tiến độ (Trello):** https://trello.com/b/g7hXkb8I/3tpb-quan-ly-hoc-tap-web-2026
-* **Video demo sản phẩm:** 
+* **Video demo sản phẩm:** https://youtu.be/sPGXJtrkaV4
 
 | Mã | Họ và tên | Vai trò |
 |---|---|---|
